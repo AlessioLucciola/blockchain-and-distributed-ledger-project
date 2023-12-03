@@ -7,11 +7,6 @@ const config: HardhatUserConfig = {
     localhost: {
       url: "http:127.0.0.1:7545",
     }
-  },
-  docgen: {
-    path: "./docs",
-    clear: true,
-    runOnCompile: true
   }
 };
 
