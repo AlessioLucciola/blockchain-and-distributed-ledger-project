@@ -120,9 +120,9 @@ contract Roles {
     }
 
     // Define a function to add a new Customer
-    function addCustomers() external {
-        retailers[msg.sender] = true;
-        emit RetailerAdded(msg.sender);
+    function addCustomer() external {
+        customers[msg.sender] = true;
+        emit CustomerAdded(msg.sender);
     }
 
     // Define a function to remove a Customer
