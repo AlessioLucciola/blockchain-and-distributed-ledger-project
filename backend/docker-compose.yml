@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: usersDB
+        MYSQL_USER: admin
+        MYSQL_PASSWORD: admin
+        MYSQL_TCP_PORT: 3306
+    container_name: mysql_smartsupply
+    ports:
+        - 3306:3306
+    volumes:
+        - smartsupply_db:/var/lib/mysql
+
+  smartsupply:
+      image: smartsupply
+      build:
+          dockerfile: Dockerfile
+          context: .
+      container_name: smartsupply
+      ports:
+          - "3000:3000"
+      environment:
+          - DATABASE_URL=mysql://root:root@mysql:3306/mysql
+      volumes:
+          - .:/app
+      depends_on:
+          - mysql
+      restart: unless-stopped
+      command: ["sh", "-c", "npm run dev"]
+      #command: ["sh", "-c", "npx prisma migrate deploy; npm run dev"]
+
+volumes:
+    smartsupply_db:
