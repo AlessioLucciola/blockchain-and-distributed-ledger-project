@@ -73,25 +73,48 @@ const App = () => {
     }
   };
 
+  // /**
+  //  * Sends ether to another wallet.
+  //  */
+  // const sendEther = async () => {
+  //   try {
+  //     // Send ether to another wallet
+  //     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+  //     await window.ethereum.request({
+  //       method: 'eth_sendTransaction',
+  //       params: [
+  //         {
+  //           from: accounts[0], // Sender's address
+  //           to: '0xBB49086f7463178Be99908eba5a6cAE21b188564', // Receiver's address (SmartSupply address)
+  //           value: '0x29a2241af62c0000', // 0.1 ETH
+  //         },
+  //       ],
+  //     });
+  //   } catch (error) {
+  //     console.error('Failed to send ether:', error);
+  //   }
+  // };
+
   /**
-   * Sends ether to another wallet.
+   * Makes a transaction to a smart contract.
    */
-  const sendEther = async () => {
+  const makeTransaction = async () => {
     try {
-      // Send ether to another wallet
+      // Make a transaction to a smart contract
       const accounts = await window.ethereum.request({ method: 'eth_accounts' });
       await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [
           {
             from: accounts[0], // Sender's address
-            to: '0xBB49086f7463178Be99908eba5a6cAE21b188564', // Receiver's address (SmartSupply)
+            to: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4', // Smart contract address
             value: '0x29a2241af62c0000', // 0.1 ETH
+            data: '0x', // Transaction data
           },
         ],
       });
     } catch (error) {
-      console.error('Failed to send ether:', error);
+      console.error('Failed to make transaction:', error);
     }
   };
 
@@ -112,7 +135,8 @@ const App = () => {
             <p>Wallet Address: {walletAddress}</p> {/* Display the wallet address */}
             <button onClick={getBalance}>Get Balance</button>
             {balance !== null && <p>Balance: {balance} ETH</p>}
-            <button onClick={sendEther}>Send Ether</button>
+            {/* <button onClick={sendEther}>Send Ether</button> */}
+            <button onClick={makeTransaction}>Make Transaction</button> {/* Added make transaction button */}
             <button onClick={disconnectWallet}>Disconnect Wallet</button> {/* Added disconnect wallet button */}
           </div>
         ) : (
