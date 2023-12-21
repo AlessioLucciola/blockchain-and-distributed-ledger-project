@@ -13,5 +13,20 @@ npx hardhat run scripts/deploy.ts
 ```
 
 # Notes for us:
-Create a .env file with the following configuration:
-PORT=3000
+First you have to create a .env file in the root directory, follwing the content inside the env.template file.
+
+Then you can run the database along with the app by doing
+
+```
+
+docker compose up
+
+```
+
+If you change the schema.prisma, you can update it by executing the command:
+
+```
+
+npx prisma migrate dev --name init
+
+```
