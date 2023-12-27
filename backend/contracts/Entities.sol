@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0 <0.9.0;
 
-import "./SmartSupply.sol";
+import "./BalanceManager.sol";
 
-contract Entities {
-    address admin;
-
+contract Entities is BalanceManager {
     // Define a set of mappings to check the role of an address
     mapping(address => bool) public manufacturers;
     mapping(address => bool) public distributors;
@@ -25,13 +23,6 @@ contract Entities {
     event RetailerRemoved(address indexed account);
     event CustomerAdded(address indexed account);
     event CustomerRemoved(address indexed account);
-    event FundsAddedToSmartSupply(address indexed from, uint256 amount); // Event to indicate when funds are added to the SmartSupply contract
-
-    // Modifier function to allow other functions to be executed only by admins
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Only the admin can perform this action");
-        _;
-    }
 
     // Modifier function to allow other functions to be executed only by manufacturers or the admin
     modifier onlyManufacturer() {
@@ -62,12 +53,6 @@ contract Entities {
         require(entityVerificationPermission[msg.sender], "Entity hasn't given its identification proof yet");
         require(!customers[msg.sender], "Customers are not allowed to perform this action");
         _;
-    }
-
-    // Define the admin role as the sender of the message
-    constructor(SmartSupply _smartSupplyContract) {
-        smartSupplyContract = _smartSupplyContract;
-        admin = msg.sender;
     }
 
     // Define a function to check if the account is a Manufacturer
@@ -175,7 +160,8 @@ contract Entities {
         // Ensure a certain amount of Ether is sent for verification
         require(msg.value >= 20 wei, "Insufficient payment for verification");
 
-        smartSupplyContract.addBalance{value: 20 wei}(msg.sender); // Add the received Ether to the SmartSupply balance
+        smartSupplyBalance += msg.value;
+        emit FundsAdded(msg.sender, msg.value);
 
         // Mark the entity as verified
         verificationStatus[msg.sender] = true;
