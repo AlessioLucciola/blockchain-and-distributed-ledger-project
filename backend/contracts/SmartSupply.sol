@@ -1,183 +1,153 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0 <0.9.0;
 
-contract Entities {
-    address admin;
+import "./Entities.sol";
 
-    // Define a set of mappings to check the role of an address
-    mapping(address => bool) public manufacturers;
-    mapping(address => bool) public distributors;
-    mapping(address => bool) public retailers;
-    mapping(address => bool) public customers;
+contract SmartSupply is Entities {
+    // Define the unique id of a product and its universal id
+    // productID is used to classify each product tracked on SmartSupply
+    // productUID is used to classify the same products
+    // e.g. If we have two pair of shoes of the same model, the have a different productID but the same productUID 
+    uint256 productID;
+    uint256 productUID;
 
-    // Define a set of mappings to manage the verification process
-    mapping(address => bool) public entityVerificationPermission;
-    mapping(address => bool) public verificationStatus;
+    // Define a mapping that maps each productID to its corresponding struct
+    mapping(uint256 => Product) products;
 
-    // Define a set of events triggered when adding/removing an entity
-    event ManufacturerAdded(address indexed account);
-    event ManufacturerRemoved(address indexed account);
-    event DistributorAdded(address indexed account);
-    event DistributorRemoved(address indexed account);
-    event RetailerAdded(address indexed account);
-    event RetailerRemoved(address indexed account);
-    event CustomerAdded(address indexed account);
-    event CustomerRemoved(address indexed account);
+    // Define the current owner of the product
+    address currentOwner;
 
-    // Modifier function to allow other functions to be executed only by admins
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Only the admin can perform this action");
-        _;
+    // Define all the stages in which a product can be within the Supply Chain
+    enum ProductStage {
+        Produced,
+        OnSale,
+        Purchased,
+        Shipped,
+        Received
     }
 
-    // Modifier function to allow other functions to be executed only by manufacturers or the admin
-    modifier onlyManufacturer() {
-        require(manufacturers[msg.sender] || msg.sender == admin, "Only manufacturers or the admin can perform this action");
-        _;
+    // Define all the locations in which a product can be within the Supply Chain
+    enum ProductStatus {
+        InFactory,
+        InDistributor,
+        InRetailer,
+        InCustomer,
+        Shipping
     }
 
-    // Modifier function to allow other functions to be executed only by distributors or the admin
-    modifier onlyDistributor() {
-        require(distributors[msg.sender] || msg.sender == admin, "Only distributors or the admin can perform this action");
-        _;
+    // Define the first stage and location (when a product is created by a manufacturer)
+    ProductStage public defaultProductStage = ProductStage.Produced;
+    ProductStatus public defaultProductStatus = ProductStatus.InFactory;
+
+    // Define the struct of a product
+    struct Product {
+        uint256 productID; // productID is used to classify each product tracked on SmartSupply
+        uint256 productUID; // productUID is used to classify the same products
+        address previousOwner; // Address of the previous owner of the product
+        address currentOwner; // Address of the current owner of the product
+        uint256 creationDate; // Unix timestamps that represents the time of creation of the product
+        ProductStage productStage; // Stage of the product within the Supply Chain
+        ProductStatus productStatus; // Enum to track the location of the product
+        address manufacturer; // Address of the manufacturer who produced the product
+        address distributor; // Address of the distributor who shipped the product
+        address retailer; // Address of the retailer who sold the product
+        address customer; // Address of the customer who owns the product
     }
 
-    // Modifier function to allow other functions to be executed only by retailers or the admin
-    modifier onlyRetailer() {
-        require(retailers[msg.sender] || msg.sender == admin, "Only retailers or the admin can perform this action");
-        _;
+    // Define some events
+    event ProductProduced(uint256 productID);
+    event ChangedOnSale(uint256 productID, address owner);
+    event ProductPurchased(uint256 productID, address oldOwner, address newOwner);
+    event ProductShipped(uint256 productID, address sender, address receiver);
+    event ProductReceived(uint productID);
+
+    function produceProduct(uint256 _productID, uint256 _productUID) public onlyManufacturer {
+        Product memory newProduct; // Define a new product in memory
+        newProduct.productID = _productID; // Define the ID of the product
+        newProduct.productUID = _productUID; // Define the UID of the product
+        newProduct.currentOwner = msg.sender; // Define the initial owner as the manufacturer who produced the product
+        newProduct.previousOwner = msg.sender; // Define the previous owner as the first one (default when the product is first produced)
+        newProduct.creationDate = block.timestamp; // Assign the date of creation of the product
+        newProduct.productStage = defaultProductStage; // Assign the initial default stage to the product
+        newProduct.productStatus = defaultProductStatus; // Assign the initial default stage to the product
+
+        // Create some placeholders for empty fields
+        address distributor;
+        address retailer;
+        address customer;
+
+        newProduct.manufacturer = msg.sender; // Define the manufacturer address with the address of produced the product
+        newProduct.distributor = distributor; // Define a placeholder for the distributor (defined later in the supply chain)
+        newProduct.retailer = retailer; // Define a placeholder for the retailer (defined later in the supply chain)
+        newProduct.customer = customer; // Define a placeholder for the customer (defined later in the supply chain)
+
+        // Add a new product to the product list
+        products[_productID] = newProduct;
+
+        // Emit the event related to the production of the product
+        emit ProductProduced(_productID);
     }
 
-    // Modifier function to allow other functions to be executed only by customers or the admin
-    modifier onlyCustomer() {
-        require(customers[msg.sender] || msg.sender == admin, "Only customers or the admin can perform this action");
-        _;
+    // Function to check that entity is allowed to ship the product
+    function checkOldOwnerAndStatus(uint256 _productID) internal view {
+        require(
+            (products[_productID].productStatus == ProductStatus.InFactory && products[_productID].previousOwner == products[_productID].manufacturer) ||
+            (products[_productID].productStatus == ProductStatus.InDistributor && products[_productID].previousOwner == products[_productID].distributor) ||
+            (products[_productID].productStatus == ProductStatus.InRetailer && products[_productID].previousOwner == products[_productID].retailer),
+            "Invalid old owner or status for shipping"
+        );
     }
 
-    // Modifier function that check if the entity has sent the required proof to get the verified badge
-    modifier onlyVerificationPermittedEntity() {
-        require(entityVerificationPermission[msg.sender], "Entity hasn't given its identification proof yet");
-        require(!customers[msg.sender], "Customers are not allowed to perform this action");
-        _;
+    function changeOnSale(uint _productID) public onlyManufacturer onlyDistributor onlyRetailer {
+        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to OnSale");
+        require(
+            products[_productID].productStage != ProductStage.Purchased && 
+            products[_productID].productStage != ProductStage.Shipped,
+            "Product must not be in Purchased or Shipped stage to change to OnSale"
+        );
+        products[_productID].productStage = ProductStage.OnSale; // Flag the item onSale
+
+        emit ChangedOnSale(_productID, msg.sender);
     }
 
-    // Define the admin role as the sender of the message
-    constructor() {
-        admin = msg.sender;
+    function purchaseProduct(uint _productID) public onlyDistributor onlyRetailer onlyCustomer {
+        require(products[_productID].currentOwner != msg.sender, "Current owners can't buy their own products");
+        require(products[_productID].productStage == ProductStage.OnSale, "Product must be On Sale to be purchased");
+        products[_productID].productStage = ProductStage.Purchased; // Flag the item "Purchased"
+        products[_productID].previousOwner = products[_productID].currentOwner; // Store the old owner before updating
+        products[_productID].currentOwner = msg.sender; // Updated the owner
+
+        emit ProductPurchased(_productID, products[_productID].previousOwner, msg.sender);
     }
 
-    // Define a function to check if the account is a Manufacturer
-    function isManufacturer(address account) public view returns (bool) {
-        return manufacturers[account];
+    function shipProduct(uint _productID, address receiver) public onlyManufacturer onlyDistributor onlyRetailer {
+        require(products[_productID].currentOwner != msg.sender, "Current owners can't ship the product to themselves");
+        require(products[_productID].productStage == ProductStage.OnSale, "Product must be purchased by some entity to be shipped");
+        checkOldOwnerAndStatus(_productID); // Call the internal function to check old owner and status
+        products[_productID].productStage = ProductStage.Shipped; // Flag the item stage "Shipped"
+        products[_productID].productStatus = ProductStatus.Shipping; // Flag the item status to "Shipping"
+
+        emit ProductShipped(_productID, msg.sender, receiver);
     }
 
-    // Define a function to add a new Manufacturer
-    function addManufacturer() external {
-        manufacturers[msg.sender] = true;
-        entityVerificationPermission[msg.sender] = false;
-        verificationStatus[msg.sender] = false;
-        emit ManufacturerAdded(msg.sender);
-    }
+    function receiveProduct(uint _productID) public onlyDistributor onlyRetailer onlyCustomer {
+        require(products[_productID].productStage == ProductStage.Shipped, "Product must be in 'Shipped' stage to be received");
+        require(products[_productID].productStatus == ProductStatus.Shipping, "Product must be in 'Shipping' status to be received");
+        require(products[_productID].currentOwner == msg.sender, "Only the current owner can receive the product");
+        products[_productID].productStage = ProductStage.Received; // Flag the item stage "Received"
+        
+        // Determine the correct status based on the current owner
+        if (msg.sender == products[_productID].distributor) {
+            products[_productID].productStatus = ProductStatus.InDistributor;
+        } else if (msg.sender == products[_productID].retailer) {
+            products[_productID].productStatus = ProductStatus.InRetailer;
+        } else if (msg.sender == products[_productID].customer) {
+            products[_productID].productStatus = ProductStatus.InCustomer;
+        } else {
+            // Handle unexpected cases or revert if necessary
+            revert("Invalid current owner for updating status");
+        }
 
-    // Define a function to remove a Manufacturer
-    function removeManufacturer() external onlyManufacturer {
-        manufacturers[msg.sender] = false;
-        entityVerificationPermission[msg.sender] = false;
-        verificationStatus[msg.sender] = false;
-        emit ManufacturerRemoved(msg.sender);
-    }
-
-    // Define a function to check if the account is a Distributor
-    function isDistributor(address account) public view returns (bool) {
-        return distributors[account];
-    }
-
-    // Define a function to add a new Distibutor
-    function addDistributor() external {
-        distributors[msg.sender] = true;
-        entityVerificationPermission[msg.sender] = false;
-        verificationStatus[msg.sender] = false;
-        emit DistributorAdded(msg.sender);
-    }
-
-    // Define a function to remove a Distributor
-    function removeDistributor() external onlyDistributor {
-        distributors[msg.sender] = false;
-        entityVerificationPermission[msg.sender] = false;
-        verificationStatus[msg.sender] = false;
-        emit DistributorRemoved(msg.sender);
-    }
-
-    // Define a function to check if the account is a Retailer
-    function isRetailer(address account) public view returns (bool) {
-        return retailers[account];
-    }
-
-    // Define a function to add a new Retailer
-    function addRetailer() external {
-        retailers[msg.sender] = true;
-        entityVerificationPermission[msg.sender] = false;
-        verificationStatus[msg.sender] = false;
-        emit RetailerAdded(msg.sender);
-    }
-
-    // Define a function to remove a Retailer
-    function removeRetailer() external onlyRetailer {
-        retailers[msg.sender] = false;
-        entityVerificationPermission[msg.sender] = false;
-        verificationStatus[msg.sender] = false;
-        emit RetailerRemoved(msg.sender);
-    }
-
-    // Define a function to check if the account is a Customer
-    function isCustomer(address account) public view returns (bool) {
-        return customers[account];
-    }
-
-    // Define a function to add a new Customer
-    function addCustomer() external {
-        customers[msg.sender] = true;
-        emit CustomerAdded(msg.sender);
-    }
-
-    // Define a function to remove a Customer
-    function removeCustomer() external onlyCustomer {
-        customers[msg.sender] = false;
-        emit CustomerRemoved(msg.sender);
-    }
-
-    // Define a function to check if the account sent the identification proof and it was accepted by an admin
-    function isVerificationPermitted(address account) public view returns (bool) {
-        return entityVerificationPermission[account];
-    }
-
-    // Allow admin to grant permission for an entity to trigger verification
-    function grantVerificationPermission(address account) external onlyAdmin {
-        entityVerificationPermission[account] = true;
-    }
-
-    // Allow admin to revoke permission for an entity to trigger verification
-    function revokeVerificationPermission(address account) external onlyAdmin {
-        entityVerificationPermission[account] = false;
-    }
-
-    // Define a function to check if the account is verified
-    function isVerified(address account) public view returns (bool) {
-        return verificationStatus[account];
-    }
-
-    // Define a function to make the payment and receive the verified badge (only for entities that sent a proof and it was accepted by the admin)
-    function verifyEntity() external payable onlyVerificationPermittedEntity {
-        // Ensure a certain amount of Ether is sent for verification
-        require(msg.value >= 0.2 ether, "Insufficient payment for verification");
-
-        // Mark the entity as verified
-        verificationStatus[msg.sender] = true;
-    }
-
-    // Define a function to force the removal of the verification (can be done only by the admin)
-    function removeVerification(address account) external onlyAdmin {
-        require(verificationStatus[account], "Entity is already not verified");
-        verificationStatus[account] = false;
+        emit ProductReceived(_productID);
     }
 }
