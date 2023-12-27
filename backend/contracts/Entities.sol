@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0 <0.9.0;
 
+import "./SmartSupply.sol";
+
 contract Entities {
     address admin;
 
@@ -23,6 +25,7 @@ contract Entities {
     event RetailerRemoved(address indexed account);
     event CustomerAdded(address indexed account);
     event CustomerRemoved(address indexed account);
+    event FundsAddedToSmartSupply(address indexed from, uint256 amount); // Event to indicate when funds are added to the SmartSupply contract
 
     // Modifier function to allow other functions to be executed only by admins
     modifier onlyAdmin() {
@@ -62,7 +65,8 @@ contract Entities {
     }
 
     // Define the admin role as the sender of the message
-    constructor() {
+    constructor(SmartSupply _smartSupplyContract) {
+        smartSupplyContract = _smartSupplyContract;
         admin = msg.sender;
     }
 
@@ -93,7 +97,7 @@ contract Entities {
     }
 
     // Define a function to add a new Distibutor
-    function addDistributors() external {
+    function addDistributor() external {
         distributors[msg.sender] = true;
         entityVerificationPermission[msg.sender] = false;
         verificationStatus[msg.sender] = false;
@@ -169,7 +173,9 @@ contract Entities {
     // Define a function to make the payment and receive the verified badge (only for entities that sent a proof and it was accepted by the admin)
     function verifyEntity() external payable onlyVerificationPermittedEntity {
         // Ensure a certain amount of Ether is sent for verification
-        require(msg.value >= 0.2 ether, "Insufficient payment for verification");
+        require(msg.value >= 20 wei, "Insufficient payment for verification");
+
+        smartSupplyContract.addBalance{value: 20 wei}(msg.sender); // Add the received Ether to the SmartSupply balance
 
         // Mark the entity as verified
         verificationStatus[msg.sender] = true;
