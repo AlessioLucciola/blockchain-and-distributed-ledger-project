@@ -63,7 +63,8 @@ contract SmartSupply is
     event ProductProduced(uint256 productID);
     event ChangeOnSale(uint256 productID, address owner);
     event ProductPurchased(uint256 productID, address oldOwner, address newOwner);
-    event ProductShipped(uint256 productID, address sender, address receiver)
+    event ProductShipped(uint256 productID, address sender, address receiver);
+    event ProductReceived(uint productID);
 
     function produceProduct(uint256 _productID, uint256 _productUID) public onlyManufacturer {
         Product memory newProduct; // Define a new product in memory
@@ -110,6 +111,7 @@ contract SmartSupply is
             "Product must not be in Purchased or Shipped stage to change to OnSale"
         );
         products[_productID].productStage = ProductStage.OnSale // Flag the item onSale
+
         emit changeOnSale(_productID, _msgSender())
     }
 
@@ -119,6 +121,7 @@ contract SmartSupply is
         products[_productID].productStage = ProductStage.Purchased // Flag the item "Purchased"
         products[_productID].oldOwner = products[_productID].currentOwner; // Store the old owner before updating
         products[_productID].currentOwner = _msgSender() // Updated the owner
+
         emit ProductPurchased(_productID, products[_productID].oldOwner, _msgSender())
     }
 
@@ -133,7 +136,24 @@ contract SmartSupply is
     }
 
     function receiveProduct(uint _productID) public onlyDistributor onlyRetailer onlyCustomer {
+        require(products[_productID].productStage == ProductStage.Shipped, "Product must be in 'Shipped' stage to be received");
+        require(products[_productID].productStatus == ProductStatus.Shipping, "Product must be in 'Shipping' status to be received");
+        require(products[_productID].currentOwner == _msgSender(), "Only the current owner can receive the product");
+        products[_productID].productStage = ProductStage.Received // Flag the item stage "Received"
         
+        // Determine the correct status based on the current owner
+        if (_msgSender() == products[_productID].distributor) {
+            products[_productID].productStatus = ProductStatus.InDistributor;
+        } else if (_msgSender() == products[_productID].retailer) {
+            products[_productID].productStatus = ProductStatus.InRetailer;
+        } else if (_msgSender() == products[_productID].customer) {
+            products[_productID].productStatus = ProductStatus.InCustomer;
+        } else {
+            // Handle unexpected cases or revert if necessary
+            revert("Invalid current owner for updating status");
+        }
+
+        emit ProductReceived(_productID)
     }
 
 
