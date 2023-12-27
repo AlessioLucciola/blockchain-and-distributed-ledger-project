@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0 <0.9.0;
 
-contract Roles {
+contract Entities {
     address admin;
 
     // Define a set of mappings to check the role of an address
@@ -31,25 +31,25 @@ contract Roles {
     }
 
     // Modifier function to allow other functions to be executed only by manufacturers or the admin
-    modifier onlyManufacturerAdmin() {
+    modifier onlyManufacturer() {
         require(manufacturers[msg.sender] || msg.sender == admin, "Only manufacturers or the admin can perform this action");
         _;
     }
 
     // Modifier function to allow other functions to be executed only by distributors or the admin
-    modifier onlyDistributorAdmin() {
+    modifier onlyDistributor() {
         require(distributors[msg.sender] || msg.sender == admin, "Only distributors or the admin can perform this action");
         _;
     }
 
     // Modifier function to allow other functions to be executed only by retailers or the admin
-    modifier onlyRetailerAdmin() {
+    modifier onlyRetailer() {
         require(retailers[msg.sender] || msg.sender == admin, "Only retailers or the admin can perform this action");
         _;
     }
 
     // Modifier function to allow other functions to be executed only by customers or the admin
-    modifier onlyCustomerAdmin() {
+    modifier onlyCustomer() {
         require(customers[msg.sender] || msg.sender == admin, "Only customers or the admin can perform this action");
         _;
     }
@@ -80,7 +80,7 @@ contract Roles {
     }
 
     // Define a function to remove a Manufacturer
-    function removeManufacturer() external onlyManufacturerAdmin {
+    function removeManufacturer() external onlyManufacturer {
         manufacturers[msg.sender] = false;
         entityVerificationPermission[msg.sender] = false;
         verificationStatus[msg.sender] = false;
@@ -101,7 +101,7 @@ contract Roles {
     }
 
     // Define a function to remove a Distributor
-    function removeDistributor() external onlyDistributorAdmin {
+    function removeDistributor() external onlyDistributor {
         distributors[msg.sender] = false;
         entityVerificationPermission[msg.sender] = false;
         verificationStatus[msg.sender] = false;
@@ -122,7 +122,7 @@ contract Roles {
     }
 
     // Define a function to remove a Retailer
-    function removeRetailer() external onlyRetailerAdmin {
+    function removeRetailer() external onlyRetailer {
         retailers[msg.sender] = false;
         entityVerificationPermission[msg.sender] = false;
         verificationStatus[msg.sender] = false;
@@ -141,7 +141,7 @@ contract Roles {
     }
 
     // Define a function to remove a Customer
-    function removeCustomer() external onlyCustomerAdmin {
+    function removeCustomer() external onlyCustomer {
         customers[msg.sender] = false;
         emit CustomerRemoved(msg.sender);
     }
