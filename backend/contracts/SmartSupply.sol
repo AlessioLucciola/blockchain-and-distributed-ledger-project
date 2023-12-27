@@ -20,8 +20,12 @@ contract SmartSupply{
     //     emit TransferReceived(msg.sender, msg.value); // emit an event to notify the frontend that ether has been received
     // }
 
-    string public test = "test";
-    function changeWord() external {
-        test = ":)";
+    string public status;
+    function getStatus() external {
+        status = "Payed";
+    }
+
+    function getBalance() public view returns(uint) {
+        return address(this).balance;
     }
 }

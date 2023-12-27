@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
+// import dotenv from 'dotenv';
+// dotenv.config(); // Load environment variables from .env file
+
 declare global {
   interface Window {
     ethereum?: any;
   }
 }
 
+let contract_address = "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+// let contract_address = process.env.REACT_APP_CONTRACT_ADDRESS; 
+
 const App = () => {
-  const [balance, setBalance] = useState<number | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  let contract: ethers.Contract;
+
+  const [balance, setBalance] = useState<number | null>(null); // Added state for balance
+  const [smartContractBalance, setSmartContractBalance] = useState<number | null>(null); // Added state for smart contract balance
+  const [isConnected, setIsConnected] = useState(false); // Added state for checking if Metamask is connected
   const [walletAddress, setWalletAddress] = useState<string | null>(null); // Added state for wallet address
   const [isMetamaskInstalled, setIsMetamaskInstalled] = useState(false); // Added state for checking if Metamask is installed
-
+  const [contractAddress, setContractAddress] = useState<string | null>(null); // Added state for contract address
+  const [transactionStatus, setTransactionStatus] = useState<string | null>(null); // Added state for transaction status
+  
   useEffect(() => {
     checkMetamaskInstalled();
   }, []);
@@ -53,23 +64,34 @@ const App = () => {
     }
   };
 
-  let contract_address = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-  let contract: ethers.Contract;
-  const connectReactWithContract = async () => {
+  const connectToSmartContract = async () => {
     try {
       // Connect to the smart contract
       const Address = contract_address;
       const ABI = [
         {
           "inputs": [],
-          "name": "changeWord",
+          "name": "getBalance",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getStatus",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
         },
         {
           "inputs": [],
-          "name": "test",
+          "name": "status",
           "outputs": [
             {
               "internalType": "string",
@@ -85,75 +107,34 @@ const App = () => {
       const signer = provider.getSigner();
       const resolvedSigner = await signer;
       contract = new ethers.Contract(Address, ABI, resolvedSigner);
-    
-      console.log(contract.target);
-
+      
+      setContractAddress(contract.target.toString());
     } catch (error) {
-      console.error('Failed to connect React with the smart contract:', error);
+      console.error('Failed to connect to the smart contract:', error);
+    }
+  }
+
+  const getSmartContractBalance = async () => {
+    try {
+      await connectToSmartContract(); // Call connectToSmartContract function to connect to the smart contract
+      // Get the balance from the smart contract
+      const balance = await contract.getBalance();
+      setSmartContractBalance(parseInt(balance));
+    } catch (error) {
+      console.error('Failed to get balance:', error);
     }
   };
 
-  const readContract = async () => {
+  const makePayment = async () => {
     try {
-      // Call the smart contract function
-      const result = await contract.test();
-      console.log(result);
-    } catch (error) {
-      console.error('Failed to call the smart contract function:', error);
-    }
-  }
-
-  const writeContract = async () => {
-    try {
-      const txResponse = await contract.changeWord();
+      // Send payment to the smart contract
+      const txResponse = await contract.getStatus();
       const txReceipt = await txResponse.wait();
-      console.log(txReceipt);
+      setTransactionStatus(txReceipt);
     } catch (error) {
       console.error('Failed to send a transaction to the smart contract:', error);
     }
-  }
-
-  // /**
-  //  * Sends ether to another wallet.
-  //  */
-  // const sendEther = async () => {
-  //   try {
-  //     // Send ether to another wallet
-  //     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-  //     await window.ethereum.request({
-  //       method: 'eth_sendTransaction',
-  //       params: [
-  //         {
-  //           from: accounts[0], // Sender's address
-  //           to: '0xBB49086f7463178Be99908eba5a6cAE21b188564', // Receiver's address (SmartSupply address)
-  //           value: '0x29a2241af62c0000', // 0.1 ETH
-  //         },
-  //       ],
-  //     });
-  //   } catch (error) {
-  //     console.error('Failed to send ether:', error);
-  //   }
-  // };
-
-  // const makeTransaction = async () => {
-  //   try {
-  //     // Make a transaction to a smart contract
-  //     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-  //     await window.ethereum.request({
-  //       method: 'eth_sendTransaction',
-  //       params: [
-  //         {
-  //           from: accounts[0], // Sender's address
-  //           to: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4', // Smart contract address
-  //           value: '0x29a2241af62c0000', // 0.1 ETH
-  //           data: '0x', // Transaction data
-  //         },
-  //       ],
-  //     });
-  //   } catch (error) {
-  //     console.error('Failed to make transaction:', error);
-  //   }
-  // };
+  };
 
   useEffect(() => {
     getBalance(); // Call getBalance function to fetch the initial balance
@@ -169,11 +150,11 @@ const App = () => {
             <p>Wallet Address: {walletAddress}</p>
             <button onClick={getBalance}>Get Balance</button>
             {balance !== null && <p>Balance: {balance} ETH</p>}
-            {/* <button onClick={sendEther}>Send Ether</button> */}
-            {/* <button onClick={makeTransaction}>Make Transaction</button> */}
-            <button onClick={connectReactWithContract}>Connect React with Contract</button>
-            <button onClick={readContract}>Read Contract</button>
-            <button onClick={writeContract}>Write Contract</button>
+            <button onClick={getSmartContractBalance}>Get Smart Contract Balance</button>
+            {contractAddress !== null && <p>Smart Contract address: {contractAddress}</p>}
+            {smartContractBalance !== null && <p>Smart Contract Balance: {smartContractBalance} ETH</p>}
+            <button onClick={makePayment}>Make payment</button>
+            {transactionStatus !== null && <p>Transaction status: {transactionStatus}</p>}
             <button onClick={disconnectWallet}>Disconnect Wallet</button>
           </div>
         ) : (
