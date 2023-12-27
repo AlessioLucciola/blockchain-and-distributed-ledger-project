@@ -15,7 +15,10 @@ const config = {
 				hero: "url('./src/assets/background.png')",
 			},
 			boxShadow: {
-				"3xl": "0 35px 60px -15px rgba(0, 0, 0, 0.3)",
+				lg: "0 10px 10px rgba(0, 0, 0, 0.5)",
+			},
+			dropShadow: {
+				lg: "0 10px 10px rgba(0, 0, 0, 0.5)",
 			},
 		},
 	},
