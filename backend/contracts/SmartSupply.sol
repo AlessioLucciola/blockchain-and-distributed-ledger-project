@@ -61,7 +61,7 @@ contract SmartSupply is
 
     // Define some events
     event ProductProduced(uint256 productID);
-    event ChangeOnSale(uint256 productID, address owner);
+    event ChangedOnSale(uint256 productID, address owner);
     event ProductPurchased(uint256 productID, address oldOwner, address newOwner);
     event ProductShipped(uint256 productID, address sender, address receiver);
     event ProductReceived(uint productID);
@@ -110,36 +110,36 @@ contract SmartSupply is
             products[_productID].productStage != ProductStage.Shipped,
             "Product must not be in Purchased or Shipped stage to change to OnSale"
         );
-        products[_productID].productStage = ProductStage.OnSale // Flag the item onSale
+        products[_productID].productStage = ProductStage.OnSale; // Flag the item onSale
 
-        emit changeOnSale(_productID, _msgSender())
+        emit ChangedOnSale(_productID, _msgSender());
     }
 
     function purchaseProduct(uint _productID) public onlyDistributor onlyRetailer onlyCustomer {
         require(products[_productID].currentOwner != _msgSender(), "Current owners can't buy their own products");
         require(products[_productID].productStage == ProductStage.OnSale, "Product must be On Sale to be purchased");
-        products[_productID].productStage = ProductStage.Purchased // Flag the item "Purchased"
+        products[_productID].productStage = ProductStage.Purchased; // Flag the item "Purchased"
         products[_productID].oldOwner = products[_productID].currentOwner; // Store the old owner before updating
-        products[_productID].currentOwner = _msgSender() // Updated the owner
+        products[_productID].currentOwner = _msgSender(); // Updated the owner
 
-        emit ProductPurchased(_productID, products[_productID].oldOwner, _msgSender())
+        emit ProductPurchased(_productID, products[_productID].oldOwner, _msgSender());
     }
 
     function shipProduct(uint _productID, address receiver) public onlyManufacturer onlyDistributor onlyRetailer {
         require(products[_productID].currentOwner != _msgSender(), "Current owners can't ship the product to themselves");
         require(products[_productID].productStage == ProductStage.OnSale, "Product must be purchased by some entity to be shipped");
         checkOldOwnerAndStatus(_productID); // Call the internal function to check old owner and status
-        products[_productID].productStage = ProductStage.Shipped // Flag the item stage "Shipped"
-        products[_productID].productStatus = ProductStatus.Shipping // Flag the item status to "Shipping"
+        products[_productID].productStage = ProductStage.Shipped; // Flag the item stage "Shipped"
+        products[_productID].productStatus = ProductStatus.Shipping; // Flag the item status to "Shipping"
 
-        emit ProductShipped(_productID, _msgSender(), receiver)
+        emit ProductShipped(_productID, _msgSender(), receiver);
     }
 
     function receiveProduct(uint _productID) public onlyDistributor onlyRetailer onlyCustomer {
         require(products[_productID].productStage == ProductStage.Shipped, "Product must be in 'Shipped' stage to be received");
         require(products[_productID].productStatus == ProductStatus.Shipping, "Product must be in 'Shipping' status to be received");
         require(products[_productID].currentOwner == _msgSender(), "Only the current owner can receive the product");
-        products[_productID].productStage = ProductStage.Received // Flag the item stage "Received"
+        products[_productID].productStage = ProductStage.Received; // Flag the item stage "Received"
         
         // Determine the correct status based on the current owner
         if (_msgSender() == products[_productID].distributor) {
@@ -153,7 +153,7 @@ contract SmartSupply is
             revert("Invalid current owner for updating status");
         }
 
-        emit ProductReceived(_productID)
+        emit ProductReceived(_productID);
     }
 
 
