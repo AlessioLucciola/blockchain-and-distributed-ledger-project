@@ -10,7 +10,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Product {
-  id Int @id @default(autoincrement())
+model Products {
+  uid Int @id @default(autoincrement())
   name String
+  description String
+  productInstances ProductInstances[]
+}
+
+model ProductInstances {
+  id Int @id @default(autoincrement())
+  productId Int   // Foreign key referencing Products
+  product Products @relation(fields: [productId], references: [uid])
+}
+
+model Entity {
+  id       Int @id @default(autoincrement())
+  name     String
+  surname  String
+  email    String
+  password String
+  role     Roles
+
+  @@unique([email])
+}
+
+enum Roles {
+  admin
+  manufacturer
+  distributor
+  retailer
+  customer
 }
