@@ -4,18 +4,8 @@ pragma solidity >=0.8.0 <0.9.0;
 import "./Entities.sol";
 
 contract SmartSupply is Entities {
-    // Define the unique id of a product and its universal id
-    // productID is used to classify each product tracked on SmartSupply
-    // productUID is used to classify the same products
-    // e.g. If we have two pair of shoes of the same model, the have a different productID but the same productUID 
-    uint256 productID;
-    uint256 productUID;
-
     // Define a mapping that maps each productID to its corresponding struct
     mapping(uint256 => Product) public products;
-
-    // Define the current owner of the product
-    address currentOwner;
 
     // Define all the stages in which a product can be within the Supply Chain
     enum ProductStage {
@@ -52,7 +42,15 @@ contract SmartSupply is Entities {
         address distributor; // Address of the distributor who shipped the product
         address retailer; // Address of the retailer who sold the product
         address customer; // Address of the customer who owns the product
-    }
+        TransactionIDs transactionIDs; // Struct to store bank transaction IDs
+}
+
+// Struct to store bank transaction IDs
+struct TransactionIDs {
+    string distributorBankTransactionID;
+    string retailerBankTransactionID;
+    string customerBankTransactionID;
+}
 
     // Define some events
     event ProductProduced(uint256 productID);
@@ -183,4 +181,22 @@ contract SmartSupply is Entities {
 
         emit ProductReceived(_productID);
     }
+
+    function changeBankTransactionID(uint _productID, string memory _newTransactionID) external {
+        //require(products[_productID].productStage == ProductStage.Purchased, "Product must be purchased to change bank transaction ID");
+
+        if (customers[msg.sender] && msg.sender == products[_productID].customer) {
+            // Only the customer that bought the product can change customerBankTransactionID
+            products[_productID].transactionIDs.customerBankTransactionID = _newTransactionID;
+        } else if (distributors[msg.sender] && msg.sender == products[_productID].distributor) {
+            // Only the distributor that bought the product can change distributorBankTransactionID
+            products[_productID].transactionIDs.distributorBankTransactionID = _newTransactionID;
+        } else if (retailers[msg.sender] && msg.sender == products[_productID].retailer) {
+            // Only the retailer that bought the product can change retailerBankTransactionID
+            products[_productID].transactionIDs.retailerBankTransactionID = _newTransactionID;
+        } else {
+            revert("Caller does not have the right to change bank transaction ID");
+        }
+    }
 }
+
