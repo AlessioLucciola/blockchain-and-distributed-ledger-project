@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0 <0.9.0;
 
-contract Roles {
-    address admin;
+import "./BalanceManager.sol";
 
+contract Entities is BalanceManager {
     // Define a set of mappings to check the role of an address
     mapping(address => bool) public manufacturers;
     mapping(address => bool) public distributors;
@@ -24,32 +24,26 @@ contract Roles {
     event CustomerAdded(address indexed account);
     event CustomerRemoved(address indexed account);
 
-    // Modifier function to allow other functions to be executed only by admins
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Only the admin can perform this action");
-        _;
-    }
-
     // Modifier function to allow other functions to be executed only by manufacturers or the admin
-    modifier onlyManufacturerAdmin() {
+    modifier onlyManufacturer() {
         require(manufacturers[msg.sender] || msg.sender == admin, "Only manufacturers or the admin can perform this action");
         _;
     }
 
     // Modifier function to allow other functions to be executed only by distributors or the admin
-    modifier onlyDistributorAdmin() {
+    modifier onlyDistributor() {
         require(distributors[msg.sender] || msg.sender == admin, "Only distributors or the admin can perform this action");
         _;
     }
 
     // Modifier function to allow other functions to be executed only by retailers or the admin
-    modifier onlyRetailerAdmin() {
+    modifier onlyRetailer() {
         require(retailers[msg.sender] || msg.sender == admin, "Only retailers or the admin can perform this action");
         _;
     }
 
     // Modifier function to allow other functions to be executed only by customers or the admin
-    modifier onlyCustomerAdmin() {
+    modifier onlyCustomer() {
         require(customers[msg.sender] || msg.sender == admin, "Only customers or the admin can perform this action");
         _;
     }
@@ -59,11 +53,6 @@ contract Roles {
         require(entityVerificationPermission[msg.sender], "Entity hasn't given its identification proof yet");
         require(!customers[msg.sender], "Customers are not allowed to perform this action");
         _;
-    }
-
-    // Define the admin role as the sender of the message
-    constructor() {
-        admin = msg.sender;
     }
 
     // Define a function to check if the account is a Manufacturer
@@ -80,7 +69,7 @@ contract Roles {
     }
 
     // Define a function to remove a Manufacturer
-    function removeManufacturer() external onlyManufacturerAdmin {
+    function removeManufacturer() external onlyManufacturer {
         manufacturers[msg.sender] = false;
         entityVerificationPermission[msg.sender] = false;
         verificationStatus[msg.sender] = false;
@@ -93,7 +82,7 @@ contract Roles {
     }
 
     // Define a function to add a new Distibutor
-    function addDistributors() external {
+    function addDistributor() external {
         distributors[msg.sender] = true;
         entityVerificationPermission[msg.sender] = false;
         verificationStatus[msg.sender] = false;
@@ -101,7 +90,7 @@ contract Roles {
     }
 
     // Define a function to remove a Distributor
-    function removeDistributor() external onlyDistributorAdmin {
+    function removeDistributor() external onlyDistributor {
         distributors[msg.sender] = false;
         entityVerificationPermission[msg.sender] = false;
         verificationStatus[msg.sender] = false;
@@ -122,7 +111,7 @@ contract Roles {
     }
 
     // Define a function to remove a Retailer
-    function removeRetailer() external onlyRetailerAdmin {
+    function removeRetailer() external onlyRetailer {
         retailers[msg.sender] = false;
         entityVerificationPermission[msg.sender] = false;
         verificationStatus[msg.sender] = false;
@@ -141,7 +130,7 @@ contract Roles {
     }
 
     // Define a function to remove a Customer
-    function removeCustomer() external onlyCustomerAdmin {
+    function removeCustomer() external onlyCustomer {
         customers[msg.sender] = false;
         emit CustomerRemoved(msg.sender);
     }
@@ -169,7 +158,10 @@ contract Roles {
     // Define a function to make the payment and receive the verified badge (only for entities that sent a proof and it was accepted by the admin)
     function verifyEntity() external payable onlyVerificationPermittedEntity {
         // Ensure a certain amount of Ether is sent for verification
-        require(msg.value >= 0.2 ether, "Insufficient payment for verification");
+        require(msg.value >= 20 wei, "Insufficient payment for verification");
+
+        smartSupplyBalance += msg.value;
+        emit FundsAdded(msg.sender, msg.value);
 
         // Mark the entity as verified
         verificationStatus[msg.sender] = true;
