@@ -12,7 +12,7 @@ contract SmartSupply is Entities {
     uint256 productUID;
 
     // Define a mapping that maps each productID to its corresponding struct
-    mapping(uint256 => Product) products;
+    mapping(uint256 => Product) public products;
 
     // Define the current owner of the product
     address currentOwner;
@@ -61,7 +61,18 @@ contract SmartSupply is Entities {
     event ProductShipped(uint256 productID, address sender, address receiver);
     event ProductReceived(uint productID);
 
-    function produceProduct(uint256 _productID, uint256 _productUID) public onlyManufacturer {
+    // Define some modifiers
+    modifier onlyBusinessActivities() {
+        require(manufacturers[msg.sender] || distributors[msg.sender] || retailers[msg.sender], "Only manufacturers, distributors or retailers can perform this action");
+        _;
+    }
+
+    modifier onlyReceivers() {
+        require(customers[msg.sender] || distributors[msg.sender] || retailers[msg.sender], "Only customers, distributors or retailers can perform this action");
+        _;
+    }
+
+    function produceProduct(uint256 _productID, uint256 _productUID) external onlyManufacturer {
         Product memory newProduct; // Define a new product in memory
         newProduct.productID = _productID; // Define the ID of the product
         newProduct.productUID = _productUID; // Define the UID of the product
@@ -89,16 +100,23 @@ contract SmartSupply is Entities {
     }
 
     // Function to check that entity is allowed to ship the product
-    function checkOldOwnerAndStatus(uint256 _productID) internal view {
+    function checkOldOwnerAndStatus(uint256 _productID, address _oldOwner, address _receiver) internal view {
+        require(_receiver != _oldOwner, "Product cannot be shipped to the same address as the old owner"); // Ensure that the product is not shipped to the same address as the old owner
+        require(products[_productID].currentOwner == _receiver, "Product must be shipped to the current owner"); // Ensure that the product is being shipped to the current owner
         require(
-            (products[_productID].productStatus == ProductStatus.InFactory && products[_productID].previousOwner == products[_productID].manufacturer) ||
-            (products[_productID].productStatus == ProductStatus.InDistributor && products[_productID].previousOwner == products[_productID].distributor) ||
-            (products[_productID].productStatus == ProductStatus.InRetailer && products[_productID].previousOwner == products[_productID].retailer),
+            // Check that the entity calling the function is the old owner
+            _oldOwner == products[_productID].previousOwner &&
+            (
+                // Check that the product is in the correct status based on the old owner
+                (_oldOwner == products[_productID].manufacturer && products[_productID].productStatus == ProductStatus.InFactory) ||
+                (_oldOwner == products[_productID].distributor && products[_productID].productStatus == ProductStatus.InDistributor) ||
+                (_oldOwner == products[_productID].retailer && products[_productID].productStatus == ProductStatus.InRetailer)
+            ),
             "Invalid old owner or status for shipping"
         );
     }
 
-    function changeOnSale(uint _productID) public onlyManufacturer onlyDistributor onlyRetailer {
+    function changeOnSale(uint _productID) external onlyBusinessActivities {
         require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to OnSale");
         require(
             products[_productID].productStage != ProductStage.Purchased && 
@@ -110,33 +128,48 @@ contract SmartSupply is Entities {
         emit ChangedOnSale(_productID, msg.sender);
     }
 
-    function purchaseProduct(uint _productID) public onlyDistributor onlyRetailer onlyCustomer {
+    function purchaseProduct(uint _productID) external onlyReceivers {
         require(products[_productID].currentOwner != msg.sender, "Current owners can't buy their own products");
         require(products[_productID].productStage == ProductStage.OnSale, "Product must be On Sale to be purchased");
         products[_productID].productStage = ProductStage.Purchased; // Flag the item "Purchased"
         products[_productID].previousOwner = products[_productID].currentOwner; // Store the old owner before updating
         products[_productID].currentOwner = msg.sender; // Updated the owner
 
+        // Determine the role of the purchasing entity
+        if (distributors[msg.sender]) {
+            // If the purchasing entity is a manufacturer, update the distributor field
+            products[_productID].distributor = msg.sender;
+        } else if (retailers[msg.sender]) {
+            // If the purchasing entity is a distributor, update the retailer field
+            products[_productID].retailer = msg.sender;
+        } else if (customers[msg.sender]) {
+            // If the purchasing entity is a retailer, update the customer field
+            products[_productID].customer = msg.sender;
+        } else {
+            // Handle unexpected cases or revert if necessary
+            revert("Invalid role for updating product information");
+        }
+
         emit ProductPurchased(_productID, products[_productID].previousOwner, msg.sender);
     }
 
-    function shipProduct(uint _productID, address receiver) public onlyManufacturer onlyDistributor onlyRetailer {
-        require(products[_productID].currentOwner != msg.sender, "Current owners can't ship the product to themselves");
-        require(products[_productID].productStage == ProductStage.OnSale, "Product must be purchased by some entity to be shipped");
-        checkOldOwnerAndStatus(_productID); // Call the internal function to check old owner and status
+    function shipProduct(uint _productID, address receiver) external onlyBusinessActivities {
+        require(products[_productID].productStage == ProductStage.Purchased, "Product must be purchased by some entity to be shipped");
+        require(msg.sender == products[_productID].previousOwner, "Product can only be shipped by the old owner"); // Ensure that the product is not shipped by another identity
+        checkOldOwnerAndStatus(_productID, msg.sender, receiver); // Call the internal function to check old owner and product location
         products[_productID].productStage = ProductStage.Shipped; // Flag the item stage "Shipped"
-        products[_productID].productStatus = ProductStatus.Shipping; // Flag the item status to "Shipping"
+        products[_productID].productStatus = ProductStatus.Shipping; // Flag the item location to "Shipping"
 
         emit ProductShipped(_productID, msg.sender, receiver);
     }
 
-    function receiveProduct(uint _productID) public onlyDistributor onlyRetailer onlyCustomer {
+    function receiveProduct(uint _productID) external onlyReceivers {
         require(products[_productID].productStage == ProductStage.Shipped, "Product must be in 'Shipped' stage to be received");
         require(products[_productID].productStatus == ProductStatus.Shipping, "Product must be in 'Shipping' status to be received");
         require(products[_productID].currentOwner == msg.sender, "Only the current owner can receive the product");
         products[_productID].productStage = ProductStage.Received; // Flag the item stage "Received"
         
-        // Determine the correct status based on the current owner
+        // Determine the correct location based on the current owner
         if (msg.sender == products[_productID].distributor) {
             products[_productID].productStatus = ProductStatus.InDistributor;
         } else if (msg.sender == products[_productID].retailer) {
