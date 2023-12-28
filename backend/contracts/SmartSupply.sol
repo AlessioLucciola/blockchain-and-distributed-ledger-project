@@ -43,32 +43,22 @@ contract SmartSupply is Entities {
         address retailer; // Address of the retailer who sold the product
         address customer; // Address of the customer who owns the product
         TransactionIDs transactionIDs; // Struct to store bank transaction IDs
-}
+    }
 
-// Struct to store bank transaction IDs
-struct TransactionIDs {
-    string distributorBankTransactionID;
-    string retailerBankTransactionID;
-    string customerBankTransactionID;
-}
+    // Struct to store bank transaction IDs
+    struct TransactionIDs {
+        string distributorBankTransactionID;
+        string retailerBankTransactionID;
+        string customerBankTransactionID;
+    }
 
     // Define some events
     event ProductProduced(uint256 productID);
     event ChangedOnSale(uint256 productID, address owner);
     event ProductPurchased(uint256 productID, address oldOwner, address newOwner);
     event ProductShipped(uint256 productID, address sender, address receiver);
-    event ProductReceived(uint productID);
-
-    // Define some modifiers
-    modifier onlyBusinessActivities() {
-        require(manufacturers[msg.sender] || distributors[msg.sender] || retailers[msg.sender], "Only manufacturers, distributors or retailers can perform this action");
-        _;
-    }
-
-    modifier onlyReceivers() {
-        require(customers[msg.sender] || distributors[msg.sender] || retailers[msg.sender], "Only customers, distributors or retailers can perform this action");
-        _;
-    }
+    event ProductReceived(uint256 productID);
+    event BankTransactionChanged(uint256 productID);
 
     function produceProduct(uint256 _productID, uint256 _productUID) external onlyManufacturer {
         Product memory newProduct; // Define a new product in memory
@@ -197,6 +187,7 @@ struct TransactionIDs {
         } else {
             revert("Caller does not have the right to change bank transaction ID");
         }
+
+        emit BankTransactionChanged(_productID);
     }
 }
-
