@@ -1,4 +1,5 @@
 import Button from "../components/Button"
+import GradientText from "../components/GradientText"
 import InputField from "../components/InputField"
 import Navbar from "../components/Navbar"
 
@@ -9,7 +10,7 @@ export default function Login() {
 			<div className="bg-hero bg-cover bg-no-repeat h-screen w-screen">
 				<div className="flex flex-col h-full w-full pl-36 items-center justify-center">
 					<div className="flex flex-col h-fit w-fit gap-6">
-						<p className="bg-gradient-to-b bg-clip-text from-text to-secondary font-bold text-transparent text-7xl drop-shadow-lg">Who are you?</p>
+						<GradientText text="Who are you?" className="text-7xl" />
 						<InputField name="Email" type="email" />
 						<InputField name="Password" type="password" />
 						<p className="cursor-pointer font-bold text-primary pt-1 hover:underline">I forgot my password :(</p>

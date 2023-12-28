@@ -7,6 +7,7 @@ import Home from "./pages/Home.tsx"
 import Register from "./pages/Register.tsx"
 import Login from "./pages/Login.tsx"
 import ProductInfo from "./pages/ProductInfo.tsx"
+import Shop from "./pages/Shop.tsx"
 
 const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -15,6 +16,7 @@ const router = createBrowserRouter(
 			<Route path="register" element={<Register />} />
 			<Route path="login" element={<Login />} />
 			<Route path="product/:id" element={<ProductInfo />} />
+			<Route path="shop" element={<Shop />} />
 		</>
 	)
 )

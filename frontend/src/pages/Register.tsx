@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import Button from "../components/Button"
 import InputField from "../components/InputField"
 import { getRoleIcon } from "../utils/renderUtils"
+import GradientText from "../components/GradientText"
 
 export default function Register() {
 	const [role, setRole] = useState<Roles | undefined>(undefined)
@@ -38,9 +39,9 @@ function RegisterAs() {
 		<>
 			<Navbar />
 			<div className="bg-background h-screen w-screen">
-				<div className="flex flex-col h-full w-full pl-36 items-center justify-center">
-					<div className="flex flex-col h-fit w-fit gap-6 justify-center items-center">
-						<div className="bg-gradient-to-b bg-clip-text from-text to-secondary font-semibold text-transparent text-7xl drop-shadow-lg">Register as a</div>
+				<div className="flex flex-col h-full w-full items-center justify-center">
+					<div className="flex flex-col gap-6 justify-center items-center">
+						<GradientText text="Register as a" className="text-7xl" />
 						<div className="flex flex-row gap-20 ">
 							<div
 								className={`bg-${GRADIENTS["div-gradient"]} px-8 py-10 rounded-3xl flex flex-col items-center justify-between shadow-lg cursor-pointer hover:shadow-black`}
@@ -116,7 +117,7 @@ function RegisterForm({ role }: RegisterFormProps) {
 			<div className="bg-hero bg-cover bg-no-repeat h-screen w-screen">
 				<div className="flex flex-col h-full w-full pl-36 items-center justify-center">
 					<div className="flex flex-col h-fit w-fit gap-6">
-						<p className="bg-gradient-to-b bg-clip-text from-text to-secondary font-bold text-transparent text-7xl drop-shadow-lg">Welcome to the Club!</p>
+						<GradientText text="to Welcome the Club!" className="text-7xl" />
 						<div className="flex text-end w-full gap-3 items-center justify-end">
 							<p className="text-primary text-xl">You are registering as a</p>
 							{getRoleIcon(roleState)}
