@@ -46,3 +46,11 @@ export function CustomerIcon({ className }: IconProps) {
 		</svg>
 	)
 }
+
+export function RightCaretIcon({ className }: IconProps) {
+	return (
+		<svg width="6" height="8" viewBox="0 0 6 8" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+			<path d="M5.79433 3.77124C6.06777 3.97321 6.06777 4.30121 5.79433 4.50318L1.59433 7.60545C1.32089 7.80742 0.876831 7.80742 0.603394 7.60545C0.329956 7.40348 0.329956 7.07548 0.603394 6.87351L4.30902 4.1364L0.605581 1.39929C0.332144 1.19732 0.332144 0.869318 0.605581 0.667347C0.879019 0.465376 1.32308 0.465376 1.59652 0.667347L5.79652 3.76962L5.79433 3.77124Z" />
+		</svg>
+	)
+}
