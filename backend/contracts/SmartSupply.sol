@@ -27,7 +27,7 @@ contract SmartSupply is Entities {
     }
 
     // Define all the locations in which a product can be within the Supply Chain
-    enum ProductStatus {
+    enum ProductLocation {
         InFactory,
         InDistributor,
         InRetailer,
@@ -37,7 +37,7 @@ contract SmartSupply is Entities {
 
     // Define the first stage and location (when a product is created by a manufacturer)
     ProductStage public defaultProductStage = ProductStage.Produced;
-    ProductStatus public defaultProductStatus = ProductStatus.InFactory;
+    ProductLocation public defaultProductLocation = ProductLocation.InFactory;
 
     // Define the struct of a product
     struct Product {
@@ -47,7 +47,7 @@ contract SmartSupply is Entities {
         address currentOwner; // Address of the current owner of the product
         uint256 creationDate; // Unix timestamps that represents the time of creation of the product
         ProductStage productStage; // Stage of the product within the Supply Chain
-        ProductStatus productStatus; // Enum to track the location of the product
+        ProductLocation productLocation; // Enum to track the location of the product
         address manufacturer; // Address of the manufacturer who produced the product
         address distributor; // Address of the distributor who shipped the product
         address retailer; // Address of the retailer who sold the product
@@ -80,7 +80,7 @@ contract SmartSupply is Entities {
         newProduct.previousOwner = msg.sender; // Define the previous owner as the first one (default when the product is first produced)
         newProduct.creationDate = block.timestamp; // Assign the date of creation of the product
         newProduct.productStage = defaultProductStage; // Assign the initial default stage to the product
-        newProduct.productStatus = defaultProductStatus; // Assign the initial default stage to the product
+        newProduct.productLocation = defaultProductLocation; // Assign the initial default stage to the product
 
         // Create some placeholders for empty fields
         address distributor;
@@ -100,19 +100,19 @@ contract SmartSupply is Entities {
     }
 
     // Function to check that entity is allowed to ship the product
-    function checkOldOwnerAndStatus(uint256 _productID, address _oldOwner, address _receiver) internal view {
+    function checkOldOwnerAndLocation(uint256 _productID, address _oldOwner, address _receiver) internal view {
         require(_receiver != _oldOwner, "Product cannot be shipped to the same address as the old owner"); // Ensure that the product is not shipped to the same address as the old owner
         require(products[_productID].currentOwner == _receiver, "Product must be shipped to the current owner"); // Ensure that the product is being shipped to the current owner
         require(
             // Check that the entity calling the function is the old owner
             _oldOwner == products[_productID].previousOwner &&
             (
-                // Check that the product is in the correct status based on the old owner
-                (_oldOwner == products[_productID].manufacturer && products[_productID].productStatus == ProductStatus.InFactory) ||
-                (_oldOwner == products[_productID].distributor && products[_productID].productStatus == ProductStatus.InDistributor) ||
-                (_oldOwner == products[_productID].retailer && products[_productID].productStatus == ProductStatus.InRetailer)
+                // Check that the product is in the correct location based on the old owner
+                (_oldOwner == products[_productID].manufacturer && products[_productID].productLocation == ProductLocation.InFactory) ||
+                (_oldOwner == products[_productID].distributor && products[_productID].productLocation == ProductLocation.InDistributor) ||
+                (_oldOwner == products[_productID].retailer && products[_productID].productLocation == ProductLocation.InRetailer)
             ),
-            "Invalid old owner or status for shipping"
+            "Invalid old owner or location for shipping"
         );
     }
 
@@ -156,29 +156,29 @@ contract SmartSupply is Entities {
     function shipProduct(uint _productID, address receiver) external onlyBusinessActivities {
         require(products[_productID].productStage == ProductStage.Purchased, "Product must be purchased by some entity to be shipped");
         require(msg.sender == products[_productID].previousOwner, "Product can only be shipped by the old owner"); // Ensure that the product is not shipped by another identity
-        checkOldOwnerAndStatus(_productID, msg.sender, receiver); // Call the internal function to check old owner and product location
+        checkOldOwnerAndLocation(_productID, msg.sender, receiver); // Call the internal function to check old owner and product location
         products[_productID].productStage = ProductStage.Shipped; // Flag the item stage "Shipped"
-        products[_productID].productStatus = ProductStatus.Shipping; // Flag the item location to "Shipping"
+        products[_productID].productLocation = ProductLocation.Shipping; // Flag the item location to "Shipping"
 
         emit ProductShipped(_productID, msg.sender, receiver);
     }
 
     function receiveProduct(uint _productID) external onlyReceivers {
         require(products[_productID].productStage == ProductStage.Shipped, "Product must be in 'Shipped' stage to be received");
-        require(products[_productID].productStatus == ProductStatus.Shipping, "Product must be in 'Shipping' status to be received");
+        require(products[_productID].productLocation == ProductLocation.Shipping, "Product must be in 'Shipping' location to be received");
         require(products[_productID].currentOwner == msg.sender, "Only the current owner can receive the product");
         products[_productID].productStage = ProductStage.Received; // Flag the item stage "Received"
         
         // Determine the correct location based on the current owner
         if (msg.sender == products[_productID].distributor) {
-            products[_productID].productStatus = ProductStatus.InDistributor;
+            products[_productID].productLocation = ProductLocation.InDistributor;
         } else if (msg.sender == products[_productID].retailer) {
-            products[_productID].productStatus = ProductStatus.InRetailer;
+            products[_productID].productLocation = ProductLocation.InRetailer;
         } else if (msg.sender == products[_productID].customer) {
-            products[_productID].productStatus = ProductStatus.InCustomer;
+            products[_productID].productLocation = ProductLocation.InCustomer;
         } else {
             // Handle unexpected cases or revert if necessary
-            revert("Invalid current owner for updating status");
+            revert("Invalid current owner for updating location");
         }
 
         emit ProductReceived(_productID);
