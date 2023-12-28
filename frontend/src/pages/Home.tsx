@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom"
 import Button from "../components/Button"
 import Navbar from "../components/Navbar"
 
 export default function Home() {
+	const navigate = useNavigate()
 	return (
 		<>
 			<Navbar />
@@ -19,7 +21,7 @@ export default function Home() {
 									Fighting against counterfeit products <br /> with Blockchain-powered solution.
 								</p>
 							</div>
-							<Button text="Join Us" className="w-fit mt-16" />
+							<Button text="Join Us" className="w-fit mt-16" onClick={() => navigate("/register")} />
 						</div>
 					</div>
 				</div>
