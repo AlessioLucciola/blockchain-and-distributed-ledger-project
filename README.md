@@ -49,6 +49,25 @@ Video 2: https://www.youtube.com/watch?v=HF2w3XFbnQY
     ```
     npx hardhat run ./scripts/deploy.ts --network localhost
     ```
+    ⚠️ If you get this error `ProviderError: Error: Transaction reverted: trying to deploy a contract whose code is too large` add this in `hardhat.config.ts`
+    ```
+    ...
+    const config = {
+        solidity: ...,
+        settings: {
+            optimizer: {
+            enabled: true,
+            runs: 200,
+            details: { yul: false },
+            },
+        },
+        networks: {
+                ...
+                allowUnlimitedContractSize: true,
+            }
+        },
+    };  
+    ```
 3. Copy the contract address somewhere
 
 # Frontend
