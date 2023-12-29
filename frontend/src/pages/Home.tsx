@@ -1,32 +1,41 @@
 import { useNavigate } from "react-router-dom"
-import Button from "../components/Button"
-import Navbar from "../components/Navbar"
 import GradientText from "../components/GradientText"
-
+import Navbar from "../components/Navbar"
+import { Roles } from "../shared/constants"
+import { CartIcon, StoreIcon, TagIcon } from "../shared/icons"
+import { getRoleIcon } from "../utils/renderUtils"
+import React from "react"
 export default function Home() {
 	const navigate = useNavigate()
 	return (
-		<>
-			<Navbar />
-			<div className="bg-hero bg-cover bg-no-repeat h-screen w-screen">
-				<div className="flex flex-col h-full w-full pl-36 items-center justify-center">
-					<div className="flex flex-col h-fit w-fit gap-6">
-						<GradientText text="Smart Supply." className="text-7xl" />
-						<div className="font-bold text-text text-4xl drop-shadow-lg">Create It</div>
-						<div className="font-bold text-text text-4xl drop-shadow-lg">Sell It</div>
-						<div className="font-bold text-text text-4xl drop-shadow-lg">Check It</div>
-						<div className="flex flex-row w-full  items-center justify-between relative">
-							<div className="flex flex-row top-[55px] right-[550px] items-center justify-center absolute">
-								<img src="./src/assets/ethereum.png" alt="ethereum logo" className="h-[64px] mr-4 w-[44px] drop-shadow-lg " />
-								<p className="text-text text-nowrap  text-2xl drop-shadow-lg">
-									Fighting against counterfeit products <br /> with Blockchain-powered solution.
-								</p>
-							</div>
-							<Button text="Join Us" className="w-fit mt-16" onClick={() => navigate("/register")} />
-						</div>
-					</div>
-				</div>
+		<div className="bg-background h-screen w-screen overflow-y-scroll">
+			<Navbar showLinks={true} overrideLinks={[{ name: "Logout", action: () => console.log("Logout!") }]} />
+			<div className="flex flex-col pt-36 items-center justify-center">
+				<GradientText text="Welcome Back!" className="text-7xl" />
+				<span className="flex pt-2 gap-2 items-center justify-center">
+					{getRoleIcon(Roles.CUSTOMER)}
+					<p className="font-semibold text-text text-2xl">Domiziano scarcelli</p>
+				</span>
 			</div>
-		</>
+			<div className="flex pt-40 gap-5 items-center justify-center">
+				<Card title="My Sales" Icon={TagIcon} onClick={() => navigate("/sales")} />
+				<Card title="My Orders" Icon={CartIcon} onClick={() => navigate("/orders")} />
+				<Card title="My Shop" Icon={StoreIcon} onClick={() => navigate("/shop")} />
+			</div>
+		</div>
+	)
+}
+
+interface CardProps {
+	title: string
+	Icon: React.ComponentType<{ className?: string }>
+	onClick?: () => void
+}
+function Card({ title, Icon, onClick }: CardProps) {
+	return (
+		<div className="bg-accent cursor-pointer flex rounded-2xl h-[180px] shadow-lg py-14 px-5 items-center justify-center hover:shadow-black " onClick={onClick}>
+			<Icon className="h-fit fill-text w-14 drop-shadow-lg" />
+			<p className="text-text px-3 pb-3 text-4xl drop-shadow-lg">{title}</p>
+		</div>
 	)
 }

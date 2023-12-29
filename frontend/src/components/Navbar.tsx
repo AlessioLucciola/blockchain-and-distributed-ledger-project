@@ -1,11 +1,18 @@
 import { useNavigate } from "react-router-dom"
 import { getRoleIcon } from "../utils/renderUtils"
 import { Roles } from "../shared/constants"
+
+type Link = {
+	name: string
+	path?: string
+	action?: () => void
+}
 interface NavbarProps {
 	showLinks?: boolean
 	role?: Roles
+	overrideLinks?: Link[]
 }
-export default function Navbar({ showLinks = true, role }: NavbarProps) {
+export default function Navbar({ showLinks = true, role, overrideLinks }: NavbarProps) {
 	const navigate = useNavigate()
 
 	return (
@@ -16,7 +23,7 @@ export default function Navbar({ showLinks = true, role }: NavbarProps) {
 					<div className="bg-gradient-to-b bg-clip-text from-text to-secondary text-transparent text-2xl">Smart Supply.</div>
 				</div>
 				<div className="flex flex-row pr-10 gap-4 justify-center items-center">
-					{showLinks && (
+					{showLinks && !overrideLinks && (
 						<>
 							<div className="cursor-pointer text-primary hover:underline">About.</div>
 							<div className="cursor-pointer text-primary hover:underline">Pricing.</div>
@@ -25,6 +32,13 @@ export default function Navbar({ showLinks = true, role }: NavbarProps) {
 							</div>
 						</>
 					)}
+					{showLinks &&
+						overrideLinks &&
+						overrideLinks.map(({ name, path, action }) => (
+							<div className="cursor-pointer text-primary hover:underline" onClick={path ? () => navigate(path!) : action}>
+								{name}
+							</div>
+						))}
 					{role && (
 						<div className="flex gap-4 items-center">
 							{getRoleIcon(role!)}

@@ -1,6 +1,7 @@
 import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
-import { GRADIENTS, Roles } from "../shared/constants"
+import ProductCard from "../components/ProductCard"
+import { Roles } from "../shared/constants"
 
 export default function Shop() {
 	return (
@@ -26,21 +27,6 @@ export default function Shop() {
 					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 				</div>
 			</div>
-		</div>
-	)
-}
-
-interface ProductCardProps {
-	name: string
-	id: string
-	price: string
-	image: string
-}
-function ProductCard({ name, image }: ProductCardProps) {
-	return (
-		<div className={`bg-${GRADIENTS["div-gradient"]} rounded-3xl flex flex-col pb-3 items-center justify-center shadow-lg hover:shadow-black px-3 cursor-pointer min-w-[300px] max-w-[300px]`}>
-			<img src={image} alt="product image" className="h-fit w-[300px]" />
-			<p className="text-text text-xl px-3 pb-3 drop-shadow-lg">{name}</p>
 		</div>
 	)
 }
