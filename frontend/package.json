@@ -11,6 +11,7 @@
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "crypto": "^1.0.1",
+    "crypto-browserify": "^3.12.0",
     "os": "^0.1.2",
     "path": "^0.12.7",
     "react": "^18.2.0",
