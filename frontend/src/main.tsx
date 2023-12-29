@@ -10,6 +10,7 @@ import ProductInfo from "./pages/ProductInfo.tsx"
 import Shop from "./pages/Shop.tsx"
 import MyOrders from "./pages/MyOrders.tsx"
 import MySales from "./pages/MySales.tsx"
+import Search from "./pages/Search.tsx"
 
 const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -21,6 +22,7 @@ const router = createBrowserRouter(
 			<Route path="shop" element={<Shop />} />
 			<Route path="orders" element={<MyOrders />} />
 			<Route path="sales" element={<MySales />} />
+			<Route path="search" element={<Search />} />
 		</>
 	)
 )
