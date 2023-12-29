@@ -8,6 +8,8 @@ import Register from "./pages/Register.tsx"
 import Login from "./pages/Login.tsx"
 import ProductInfo from "./pages/ProductInfo.tsx"
 import Shop from "./pages/Shop.tsx"
+import MyOrders from "./pages/MyOrders.tsx"
+import MySales from "./pages/MySales.tsx"
 
 const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -17,6 +19,8 @@ const router = createBrowserRouter(
 			<Route path="login" element={<Login />} />
 			<Route path="product/:id" element={<ProductInfo />} />
 			<Route path="shop" element={<Shop />} />
+			<Route path="orders" element={<MyOrders />} />
+			<Route path="sales" element={<MySales />} />
 		</>
 	)
 )

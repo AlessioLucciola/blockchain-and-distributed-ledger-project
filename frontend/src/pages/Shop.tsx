@@ -36,7 +36,7 @@ interface ProductCardProps {
 	price: string
 	image: string
 }
-function ProductCard({ name, id, price, image }: ProductCardProps) {
+function ProductCard({ name, image }: ProductCardProps) {
 	return (
 		<div className={`bg-${GRADIENTS["div-gradient"]} rounded-3xl flex flex-col pb-3 items-center justify-center shadow-lg hover:shadow-black px-3 cursor-pointer min-w-[300px] max-w-[300px]`}>
 			<img src={image} alt="product image" className="h-fit w-[300px]" />

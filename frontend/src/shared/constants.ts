@@ -8,3 +8,19 @@ export enum Roles {
 	RETAILER = "retailer",
 	CUSTOMER = "customer",
 }
+
+export enum ProductStage {
+	PRODUCED = "produced",
+	ON_SALE = "on sale",
+	PURCHASED = "purchased",
+	SHIPPED = "shipped",
+	RECEIVED = "received",
+}
+
+export enum ProductLocation {
+	IN_FACTORY = "in factory",
+	IN_DISTRIBUTOR = "in distributor",
+	IN_RETAILER = "in retailer",
+	IN_CUSTOMER = "in customer",
+	SHIPPING = "shipping",
+}
