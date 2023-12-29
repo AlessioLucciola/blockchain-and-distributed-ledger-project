@@ -1,6 +1,6 @@
 export const GRADIENTS = {
-	"text-gradient": "gradient-to-b from-text to-primary",
-	"div-gradient": "gradient-to-b from-accent to-secondary",
+	"text-gradient": "gradient-to-b from-text via-primary to-primary",
+	"div-gradient": "gradient-to-b from-accent via-secondary to-background",
 }
 export enum Roles {
 	MANUFACTURER = "manufacturer",

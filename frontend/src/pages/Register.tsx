@@ -94,10 +94,33 @@ function RegisterForm({ role }: RegisterFormProps) {
 		return role
 	}
 
+	const fields = {
+		seller: {
+			Email: "email",
+			"Repeat Email": "email",
+			Password: "password",
+			"Repeat Password": "password",
+			"Address 1": "text",
+			"Address 2": "text",
+			"Company Name": "text",
+			"Shop Name": "text",
+		},
+		buyer: {
+			"Full Name": "text",
+			Address: "text",
+			Email: "email",
+			"Repeat Email": "email",
+			Password: "password",
+			"Repeat Password": "password",
+		},
+	}
+	const getFields = () => {
+		if (roleState === undefined) {
+			return undefined
+		}
+		return roleState === Roles.CUSTOMER ? fields.buyer : fields.seller
+	}
 	useEffect(() => {
-		// if (role === undefined && roleState === undefined) {
-		// return
-		// }
 		const queryRole = getQueryParams()
 		setRoleState(queryRole)
 	}, [])
@@ -117,21 +140,16 @@ function RegisterForm({ role }: RegisterFormProps) {
 			<div className="bg-hero bg-cover bg-no-repeat h-screen w-screen">
 				<div className="flex flex-col h-full w-full pl-36 items-center justify-center">
 					<div className="flex flex-col h-fit w-fit gap-6">
-						<GradientText text="to Welcome the Club!" className="text-7xl" />
+						<GradientText text={`Welcome to the Club!`} className="text-7xl" />
 						<div className="flex text-end w-full gap-3 items-center justify-end">
 							<p className="text-primary text-xl">You are registering as a</p>
 							{getRoleIcon(roleState)}
 							<p className="text-primary text-xl">{roleState[0].toUpperCase() + roleState.slice(1)}</p>
 						</div>
 						<div className="grid gap-y-6 gap-x-2 grid-cols-2">
-							<InputField name="Email" type="email" />
-							<InputField name="Company Name" type="text" />
-							<InputField name="Repeat Email" type="email" />
-							<InputField name="Shop Name" type="text" />
-							<InputField name="Password" type="password" />
-							<InputField name="Address 1" type="text" />
-							<InputField name="Repeat Password" type="password" />
-							<InputField name="Address 2" type="text" />
+							{Object.entries(getFields()!).map(([key, value]) => {
+								return <InputField key={key} name={key} type={value} />
+							})}
 							<Button text="Register" className="w-fit" />
 						</div>
 					</div>
