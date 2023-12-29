@@ -55,6 +55,18 @@ contract Entities is BalanceManager {
         _;
     }
 
+    // Modifier function that check if the entity is a manufacturer, distributor or retailer
+    modifier onlyBusinessActivities() {
+        require(manufacturers[msg.sender] || distributors[msg.sender] || retailers[msg.sender], "Only manufacturers, distributors or retailers can perform this action");
+        _;
+    }
+
+    // Modifier function that check if the entity is a customer, distributor or retailer
+    modifier onlyReceivers() {
+        require(customers[msg.sender] || distributors[msg.sender] || retailers[msg.sender], "Only customers, distributors or retailers can perform this action");
+        _;
+    }
+
     // Define a function to check if the account is a Manufacturer
     function isManufacturer(address account) public view returns (bool) {
         return manufacturers[account];
