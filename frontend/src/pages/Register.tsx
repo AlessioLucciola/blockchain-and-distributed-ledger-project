@@ -125,6 +125,32 @@ function RegisterForm({ role }: RegisterFormProps) {
 		setRoleState(queryRole)
 	}, [])
 
+	// Added states for Metamask
+	const [isMetamaskInstalled, setIsMetamaskInstalled] = useState(false); // Added state for checking if Metamask is installed
+	const [isConnected, setIsConnected] = useState(false); // Added state for checking if Metamask is connected
+	const [walletAddress, setWalletAddress] = useState<string | null>(null); // Added state for wallet address
+
+	useEffect(() => {
+		checkMetamaskInstalled();
+	}, []);
+
+	const checkMetamaskInstalled = () => {
+		setIsMetamaskInstalled(!!window.ethereum);
+	};	
+
+	const connectMetamask = async () => {
+		try {
+			// Connect to Metamask wallet
+			await window.ethereum.request({ method: 'eth_requestAccounts' });
+			setIsConnected(true);
+			const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+			setWalletAddress(accounts[0]); // Set the wallet address
+			console.log('Wallet connected:', walletAddress);
+		} catch (error) {
+			console.error('Failed to connect wallet:', error);
+		}
+	}
+
 	if (roleState === undefined) {
 		return (
 			<div className="bg-hero bg-cover bg-no-repeat flex flex-col h-screen w-screen gap-10 items-center justify-center">
@@ -150,7 +176,24 @@ function RegisterForm({ role }: RegisterFormProps) {
 							{Object.entries(getFields()!).map(([key, value]) => {
 								return <InputField key={key} name={key} type={value} />
 							})}
-							<Button text="Register" className="w-fit" />
+							{isMetamaskInstalled !== null && isMetamaskInstalled === false && (
+								<Button
+									onClick={() => {
+										window.location.href = 'https://metamask.io/download/';
+									}}
+									text="Install Metamask"
+									className="w-fit"
+								/>
+							)}
+							{isMetamaskInstalled !== null && isMetamaskInstalled === true && (
+								<Button onClick={connectMetamask} text="Connect Metamask" className="w-fit" />
+							)}
+							{isConnected && (
+								<p className="text-white">Wallet Address: {walletAddress}</p>
+							)}
+							{isConnected && (
+								<Button text="Register" className="w-fit" />
+							)}
 						</div>
 					</div>
 				</div>
