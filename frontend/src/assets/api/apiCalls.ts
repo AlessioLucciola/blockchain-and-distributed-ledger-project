@@ -35,7 +35,7 @@ export const addProduct = async ({ name, description }: { name: string; descript
 	return data
 }
 
-export const addProductInstance = async ({ productInstanceId, productId }: { productInstanceId: string; productId: string }) => {
-	const { data } = await api.post("/add-product-instance", { productInstanceId, productId })
+export const addProductInstance = async ({ productInstanceId, productId, soldBy }: { productInstanceId: string; productId: string; soldBy: number }) => {
+	const { data } = await api.post("/add-product-instance", { productInstanceId, productId, soldBy })
 	return data
 }

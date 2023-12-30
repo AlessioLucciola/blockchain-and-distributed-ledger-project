@@ -8,16 +8,22 @@ const SmartSupplyController = {
 		req: Request<
 			{},
 			{},
+			{},
 			{
-				role: Roles
-			},
-			{}
+				role: string
+			}
 		>,
 		res: Response,
 		next: NextFunction
 	) {
 		try {
-			const { role } = req.body
+			const query = req.query
+			let role
+			if (query.role == "") {
+				role = undefined
+			} else {
+				role = query.role as Roles
+			}
 			const data = await service.getEntities({ role })
 			res.json({
 				message: `Entities with role ${role} fetched successfully`,
@@ -50,9 +56,6 @@ const SmartSupplyController = {
 	) {
 		try {
 			const { name, surname, email, password, address_1, address_2, companyName, shopName, metamaskAddress, role } = req.body
-			// if (!itemId || !quantity) {
-			// 	throw new EmptyValueError("Item id and quantity are required")
-			// }
 			const data = await service.createEntity({ name, surname, email, password, address_1, address_2, companyName, shopName, metamaskAddress, role })
 			res.json({
 				message: `Entity with id ${data.id} created successfully`,
@@ -140,8 +143,9 @@ const SmartSupplyController = {
 			{},
 			{},
 			{
-				productInstanceId: number
-				productId: number
+				productInstanceId: string
+				productId: string
+				soldBy: string
 			},
 			{}
 		>,
@@ -149,8 +153,8 @@ const SmartSupplyController = {
 		next: NextFunction
 	) {
 		try {
-			const { productInstanceId, productId } = req.body
-			const data = await service.addProductInstance({ productInstanceId, productId })
+			const { productInstanceId, productId, soldBy } = req.body
+			const data = await service.addProductInstance({ productInstanceId: parseInt(productInstanceId), productId: parseInt(productId), soldBy: parseInt(soldBy) })
 			res.json({
 				message: `Product instance with id ${data.productInstance.id} was added to product with id ${data.updatedProduct.uid} successfully`,
 				data: data,

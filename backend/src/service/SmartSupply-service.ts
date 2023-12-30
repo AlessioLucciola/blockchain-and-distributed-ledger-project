@@ -42,8 +42,8 @@ class SmartSupplyService {
 	async addProduct({ name, description }: { name: string; description: string }): Promise<Products> {
 		return this.repository.addProduct({ name, description })
 	}
-	async addProductInstance({ productInstanceId, productId }: { productInstanceId: number; productId: number }) {
-		return this.repository.addProductInstance({ productInstanceId, productId })
+	async addProductInstance({ productInstanceId, productId, soldBy }: { productInstanceId: number; productId: number; soldBy: number }) {
+		return this.repository.addProductInstance({ productInstanceId, productId, soldBy })
 	}
 }
 

@@ -21,21 +21,24 @@ model Products {
 model ProductInstances {
     id        Int      @id @default(autoincrement())
     productId Int // Foreign key referencing Products
+    soldById  Int? // Foreign key referencing Entity
+    soldBy    Entity?  @relation(fields: [soldById], references: [id])
     product   Products @relation(fields: [productId], references: [uid])
 }
 
 model Entity {
-    id              Int     @id @default(autoincrement())
-    name            String
-    surname         String
-    email           String
-    password        String
-    address_1       String
-    address_2       String?
-    companyName     String?
-    shopName        String?
-    metamaskAddress String
-    role            Roles
+    id               Int                @id @default(autoincrement())
+    name             String
+    surname          String
+    email            String
+    password         String
+    address_1        String
+    address_2        String?
+    companyName      String?
+    shopName         String?
+    metamaskAddress  String
+    role             Roles
+    ProductInstances ProductInstances[]
 
     @@unique([email])
 }

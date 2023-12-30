@@ -65,10 +65,19 @@ class SmartSupplyRepository {
 		})
 	}
 
-	async addProductInstance({ productInstanceId, productId }: { productInstanceId: number; productId: number }): Promise<{ productInstance: ProductInstances; updatedProduct: Products }> {
+	async addProductInstance({
+		productInstanceId,
+		productId,
+		soldBy,
+	}: {
+		productInstanceId: number
+		productId: number
+		soldBy: number
+	}): Promise<{ productInstance: ProductInstances; updatedProduct: Products }> {
 		const productInstance = await prisma.productInstances.create({
 			data: {
 				productId: productInstanceId,
+				soldById: soldBy,
 			},
 		})
 		const updatedProduct = await prisma.products.update({
