@@ -16,18 +16,13 @@ export default function ProductInfo() {
 	const getProductInfoWrapper = async () => {
 		if (!productId) return
 		const res = await getProductInfo({ productId: "1" })
-		console.log("productinstances", res.productInstances)
-		setProductInstances(res.productInstances) //TODO: major bug, there is always a single element here, even if the console.log above shows multiple elements
+		setProductInstances((prev) => [...res.productInstances])
 		setProduct(res)
 	}
 
 	useEffect(() => {
 		getProductInfoWrapper()
 	}, [productId])
-
-	useEffect(() => {
-		console.log(productInstances)
-	}, [productInstances])
 
 	return (
 		<div className="bg-background h-screen w-screen overflow-scroll">
@@ -58,11 +53,11 @@ export default function ProductInfo() {
 				<p className="font-bold text-text text-4xl">Product History</p>
 				<div className="flex pt-2 gap-2 items-center">
 					<GradientText text="Product ID" className="text-xl" />
-					<p className="text-text text-xl">093826692722638</p>
+					<p className="text-text text-xl">{product?.uid}</p>
 				</div>
 				<div className="flex pb-5 gap-2 items-center">
 					<GradientText text="Model ID" className="text-xl" />
-					<p className="text-text text-xl">093826692722638</p>
+					<p className="text-text text-xl">{product?.productInstances[0].id}</p>
 				</div>
 				<HistoryChain />
 				<div className="pb-20"></div>
