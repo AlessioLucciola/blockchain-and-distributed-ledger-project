@@ -7,11 +7,12 @@ import { Product, SearchResult } from "../shared/types"
 import React from "react"
 import ProductCard from "../components/ProductCard"
 import { searchProduct } from "../assets/api/apiCalls"
+import { useNavigate } from "react-router-dom"
 
 export default function Search() {
 	const [search, setSearch] = useState<string>("")
 	const [results, setResults] = useState<Product[]>([])
-
+	const navigate = useNavigate()
 	const handleKeyDown = async (event: React.KeyboardEvent) => {
 		if (event.key === "Enter") {
 			event.preventDefault()
@@ -50,7 +51,7 @@ export default function Search() {
 					</span>
 					<div className="flex flex-wrap pt-10 gap-5">
 						{results.map(({ name, uid }) => (
-							<ProductCard name={name} id={uid!} price={"100"} image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"} />
+							<ProductCard name={name} id={uid!} price={"100"} image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"} onClick={() => navigate(`/product/${uid!}`)} />
 						))}
 					</div>
 				</div>
