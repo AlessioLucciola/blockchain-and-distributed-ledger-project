@@ -1,12 +1,15 @@
+import React from "react"
 import { useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import { GRADIENTS, Roles } from "../shared/constants"
 import { DistributorIcon, ManufacturerIcon, CustomerIcon, RetailerIcon } from "../shared/icons"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Button from "../components/Button"
 import InputField from "../components/InputField"
 import { getRoleIcon } from "../utils/renderUtils"
 import GradientText from "../components/GradientText"
+import { createEntity } from "../assets/api/apiCalls"
+import { Entity } from "../shared/types"
 
 export default function Register() {
 	const [role, setRole] = useState<Roles | undefined>(undefined)
@@ -20,9 +23,6 @@ export default function Register() {
 	}
 
 	useEffect(() => {
-		// if (role === undefined && roleState === undefined) {
-		// return
-		// }
 		const queryRole = getQueryParams()
 		setRole(queryRole)
 	}, [])
@@ -85,6 +85,7 @@ interface RegisterFormProps {
 
 function RegisterForm({ role }: RegisterFormProps) {
 	const [roleState, setRoleState] = useState<Roles | undefined>(role)
+	const inputRefs = useRef<{ [key: string]: React.RefObject<HTMLInputElement> }>({})
 	const getQueryParams = () => {
 		const params = new URLSearchParams(window.location.search)
 		if (!params.has("role")) {
@@ -94,6 +95,64 @@ function RegisterForm({ role }: RegisterFormProps) {
 		return role
 	}
 
+	const registerEntity = async () => {
+		const fields = getFields()
+		if (fields === undefined) {
+			return
+		}
+		const values: { [key: string]: string } = {}
+		Object.entries(fields).forEach(([key, _value]) => {
+			values[key] = inputRefs.current[key].current?.value as string
+		})
+		if (!validateFields()) {
+			return
+		}
+		let entity: Entity
+		if (roleState == Roles.CUSTOMER) {
+			entity = {
+				name: values["Full Name"].split(" ")[0],
+				surname: values["Full Name"].split(" ")[1],
+				address_1: values["Address"],
+				email: values["Email"],
+				password: values["Password"],
+				metamaskAddress: "0x0000000000",
+				role: roleState,
+			}
+		} else {
+			entity = {
+				name: values["Company Name"],
+				address_1: values["Address 1"],
+				address_2: values["Address 2"],
+				email: values["Email"],
+				password: values["Password"],
+				companyName: values["Company Name"],
+				shopName: values["Shop Name"],
+				metamaskAddress: "0x0000000000",
+				role: roleState!,
+			}
+		}
+		//TODO: add error handling
+		await createEntity(entity)
+	}
+
+	const validateFields = () => {
+		const sanitizedEmail = inputRefs.current["Email"].current?.value?.trim().toLowerCase()
+		const sanitizedRepeatEmail = inputRefs.current["Repeat Email"].current?.value?.trim().toLowerCase()
+
+		if (sanitizedEmail !== sanitizedRepeatEmail) {
+			alert("Emails don't match!")
+			return false
+		}
+
+		const password = inputRefs.current["Password"].current?.value
+		const repeatPassword = inputRefs.current["Repeat Password"].current?.value
+
+		if (password !== repeatPassword) {
+			alert("Passwords don't match!")
+			return false
+		}
+		return true
+	}
 	const fields = {
 		seller: {
 			Email: "email",
@@ -148,9 +207,12 @@ function RegisterForm({ role }: RegisterFormProps) {
 						</div>
 						<div className="grid gap-y-6 gap-x-2 grid-cols-2">
 							{Object.entries(getFields()!).map(([key, value]) => {
-								return <InputField key={key} name={key} type={value} />
+								if (!inputRefs.current[key]) {
+									inputRefs.current[key] = React.createRef()
+								}
+								return <InputField ref={inputRefs.current[key]} key={key} name={key} type={value} />
 							})}
-							<Button text="Register" className="w-fit" />
+							<Button text="Register" className="w-fit" onClick={registerEntity} />
 						</div>
 					</div>
 				</div>

@@ -29,7 +29,7 @@ model ProductInstances {
 model Entity {
     id               Int                @id @default(autoincrement())
     name             String
-    surname          String
+    surname          String?
     email            String
     password         String
     address_1        String

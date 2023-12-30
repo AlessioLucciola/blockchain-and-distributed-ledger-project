@@ -9,7 +9,7 @@ export type SearchResult = {
 export type Entity = {
 	id?: string
 	name: string
-	surname: string
+	surname?: string
 	email: string
 	password: string
 	address_1: string
