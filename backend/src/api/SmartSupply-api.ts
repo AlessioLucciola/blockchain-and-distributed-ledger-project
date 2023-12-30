@@ -8,6 +8,7 @@ const SmartSupplyAPI = (app: Express) => {
 	app.delete("/api/delete-entity", SmartSupplyController.deleteEntity)
 	app.post("/api/add-product", SmartSupplyController.addProduct)
 	app.post("/api/add-product-instance", SmartSupplyController.addProductInstance)
+	app.get("/api/search-product", SmartSupplyController.searchProduct)
 }
 
 export default SmartSupplyAPI

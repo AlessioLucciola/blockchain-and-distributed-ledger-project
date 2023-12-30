@@ -163,6 +163,28 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
+	searchProduct: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				name: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { name } = req.query
+			const data = await service.searchProduct({ name })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
 }
 
 export default SmartSupplyController
