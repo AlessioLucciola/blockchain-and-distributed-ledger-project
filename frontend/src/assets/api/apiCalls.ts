@@ -39,3 +39,7 @@ export const addProductInstance = async ({ productInstanceId, productId, soldBy 
 	const res = await api.post("/add-product-instance", { productInstanceId, productId, soldBy })
 	return res
 }
+export const searchProduct = async ({ name }: { name: string }): Promise<AxiosResponse<{ message: string }>> => {
+	const res = await api.get("/search-product", { params: { name } })
+	return res
+}

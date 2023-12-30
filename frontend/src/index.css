@@ -5,3 +5,12 @@
 body {
 	font-family: "Inter", sans-serif;
 }
+.scrollbar-none {
+	overflow-x: auto; /* or scroll if you always want the scrollbar to be visible */
+	scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+	/* Chrome, Safari and Edge */
+	display: none;
+}
