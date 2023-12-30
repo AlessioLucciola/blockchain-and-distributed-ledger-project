@@ -22,6 +22,7 @@ model ProductInstances {
     id        Int      @id @default(autoincrement())
     productId Int // Foreign key referencing Products
     soldById  Int? // Foreign key referencing Entity
+    price     Float    @default(0)
     soldBy    Entity?  @relation(fields: [soldById], references: [id])
     product   Products @relation(fields: [productId], references: [uid])
 }

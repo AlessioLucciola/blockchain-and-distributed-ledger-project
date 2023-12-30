@@ -143,9 +143,9 @@ const SmartSupplyController = {
 			{},
 			{},
 			{
-				productInstanceId: string
 				productId: string
 				soldBy: string
+				price: string
 			},
 			{}
 		>,
@@ -153,8 +153,8 @@ const SmartSupplyController = {
 		next: NextFunction
 	) {
 		try {
-			const { productInstanceId, productId, soldBy } = req.body
-			const data = await service.addProductInstance({ productInstanceId: parseInt(productInstanceId), productId: parseInt(productId), soldBy: parseInt(soldBy) })
+			const { productId, soldBy, price } = req.body
+			const data = await service.addProductInstance({ productId: parseInt(productId), soldBy: parseInt(soldBy), price: parseFloat(price) })
 			res.json({
 				message: `Product instance with id ${data.productInstance.id} was added to product with id ${data.updatedProduct.uid} successfully`,
 				data: data,
@@ -178,6 +178,51 @@ const SmartSupplyController = {
 		try {
 			const { name } = req.query
 			const data = await service.searchProduct({ name })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	getProductInstanceInfo: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				productId: string
+				productInstanceId: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { productId, productInstanceId } = req.query
+			const data = await service.getProductInstanceInfo({ productId: parseInt(productId), productInstanceId: parseInt(productInstanceId) })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	getProductInfo: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				productId: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { productId } = req.query
+			const data = await service.getProductInfo({ productId: parseInt(productId) })
 			res.json({
 				data: data,
 			})

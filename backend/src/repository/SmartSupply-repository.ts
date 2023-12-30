@@ -65,19 +65,12 @@ class SmartSupplyRepository {
 		})
 	}
 
-	async addProductInstance({
-		productInstanceId,
-		productId,
-		soldBy,
-	}: {
-		productInstanceId: number
-		productId: number
-		soldBy: number
-	}): Promise<{ productInstance: ProductInstances; updatedProduct: Products }> {
+	async addProductInstance({ productId, soldBy, price }: { productId: number; soldBy: number; price: number }): Promise<{ productInstance: ProductInstances; updatedProduct: Products }> {
 		const productInstance = await prisma.productInstances.create({
 			data: {
-				productId: productInstanceId,
+				productId: productId,
 				soldById: soldBy,
+				price,
 			},
 		})
 		const updatedProduct = await prisma.products.update({
@@ -100,6 +93,29 @@ class SmartSupplyRepository {
 				name: {
 					contains: name,
 				},
+			},
+			include: {
+				productInstances: true,
+			},
+		})
+	}
+	async getProductInstanceInfo({ productId, productInstanceId }: { productId: number; productInstanceId: number }): Promise<ProductInstances | null> {
+		return prisma.productInstances.findUnique({
+			where: {
+				id: productInstanceId,
+				product: {
+					uid: productId,
+				},
+			},
+		})
+	}
+	async getProductInfo({ productId }: { productId: number }): Promise<Products | null> {
+		return prisma.products.findUnique({
+			where: {
+				uid: productId,
+			},
+			include: {
+				productInstances: true,
 			},
 		})
 	}

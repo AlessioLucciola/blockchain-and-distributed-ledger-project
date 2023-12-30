@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios"
-import { Entity, Product } from "../../shared/types"
+import { Entity, Product, ProductInstance } from "../../shared/types"
 
 export const api = axios.create({
 	baseURL: "http://localhost:3000/api",
@@ -59,7 +59,17 @@ export const addProductInstance = async ({
 	const res = await api.post("/add-product-instance", { productInstanceId, productId, soldBy })
 	return res
 }
-export const searchProduct = async ({ name }: { name: string }): Promise<AxiosResponse<{ message: string; data: Product[] }>> => {
+export const searchProduct = async ({ name }: { name: string }): Promise<AxiosResponse<{ data: Product[] }>> => {
 	const res = await api.get("/search-product", { params: { name } })
 	return res
+}
+
+export const getProductInstanceInfo = async ({ productInstanceId, productId }: { productInstanceId: string; productId: string }): Promise<AxiosResponse<{ data: ProductInstance }>> => {
+	const res = await api.get("/get-product-instance-info", { params: { productInstanceId, productId } })
+	return res
+}
+
+export const getProductInfo = async ({ productId }: { productId: string }): Promise<Product> => {
+	const res = await api.get("/get-product-info", { params: { productId } })
+	return res.data.data
 }

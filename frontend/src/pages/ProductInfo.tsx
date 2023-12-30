@@ -4,25 +4,44 @@ import { GRADIENTS, Roles } from "../shared/constants"
 import Button from "../components/Button"
 import { DistributorIcon, ManufacturerIcon, RetailerIcon, RightCaretIcon } from "../shared/icons"
 import GradientText from "../components/GradientText"
+import { Product, ProductInstance } from "../shared/types"
+import { useEffect, useState } from "react"
+import { getProductInfo } from "../assets/api/apiCalls"
 
 export default function ProductInfo() {
-	const { id } = useParams()
+	const { id: productId } = useParams()
+	const [product, setProduct] = useState<Product>()
+	const [productInstances, setProductInstances] = useState<ProductInstance[]>([])
+
+	const getProductInfoWrapper = async () => {
+		if (!productId) return
+		const res = await getProductInfo({ productId: "1" })
+		console.log("productinstances", res.productInstances)
+		setProductInstances(res.productInstances) //TODO: major bug, there is always a single element here, even if the console.log above shows multiple elements
+		setProduct(res)
+	}
+
+	useEffect(() => {
+		getProductInfoWrapper()
+	}, [productId])
+
+	useEffect(() => {
+		console.log(productInstances)
+	}, [productInstances])
+
 	return (
 		<div className="bg-background h-screen w-screen overflow-scroll">
 			<Navbar role={Roles.CUSTOMER} showLinks={false} />
 			<div className="flex flex-col px-10 pt-36">
 				<p className="font-bold text-text text-4xl">Product Info</p>
-				<div className="flex gap-10">
-					<div className="flex">
+				<div className="flex gap-10 justify-between">
+					<div className="flex w-full justify-evenly">
 						<img src="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" alt="product image" className="h-fit w-fit" />
 						<div className="flex flex-col mx-3 gap-10">
-							<p className="font-semibold text-text text-4xl">Nike Dunk Low Diffused Taupe</p>
-							<p className="text-text text-xl">
-								Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-								exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-							</p>
+							<p className="font-semibold text-text text-4xl">{product?.name}</p>
+							<p className="text-text text-xl">{product?.description}</p>
 							<div className="flex w-full gap-3 items-center justify-between">
-								<GradientText text="$108.99" className="text-5xl" />
+								<GradientText text={`$${productInstances[0]?.price.toFixed(2)}`} className="text-5xl" />
 								<Button text="Buy" className="w-fit" />
 							</div>
 						</div>
@@ -30,11 +49,9 @@ export default function ProductInfo() {
 					<div className={`rounded-xl p-4 bg-${GRADIENTS["div-gradient"]} flex items-center flex-col`}>
 						<p className="font-semibold text-text text-nowrap pb-2 text-2xl">Other Products</p>
 						<div className="flex flex-col gap-2">
-							<OtherProductTab id="098201928390823" price="108.99" />
-							<OtherProductTab id="098201928390823" price="108.99" />
-							<OtherProductTab id="098201928390823" price="108.99" />
-							<OtherProductTab id="098201928390823" price="108.99" />
-							<OtherProductTab id="098201928390823" price="108.99" />
+							{productInstances?.splice(1).map((productInstance: ProductInstance) => (
+								<OtherProductTab key={productInstance.id!} id={productInstance.id!} price={productInstance.price.toFixed(2)} />
+							))}
 						</div>
 					</div>
 				</div>

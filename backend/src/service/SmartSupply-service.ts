@@ -42,11 +42,17 @@ class SmartSupplyService {
 	async addProduct({ name, description }: { name: string; description: string }): Promise<Products> {
 		return this.repository.addProduct({ name, description })
 	}
-	async addProductInstance({ productInstanceId, productId, soldBy }: { productInstanceId: number; productId: number; soldBy: number }) {
-		return this.repository.addProductInstance({ productInstanceId, productId, soldBy })
+	async addProductInstance({ productId, soldBy, price }: { productId: number; soldBy: number; price: number }) {
+		return this.repository.addProductInstance({ productId, soldBy, price })
 	}
 	async searchProduct({ name }: { name: string }): Promise<Products[]> {
 		return this.repository.searchProduct({ name })
+	}
+	async getProductInstanceInfo({ productInstanceId, productId }: { productId: number; productInstanceId: number }): Promise<any> {
+		return this.repository.getProductInstanceInfo({ productInstanceId, productId })
+	}
+	async getProductInfo({ productId }: { productId: number }): Promise<Products | null> {
+		return this.repository.getProductInfo({ productId })
 	}
 }
 
