@@ -3,42 +3,28 @@ import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
 import { Roles } from "../shared/constants"
 import { SearchIcon } from "../shared/icons"
-import { SearchResult } from "../shared/types"
+import { Product, SearchResult } from "../shared/types"
 import React from "react"
 import ProductCard from "../components/ProductCard"
+import { searchProduct } from "../assets/api/apiCalls"
+import { useNavigate } from "react-router-dom"
 
 export default function Search() {
 	const [search, setSearch] = useState<string>("")
-	const [results, setResults] = useState<SearchResult[]>([])
-
-	const fakeResults: SearchResult[] = [
-		{
-			id: "00121289123",
-			name: "Nike Air Force 1",
-			image: "src/assets/placeholders/nike-dunk-low-diffused-taupe.png",
-		},
-		{
-			id: "00121289123",
-			name: "Nike Air Force 1",
-			image: "src/assets/placeholders/nike-dunk-low-diffused-taupe.png",
-		},
-		{
-			id: "00121289123",
-			name: "Nike Air Force 1",
-			image: "src/assets/placeholders/nike-dunk-low-diffused-taupe.png",
-		},
-		{
-			id: "00121289123",
-			name: "Nike Air Force 1",
-			image: "src/assets/placeholders/nike-dunk-low-diffused-taupe.png",
-		},
-	]
-
-	const handleKeyDown = (event: React.KeyboardEvent) => {
+	const [results, setResults] = useState<Product[]>([])
+	const navigate = useNavigate()
+	const handleKeyDown = async (event: React.KeyboardEvent) => {
 		if (event.key === "Enter") {
 			event.preventDefault()
 			setSearch((event.target as HTMLInputElement).value)
+			const searchResults = await performSearch((event.target as HTMLInputElement).value)
+			setResults(searchResults)
 		}
+	}
+
+	const performSearch = async (name: string): Promise<Product[]> => {
+		const { data } = await searchProduct({ name })
+		return data.data
 	}
 
 	useEffect(() => {
@@ -64,8 +50,8 @@ export default function Search() {
 						<GradientText text={search} className="text-4xl" />
 					</span>
 					<div className="flex flex-wrap pt-10 gap-5">
-						{fakeResults.map(({ name, id, image }) => (
-							<ProductCard name={name} id={id} price={"100"} image={image} />
+						{results.map(({ name, uid }) => (
+							<ProductCard name={name} id={uid!} price={"100"} image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"} onClick={() => navigate(`/product/${uid!}`)} />
 						))}
 					</div>
 				</div>
