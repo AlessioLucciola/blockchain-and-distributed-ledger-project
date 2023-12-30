@@ -2,8 +2,14 @@ import Button from "../components/Button"
 import GradientText from "../components/GradientText"
 import InputField from "../components/InputField"
 import Navbar from "../components/Navbar"
+import { useState } from "react"
+
+
+import { isMetamaskInstalled, getMetamaskAddress } from '../utils/metamaskUtils';
 
 export default function Login() {
+	const [walletAddress, setWalletAddress] = useState<string | null>(null); // Added state for wallet address
+
 	return (
 		<>
 			<Navbar />
@@ -14,7 +20,31 @@ export default function Login() {
 						<InputField name="Email" type="email" />
 						<InputField name="Password" type="password" />
 						<p className="cursor-pointer font-bold text-primary pt-1 hover:underline">I forgot my password :(</p>
-						<Button text="Log In" className="w-fit" />
+						{isMetamaskInstalled() === true ? (
+							<Button
+								onClick={() => {
+									getMetamaskAddress().then((walletAddress) => {
+										setWalletAddress(walletAddress);
+									});
+								}}
+								text="Connect Metamask"
+								className="w-fit"
+							/>		
+						) : (
+							<Button
+								onClick={() => {
+									window.location.href = 'https://metamask.io/download/';
+								}}
+								text="Install Metamask"
+								className="w-fit"
+							/>							
+						)}
+						{walletAddress && (
+							<p className="text-white">Wallet Address: {walletAddress}</p>
+						)}
+						{walletAddress && (
+							<Button text="Log In" className="w-fit" />
+						)}
 						{/* <div className="flex flex-row w-full  items-center justify-between relative">
 							<div className="flex flex-row top-[55px] right-[550px] items-center justify-center absolute">
 								<img src="./src/assets/ethereum.png" alt="ethereum logo" className="h-[64px] mr-4 w-[44px] drop-shadow-lg " />
