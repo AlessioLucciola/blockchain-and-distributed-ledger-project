@@ -4,17 +4,27 @@ import Navbar from "../components/Navbar"
 import { Roles } from "../shared/constants"
 import { CartIcon, StoreIcon, TagIcon } from "../shared/icons"
 import { getRoleIcon } from "../utils/renderUtils"
-import React from "react"
+import React, { useEffect } from "react"
+import { useSessionContext } from "../context/exportContext"
 export default function Home() {
 	const navigate = useNavigate()
+	const sessionContext = useSessionContext()
+
+	useEffect(() => {
+		if (!sessionContext.entityInfo) {
+			navigate("/")
+		}
+	}, [sessionContext])
 	return (
 		<div className="bg-background h-screen w-screen overflow-y-scroll">
-			<Navbar showLinks={true} overrideLinks={[{ name: "Logout", action: () => console.log("Logout!") }]} />
+			<Navbar showLinks={true} overrideLinks={[{ name: "Logout", action: sessionContext.logout }]} />
 			<div className="flex flex-col pt-36 items-center justify-center">
 				<GradientText text="Welcome Back!" className="text-7xl" />
 				<span className="flex pt-2 gap-2 items-center justify-center">
-					{getRoleIcon(Roles.CUSTOMER)}
-					<p className="font-semibold text-text text-2xl">Domiziano scarcelli</p>
+					{getRoleIcon((sessionContext.entityInfo?.role as Roles) || Roles.CUSTOMER)}
+					<p className="font-semibold text-text text-2xl">
+						{sessionContext.entityInfo?.name} {sessionContext.entityInfo?.surname}
+					</p>
 				</span>
 			</div>
 			<div className="flex pt-40 gap-5 items-center justify-center">

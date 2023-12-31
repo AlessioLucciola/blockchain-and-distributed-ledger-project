@@ -1,5 +1,6 @@
 import { Entity, Products, Roles } from "@prisma/client"
 import SmartSupplyRepository from "../repository/SmartSupply-repository"
+import { generateToken, resolveToken } from "../../utils/authUtils"
 
 class SmartSupplyService {
 	repository: SmartSupplyRepository
@@ -10,30 +11,7 @@ class SmartSupplyService {
 	async getEntities({ role }: { role?: Roles }): Promise<Entity[]> {
 		return this.repository.getEntities({ role })
 	}
-	//Insert methods here
-	async createEntity({
-		name,
-		surname,
-		email,
-		password,
-		address_1,
-		address_2,
-		companyName,
-		shopName,
-		metamaskAddress,
-		role,
-	}: {
-		name: string
-		surname?: string
-		email: string
-		password: string
-		address_1: string
-		address_2?: string
-		companyName?: string
-		shopName?: string
-		metamaskAddress: string
-		role: Roles
-	}): Promise<Entity> {
+	async createEntity({ name, surname, email, password, address_1, address_2, companyName, shopName, metamaskAddress, role }: Omit<Entity, "id">): Promise<Entity> {
 		return this.repository.createEntity({ name, surname, email, password, address_1, address_2, companyName, shopName, metamaskAddress, role })
 	}
 	async deleteEntity({ id }: { id: number }): Promise<Entity> {
@@ -53,6 +31,22 @@ class SmartSupplyService {
 	}
 	async getProductInfo({ productId }: { productId: number }): Promise<Products | null> {
 		return this.repository.getProductInfo({ productId })
+	}
+	async login({ email, password }: { email: string; password: string }): Promise<{ entity: Entity; token: string } | null> {
+		const entity = await this.repository.getEntityByEmail({ email })
+		if (!entity) throw new Error(`Entity with email ${email} not found`)
+		if (entity.password !== password) throw new Error("Inserted password doesn't match the one in the database")
+		const token = generateToken({
+			payload: {
+				...entity,
+			},
+		})
+		return { entity, token }
+	}
+	async getEntityInfoFromToken({ token }: { token: string }): Promise<Entity> {
+		const decoded = resolveToken({ token }) as { payload: Entity; iat: number; exp: number }
+		if (!decoded) throw new Error(`Entity with token ${token} not found`)
+		return decoded.payload as Entity
 	}
 }
 

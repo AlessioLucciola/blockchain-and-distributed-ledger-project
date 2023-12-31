@@ -73,3 +73,13 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 	const res = await api.get("/get-product-info", { params: { productId } })
 	return res.data.data
 }
+
+export const getEntityInfoFromToken = async (): Promise<AxiosResponse<{ data: Entity }>> => {
+	const res = await api.get("/get-entity-info-from-token", { withCredentials: true })
+	return res
+}
+
+export const login = async ({ email, password }: { email: string; password: string }): Promise<AxiosResponse<{ data: { entity: Entity; token: string } }>> => {
+	const res = await api.post("/login", { email, password }, { withCredentials: true })
+	return res
+}

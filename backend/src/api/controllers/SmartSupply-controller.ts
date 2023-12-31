@@ -56,7 +56,18 @@ const SmartSupplyController = {
 	) {
 		try {
 			const { name, surname, email, password, address_1, address_2, companyName, shopName, metamaskAddress, role } = req.body
-			const data = await service.createEntity({ name, surname, email, password, address_1, address_2, companyName, shopName, metamaskAddress, role })
+			const data = await service.createEntity({
+				name,
+				surname,
+				email,
+				password,
+				address_1,
+				address_2: address_2 || null,
+				companyName: companyName || null,
+				shopName: shopName || null,
+				metamaskAddress,
+				role,
+			})
 			res.json({
 				message: `Entity with id ${data.id} created successfully`,
 				data: data,
@@ -225,6 +236,54 @@ const SmartSupplyController = {
 			const data = await service.getProductInfo({ productId: parseInt(productId) })
 			res.json({
 				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+
+	login: async function (
+		req: Request<
+			{},
+			{},
+			{
+				email: string
+				password: string
+			},
+			{}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { email, password } = req.body
+			const data = await service.login({ email, password })
+			if (!data) throw new Error("Login failed")
+			const { entity, token } = data
+
+			const WEEK_IN_SECONDS = 7 * 24 * 60 * 60
+			const expirationDate = new Date(Date.now() + WEEK_IN_SECONDS * 1000) //One week later
+
+			res.cookie("entityToken", token, {
+				httpOnly: false,
+				sameSite: "strict",
+				expires: expirationDate,
+			})
+
+			res.json({
+				entity,
+				token,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	getEntityInfoFromToken: async function (req: Request<{}, {}, {}, {}>, res: Response, next: NextFunction) {
+		try {
+			const token = req.cookies.entityToken
+			const entity = await service.getEntityInfoFromToken({ token })
+			res.json({
+				data: entity,
 			})
 		} catch (err) {
 			next(err)
