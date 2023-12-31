@@ -16,6 +16,10 @@ Video 2: https://www.youtube.com/watch?v=HF2w3XFbnQY
     npm install --save-dev ethers
     npm install --save-dev "@nomicfoundation/hardhat-network-helpers@^1.0.0" "@nomicfoundation/hardhat-chai-matchers@^1.0.0" "@nomiclabs/hardhat-etherscan@^3.0.0" "@types/mocha@^9.1.0" "@typechain/ethers-v5@^10.1.0" "@typechain/hardhat@^6.1.2" "chai@^4.2.0" "hardhat-gas-reporter@^1.0.8" "solidity-coverage@^0.7.21" "ts-node@>=8.0.0" "typechain@^8.1.0" "typescript@>=4.5.0"
     ```
+    Or simply delete `node_modules` and `package-lock.json` from `frontend` and `backend` folders and then do this command
+    ```
+    npm install
+    ```
 2. Connect metamask to localhost network
     ```
     http:127.0.0.1:7545
@@ -45,6 +49,7 @@ Video 2: https://www.youtube.com/watch?v=HF2w3XFbnQY
     ],
     "bytecode": ...
     ```
+    Use [this site](https://lingojam.com/TexttoOneLine) to format it all on one line
 2. Deploy smart contract
     ```
     npx hardhat run ./scripts/deploy.ts --network localhost
@@ -75,6 +80,6 @@ Video 2: https://www.youtube.com/watch?v=HF2w3XFbnQY
 1. Start frontend
 
     ```
-    npm start
+    npm run dev
     ```
 
