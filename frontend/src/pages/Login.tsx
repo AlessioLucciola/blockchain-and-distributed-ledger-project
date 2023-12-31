@@ -1,11 +1,10 @@
-import { useRef } from "react"
+import { useRef, useState, useEffect } from "react"
 import { login } from "../assets/api/apiCalls"
 import Button from "../components/Button"
 import GradientText from "../components/GradientText"
 import InputField from "../components/InputField"
 import Navbar from "../components/Navbar"
-import { useState } from "react"
-
+import { useSessionContext } from "../context/exportContext"
 
 import { isMetamaskInstalled, getMetamaskAddress } from '../utils/metamaskUtils';
 
@@ -13,17 +12,26 @@ import { useNavigate } from "react-router-dom"
 
 export default function Login() {
 	const navigate = useNavigate()
+	const sessionContext = useSessionContext()
 	const emailRef = useRef<HTMLInputElement>(null)
 	const passwordRef = useRef<HTMLInputElement>(null)
 
 	const [walletAddress, setWalletAddress] = useState<string | null>(null); // Added state for wallet address
 
+	useEffect(() => {
+		if (sessionContext.entityInfo) {
+			navigate("/home")
+		}
+	}, [sessionContext])
+
 	const performLogin = async () => {
 		try {
 			const res = await login({ email: emailRef.current!.value, password: passwordRef.current!.value })
-			navigate("/home")
-		} catch {
-			alert("Error")
+			if (res.status === 200) {
+				navigate("/home")
+			}
+		} catch (error) {
+			alert(error)
 		}
 	}
 	return (

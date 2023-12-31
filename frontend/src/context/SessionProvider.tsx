@@ -32,10 +32,20 @@ export function SessionProvider({ children }: Props) {
 	}
 
 	useEffect(() => {
-		if (cookies.entityToken && !entityInfo) {
-			getUserIdFromJWT()
-		}
-	}, [entityInfo])
+		const fetchData = async () => {
+			if (cookies.entityToken && !entityInfo) {
+			try {
+				const { data } = await getEntityInfoFromToken();
+				setEntityInfo(data.data);
+			} catch (error) {
+				console.error("Error fetching entity info:", error);
+			}
+			}
+		};
+		
+		fetchData(); // Call the async function
+		
+	}, [cookies.entityToken, entityInfo]);
 
 	function logout() {
 		removeCookie("entityToken")

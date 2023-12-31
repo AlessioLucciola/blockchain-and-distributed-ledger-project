@@ -86,6 +86,7 @@ interface RegisterFormProps {
 }
 
 function RegisterForm({ role }: RegisterFormProps) {
+	const navigate = useNavigate()
 	const [roleState, setRoleState] = useState<Roles | undefined>(role)
 	const [walletAddress, setWalletAddress] = useState<string | null>(null); // Added state for wallet address
 
@@ -109,6 +110,7 @@ function RegisterForm({ role }: RegisterFormProps) {
 			values[key] = inputRefs.current[key].current?.value as string
 		})
 		if (!validateFields()) {
+			alert("Error. Please, check the fields and try again.")
 			return
 		}
 		let entity: Entity
@@ -135,8 +137,18 @@ function RegisterForm({ role }: RegisterFormProps) {
 				role: roleState!,
 			}
 		}
-		//TODO: add error handling
-		await createEntity(entity)
+
+		try {
+			const res = await createEntity(entity)
+			if (res.status === 200) {
+				console.log('Response from createEntity:', res)
+				alert("Account created successfully")
+				navigate("/login")
+			}
+		} catch (error) {
+			console.error('Error in registerEntity:', error);
+    		alert('Error creating account. Please try again.')
+		}
 	}
 
 	const validateFields = () => {
