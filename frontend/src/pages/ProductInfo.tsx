@@ -16,7 +16,7 @@ export default function ProductInfo() {
 	const getProductInfoWrapper = async () => {
 		if (!productId) return
 		const res = await getProductInfo({ productId: "1" })
-		setProductInstances((prev) => [...res.productInstances])
+		setProductInstances((_prev) => [...res.productInstances])
 		setProduct(res)
 	}
 

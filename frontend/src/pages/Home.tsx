@@ -4,9 +4,16 @@ import Navbar from "../components/Navbar"
 import { Roles } from "../shared/constants"
 import { CartIcon, StoreIcon, TagIcon } from "../shared/icons"
 import { getRoleIcon } from "../utils/renderUtils"
-import React from "react"
+import React, { useContext, useEffect } from "react"
+import { SessionContext } from "../context/SessionProvider"
 export default function Home() {
 	const navigate = useNavigate()
+	const sessionContext = useContext(SessionContext)
+
+	useEffect(() => {
+		console.log(sessionContext.entityInfo)
+	}, [])
+
 	return (
 		<div className="bg-background h-screen w-screen overflow-y-scroll">
 			<Navbar showLinks={true} overrideLinks={[{ name: "Logout", action: () => console.log("Logout!") }]} />

@@ -1,9 +1,17 @@
+import { useRef } from "react"
+import { login } from "../assets/api/apiCalls"
 import Button from "../components/Button"
 import GradientText from "../components/GradientText"
 import InputField from "../components/InputField"
 import Navbar from "../components/Navbar"
 
 export default function Login() {
+	const emailRef = useRef<HTMLInputElement>(null)
+	const passwordRef = useRef<HTMLInputElement>(null)
+	const performLogin = async () => {
+		const res = await login({ email: emailRef.current!.value, password: passwordRef.current!.value })
+		console.log(res)
+	}
 	return (
 		<>
 			<Navbar />
@@ -11,19 +19,10 @@ export default function Login() {
 				<div className="flex flex-col h-full w-full pl-36 items-center justify-center">
 					<div className="flex flex-col h-fit w-fit gap-6">
 						<GradientText text="Who are you?" className="text-7xl" />
-						<InputField name="Email" type="email" />
-						<InputField name="Password" type="password" />
+						<InputField name="Email" type="email" ref={emailRef} />
+						<InputField name="Password" type="password" ref={passwordRef} />
 						<p className="cursor-pointer font-bold text-primary pt-1 hover:underline">I forgot my password :(</p>
-						<Button text="Log In" className="w-fit" />
-						{/* <div className="flex flex-row w-full  items-center justify-between relative">
-							<div className="flex flex-row top-[55px] right-[550px] items-center justify-center absolute">
-								<img src="./src/assets/ethereum.png" alt="ethereum logo" className="h-[64px] mr-4 w-[44px] drop-shadow-lg " />
-								<p className="text-text text-nowrap  text-2xl drop-shadow-lg">
-									Fighting against counterfeit products <br /> with Blockchain-powered solution.
-								</p>
-							</div>
-							<Button text="Join Us" className="w-fit mt-16" />
-						</div> */}
+						<Button text="Log In" className="w-fit" onClick={performLogin} />
 					</div>
 				</div>
 			</div>

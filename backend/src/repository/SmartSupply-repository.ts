@@ -11,29 +11,7 @@ class SmartSupplyRepository {
 			},
 		})
 	}
-	async createEntity({
-		name,
-		surname,
-		email,
-		password,
-		address_1,
-		address_2,
-		companyName,
-		shopName,
-		metamaskAddress,
-		role,
-	}: {
-		name: string
-		surname?: string
-		email: string
-		password: string
-		address_1: string
-		address_2?: string
-		companyName?: string
-		shopName?: string
-		metamaskAddress: string
-		role: Roles
-	}): Promise<Entity> {
+	async createEntity({ name, surname, email, password, address_1, address_2, companyName, shopName, metamaskAddress, role }: Omit<Entity, "id">): Promise<Entity> {
 		return prisma.entity.create({
 			data: {
 				name,
@@ -116,6 +94,13 @@ class SmartSupplyRepository {
 			},
 			include: {
 				productInstances: true,
+			},
+		})
+	}
+	async getEntityByEmail({ email }: { email: string }): Promise<Entity | null> {
+		return prisma.entity.findUnique({
+			where: {
+				email,
 			},
 		})
 	}
