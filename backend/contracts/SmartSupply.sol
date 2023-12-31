@@ -29,7 +29,7 @@ contract SmartSupply is Entities, Utils {
         products[_productID] = newProduct;
 
         // Emit the event related to the production of the product
-        emit ProductProduced(_productID);
+        emit ProductProduced(_productID, msg.sender);
     }
 
     // Function to check that entity is allowed to ship the product
@@ -133,7 +133,7 @@ contract SmartSupply is Entities, Utils {
             revert("Invalid current owner for updating location");
         }
 
-        emit ProductReceived(_productID);
+        emit ProductReceived(_productID, msg.sender);
     }
 
     function distributeReward(address payable recipient, uint256 _productID, uint256 amount) internal {
@@ -192,7 +192,7 @@ contract SmartSupply is Entities, Utils {
             products[_productID].rewards.retailerRewarded = true;
         }
 
-        emit BankTransactionChanged(_productID);
+        emit BankTransactionChanged(_productID, msg.sender);
     }
 
     // address payable [] public recipients;

@@ -2,42 +2,52 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url      = env("DATABASE_URL")
 }
 
 model Products {
-  uid Int @id @default(autoincrement())
-  name String
-  description String
-  productInstances ProductInstances[]
+    uid              Int                @id @default(autoincrement())
+    name             String
+    description      String
+    productInstances ProductInstances[]
 }
 
 model ProductInstances {
-  id Int @id @default(autoincrement())
-  productId Int   // Foreign key referencing Products
-  product Products @relation(fields: [productId], references: [uid])
+    id        Int      @id @default(autoincrement())
+    productId Int // Foreign key referencing Products
+    soldById  Int? // Foreign key referencing Entity
+    price     Float    @default(0)
+    soldBy    Entity?  @relation(fields: [soldById], references: [id])
+    product   Products @relation(fields: [productId], references: [uid])
 }
 
 model Entity {
-  id       Int @id @default(autoincrement())
-  name     String
-  surname  String
-  email    String
-  password String
-  role     Roles
+    id               Int                @id @default(autoincrement())
+    name             String
+    surname          String?
+    email            String
+    password         String
+    address_1        String
+    address_2        String?
+    companyName      String?
+    shopName         String?
+    metamaskAddress  String
+    role             Roles
+    ProductInstances ProductInstances[]
 
-  @@unique([email])
+    @@unique([email])
 }
 
 enum Roles {
-  admin
-  manufacturer
-  distributor
-  retailer
-  customer
+    admin
+    manufacturer
+    distributor
+    retailer
+    customer
 }

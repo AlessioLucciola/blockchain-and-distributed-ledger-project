@@ -3,6 +3,7 @@ export const GRADIENTS = {
 	"div-gradient": "gradient-to-b from-accent via-secondary to-background",
 }
 export enum Roles {
+	ADMIN = "admin",
 	MANUFACTURER = "manufacturer",
 	DISTRIBUTOR = "distributor",
 	RETAILER = "retailer",

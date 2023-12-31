@@ -1,3 +1,5 @@
+import { useRef } from "react"
+import { login } from "../assets/api/apiCalls"
 import Button from "../components/Button"
 import GradientText from "../components/GradientText"
 import InputField from "../components/InputField"
@@ -7,9 +9,23 @@ import { useState } from "react"
 
 import { isMetamaskInstalled, getMetamaskAddress } from '../utils/metamaskUtils';
 
+import { useNavigate } from "react-router-dom"
+
 export default function Login() {
+	const navigate = useNavigate()
+	const emailRef = useRef<HTMLInputElement>(null)
+	const passwordRef = useRef<HTMLInputElement>(null)
+
 	const [walletAddress, setWalletAddress] = useState<string | null>(null); // Added state for wallet address
 
+	const performLogin = async () => {
+		try {
+			const res = await login({ email: emailRef.current!.value, password: passwordRef.current!.value })
+			navigate("/home")
+		} catch {
+			alert("Error")
+		}
+	}
 	return (
 		<>
 			<Navbar />
@@ -17,8 +33,8 @@ export default function Login() {
 				<div className="flex flex-col h-full w-full pl-36 items-center justify-center">
 					<div className="flex flex-col h-fit w-fit gap-6">
 						<GradientText text="Who are you?" className="text-7xl" />
-						<InputField name="Email" type="email" />
-						<InputField name="Password" type="password" />
+						<InputField name="Email" type="email" ref={emailRef} />
+						<InputField name="Password" type="password" ref={passwordRef} />
 						<p className="cursor-pointer font-bold text-primary pt-1 hover:underline">I forgot my password :(</p>
 						{isMetamaskInstalled() === true ? (
 							<Button
@@ -43,7 +59,7 @@ export default function Login() {
 							<p className="text-white">Wallet Address: {walletAddress}</p>
 						)}
 						{walletAddress && (
-							<Button text="Log In" className="w-fit" />
+							<Button text="Log In" className="w-fit" onClick={performLogin} />
 						)}
 						{/* <div className="flex flex-row w-full  items-center justify-between relative">
 							<div className="flex flex-row top-[55px] right-[550px] items-center justify-center absolute">

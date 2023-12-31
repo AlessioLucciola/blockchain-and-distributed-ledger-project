@@ -61,11 +61,11 @@ contract Utils {
     }
 
     // Define some events
-    event ProductProduced(uint256 productID);
+    event ProductProduced(uint256 productID, address manufacturer);
     event ChangedOnSale(uint256 productID, address owner);
     event ProductPurchased(uint256 productID, address oldOwner, address newOwner);
     event ProductShipped(uint256 productID, address sender, address receiver);
-    event ProductReceived(uint256 productID);
-    event BankTransactionChanged(uint256 productID);
+    event ProductReceived(uint256 productID, address receiver);
+    event BankTransactionChanged(uint256 productID, address entity);
     event RewardGiven(address receiver, uint256 amount);
 }

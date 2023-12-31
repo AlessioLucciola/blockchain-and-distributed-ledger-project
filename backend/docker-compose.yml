@@ -15,16 +15,17 @@ services:
             - 3306:3306
         volumes:
             - smartsupply_db:/var/lib/mysql
-    
-    adminer:
-        image: adminer
-        restart: unless-stopped
-        ports:
-        - 8080:8080
-        depends_on:
-        - mysql
-        environment:
-        - ADMINER_DB_SERVER=mysql
+
+    # NOTE: To change the databse use npx prisma studio instead of adminer
+    # adminer:
+    #     image: adminer
+    #     restart: unless-stopped
+    #     ports:
+    #         - 8080:8080
+    #     depends_on:
+    #         - mysql
+    #     environment:
+    #         - ADMINER_DB_SERVER=mysql
 
     smartsupply:
         image: smartsupply
@@ -35,13 +36,13 @@ services:
         ports:
             - "3000:3000"
         environment:
-            - DATABASE_URL=mysql://root:root@mysql:3306/mysql
+            - DATABASE_URL=mysql://root:root@mysql:3306/mysql_smartsupply
         volumes:
             - .:/app
         depends_on:
             - mysql
         restart: unless-stopped
-        command: ["sh", "-c", "npx prisma migrate deploy; npm run dev"]
+        command: ["sh", "-c", "npx prisma migrate deploy --schema=../prisma/schema.prisma; npm run dev"]
 
 volumes:
     smartsupply_db:
