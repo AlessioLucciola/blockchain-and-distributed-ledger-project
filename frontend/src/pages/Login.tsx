@@ -4,13 +4,19 @@ import Button from "../components/Button"
 import GradientText from "../components/GradientText"
 import InputField from "../components/InputField"
 import Navbar from "../components/Navbar"
+import { useNavigate } from "react-router-dom"
 
 export default function Login() {
+	const navigate = useNavigate()
 	const emailRef = useRef<HTMLInputElement>(null)
 	const passwordRef = useRef<HTMLInputElement>(null)
 	const performLogin = async () => {
-		const res = await login({ email: emailRef.current!.value, password: passwordRef.current!.value })
-		console.log(res)
+		try {
+			const res = await login({ email: emailRef.current!.value, password: passwordRef.current!.value })
+			navigate("/home")
+		} catch {
+			alert("Error")
+		}
 	}
 	return (
 		<>

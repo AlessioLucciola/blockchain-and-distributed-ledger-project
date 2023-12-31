@@ -2,9 +2,18 @@ import { useNavigate } from "react-router-dom"
 import Button from "../components/Button"
 import Navbar from "../components/Navbar"
 import GradientText from "../components/GradientText"
+import { useSessionContext } from "../context/exportContext"
+import { useEffect } from "react"
 
 export default function Home() {
 	const navigate = useNavigate()
+	const sessionContext = useSessionContext()
+
+	useEffect(() => {
+		if (sessionContext.entityInfo) {
+			navigate("/home")
+		}
+	}, [sessionContext])
 	return (
 		<>
 			<Navbar />

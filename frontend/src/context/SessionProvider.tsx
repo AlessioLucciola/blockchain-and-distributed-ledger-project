@@ -12,6 +12,11 @@ export const SessionContext = createContext({
 interface Props {
 	children: React.ReactNode
 }
+/**
+ * This component is used to store the session information of the user.
+ * In order to use it just initializea const sessionContext = useSessionContext() in any component as an hook,
+ * and you will be able to access the information inside the sessionContext.entityInfo object
+ */
 export function SessionProvider({ children }: Props) {
 	const [cookies, removeCookie] = useCookies()
 	const [entityInfo, setEntityInfo] = useState<Entity>()
@@ -34,6 +39,7 @@ export function SessionProvider({ children }: Props) {
 
 	function logout() {
 		removeCookie("entityToken")
+		window.location.reload()
 	}
 
 	return <SessionContext.Provider value={contextValue}>{children}</SessionContext.Provider>
