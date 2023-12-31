@@ -11,6 +11,8 @@ import GradientText from "../components/GradientText"
 import { createEntity } from "../assets/api/apiCalls"
 import { Entity } from "../shared/types"
 
+import { isMetamaskInstalled, getMetamaskAddress } from '../utils/metamaskUtils';
+
 export default function Register() {
 	const [role, setRole] = useState<Roles | undefined>(undefined)
 	const getQueryParams = () => {
@@ -85,6 +87,8 @@ interface RegisterFormProps {
 
 function RegisterForm({ role }: RegisterFormProps) {
 	const [roleState, setRoleState] = useState<Roles | undefined>(role)
+	const [walletAddress, setWalletAddress] = useState<string | null>(null); // Added state for wallet address
+
 	const inputRefs = useRef<{ [key: string]: React.RefObject<HTMLInputElement> }>({})
 	const getQueryParams = () => {
 		const params = new URLSearchParams(window.location.search)
@@ -212,7 +216,32 @@ function RegisterForm({ role }: RegisterFormProps) {
 								}
 								return <InputField ref={inputRefs.current[key]} key={key} name={key} type={value} />
 							})}
-							<Button text="Register" className="w-fit" onClick={registerEntity} />
+
+							{isMetamaskInstalled() === true ? (
+								<Button
+									onClick={() => {
+										getMetamaskAddress().then((walletAddress) => {
+											setWalletAddress(walletAddress);
+										});
+									}}
+									text="Connect Metamask"
+									className="w-fit"
+								/>		
+							) : (
+								<Button
+									onClick={() => {
+										window.location.href = 'https://metamask.io/download/';
+									}}
+									text="Install Metamask"
+									className="w-fit"
+								/>							
+							)}
+							{walletAddress && (
+								<p className="text-white">Wallet Address: {walletAddress}</p>
+							)}
+							{walletAddress && (
+								<Button text="Register" className="w-fit" onClick={registerEntity} />
+							)}
 						</div>
 					</div>
 				</div>
