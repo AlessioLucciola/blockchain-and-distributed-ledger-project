@@ -1,20 +1,35 @@
-import { ethers } from 'ethers'
-import MyContractABI from '../assets/abi/SmartSupply.json'
+import { ethers } from 'ethers';
+import MyContractABI from '../assets/abi/SmartSupply.json';
 
 let contractInstance: ethers.Contract | null = null;
 
-export function getContractInstance(): ethers.Contract {
-  if (!contractInstance) {
-    try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-
-        // Load the contract ABI
-        const contractAddress = process.env.REACT_APP_SMART_SUPPLY_CONTRACT_ADDRESS || '0xDefaultContractAddress'
-        contractInstance = new ethers.Contract(contractAddress, MyContractABI, provider)
-
-        return contractInstance
-    } catch (error) {
-        console.error('Failed to connect to the smart contract:', error)
-    }
+declare global {
+  interface Window {
+    ethereum?: any;
   }
 }
+
+export const getContractInstance = async (): Promise<ethers.Contract | null> => {
+  if (!contractInstance) {
+    try {
+      if (typeof window.ethereum === 'undefined') {
+        console.error('MetaMask not detected. Make sure it is installed and active.')
+        return null;
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum)
+
+      // Load the contract ABI
+      const contractAddress = process.env.REACT_APP_SMART_SUPPLY_CONTRACT_ADDRESS || '0xDefaultContractAddress'
+      const signer = await provider.getSigner();
+      contractInstance = new ethers.Contract(contractAddress, MyContractABI.abi, signer)
+
+      return contractInstance;
+    } catch (error) {
+      console.error('Failed to connect to the smart contract:', error)
+      return null
+    }
+  } else {
+    return contractInstance;
+  }
+};
