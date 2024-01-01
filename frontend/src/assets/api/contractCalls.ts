@@ -15,8 +15,8 @@ export const addManufacturer = async () => {
       console.log('addManufacturer function called successfully');
 
       // Check if the account is a manufacturer
-      const isManufacturer = await contract.isManufacturer(accounts[0]);
-      console.log(isManufacturer);
+      const isManufacturer = await contract.isManufacturer(accounts[0])
+      console.log(isManufacturer)
 
       return isManufacturer;
     } else {
