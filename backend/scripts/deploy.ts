@@ -1,24 +1,29 @@
 import { ethers } from "hardhat";
 
+async function deployContract(contractName: string) {
+    const [deployer] = await ethers.getSigners();
+
+    console.log(`Deploying ${contractName} with deployer address: ${deployer.address}`);
+    
+    const contract = await ethers.deployContract(contractName);
+    await contract.waitForDeployment();
+
+    console.log(`${contractName} deployed to:`, contract.target);
+    return contract;
+}
+
 async function main() {
-  const BalanceManager = await ethers.deployContract("BalanceManager");
-  await BalanceManager.waitForDeployment();
-  
-  const Entities = await ethers.deployContract("Entities");
-  await Entities.waitForDeployment();
+    const BalanceManager = await deployContract("BalanceManager");
+    const Entities = await deployContract("Entities");
+    const SmartSupply = await deployContract("SmartSupply");
+    const Utils = await deployContract("Utils");
 
-  const SmartSupply = await ethers.deployContract("SmartSupply");
-  await SmartSupply.waitForDeployment();
-
-  const Utils = await ethers.deployContract("Utils");
-  await Utils.waitForDeployment();
-
-  console.log("SmartSupply deployed to:", SmartSupply.target);
+    console.log("Deployment of all contracts completed!");
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+    console.error(error);
+    process.exitCode = 1;
 });

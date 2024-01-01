@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance } from "../../shared/types"
+import { addManufacturer } from "../api/contractCalls"
 
 export const api = axios.create({
 	baseURL: "http://localhost:3000/api",
@@ -22,6 +23,20 @@ export const createEntity = async ({
 	metamaskAddress,
 	role,
 }: Entity): Promise<AxiosResponse<{ message: string; data: Entity }>> => {
+	switch (role) {
+		case "manufacturer":
+			addManufacturer()
+			break
+		case "customer":
+		  break
+		case "retailer":
+		  break
+		case "distributor":
+		  break
+		default:
+		  break
+	}
+
 	const res = await api.post("/create-entity", {
 		name,
 		surname,
