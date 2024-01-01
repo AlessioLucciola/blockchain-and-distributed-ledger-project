@@ -32,7 +32,6 @@ export default function Home() {
 									Fighting against counterfeit products <br /> with Blockchain-powered solution.
 								</p>
 							</div>
-							<Button text="test" onClick={() => addManufacturer()} />
 							<Button text="Join Us" className="w-fit mt-16" onClick={() => navigate("/register")} />
 						</div>
 					</div>
