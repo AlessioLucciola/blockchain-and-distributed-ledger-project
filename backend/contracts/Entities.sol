@@ -23,6 +23,10 @@ contract Entities is BalanceManager {
     event RetailerRemoved(address indexed account);
     event CustomerAdded(address indexed account);
     event CustomerRemoved(address indexed account);
+    event VerificationPermissionGranted(address indexed account);
+    event VerificationPermissionRevoked(address indexed account);
+    event EntityVerified(address indexed account);
+    event EntityVerificationRemoved(address indexed account);
 
     // Modifier function to allow other functions to be executed only by manufacturers or the admin
     modifier onlyManufacturer() {
@@ -155,11 +159,15 @@ contract Entities is BalanceManager {
     // Allow admin to grant permission for an entity to trigger verification
     function grantVerificationPermission(address account) external onlyAdmin {
         entityVerificationPermission[account] = true;
+
+        emit VerificationPermissionGranted(account);
     }
 
     // Allow admin to revoke permission for an entity to trigger verification
     function revokeVerificationPermission(address account) external onlyAdmin {
         entityVerificationPermission[account] = false;
+
+        emit VerificationPermissionRevoked(account);
     }
 
     // Define a function to check if the account is verified
@@ -177,11 +185,15 @@ contract Entities is BalanceManager {
 
         // Mark the entity as verified
         verificationStatus[msg.sender] = true;
+
+        emit EntityVerified(msg.sender);
     }
 
     // Define a function to force the removal of the verification (can be done only by the admin)
     function removeVerification(address account) external onlyAdmin {
         require(verificationStatus[account], "Entity is already not verified");
         verificationStatus[account] = false;
+
+        emit EntityVerificationRemoved(account);
     }
 }

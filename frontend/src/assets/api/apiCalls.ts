@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance } from "../../shared/types"
-import { addManufacturer } from "../api/contractCalls"
+import { addCustomer, addDistributor, addManufacturer, addRetailer } from "../api/contractCalls"
 
 export const api = axios.create({
 	baseURL: "http://localhost:3000/api",
@@ -20,53 +20,78 @@ export const createEntity = async ({
     address_2,
     companyName,
     shopName,
-    metamaskAddress,
     role,
-}: Entity): Promise<AxiosResponse<{ message: string; data: Entity }>> => {
+}: Entity): Promise<AxiosResponse<{ message: string; data: Entity }, any> | undefined> => {
     try {
-        // Send the POST request to create the entity in the database
-        const dbResponse = await api.post("/create-entity", {
-            name,
-            surname,
-            email,
-            password,
-            address_1,
-            address_2,
-            companyName,
-            shopName,
-            metamaskAddress,
-            role,
-        });
-
+		let metamaskAddress = null
         switch (role) {
             case "manufacturer":
-                const manufacturerAccount = await addManufacturer();
+                const manufacturerAccount = await addManufacturer()
 
                 if (manufacturerAccount) {
-                    console.log('Manufacturer account:', manufacturerAccount);
+					metamaskAddress = manufacturerAccount
+                    console.log('Manufacturer account:', manufacturerAccount)
                 } else {
-                    console.error('Error adding manufacturer');
+                    console.error('Error adding manufacturer')
                 }
-                break;
-
+				break
             case "customer":
-                break;
+				const customerAccount = await addCustomer()
 
+                if (customerAccount) {
+					console.log('Customer account:', customerAccount)
+                    metamaskAddress = customerAccount
+                } else {
+                    console.error('Error adding customer')
+                }
+                break
             case "retailer":
-                break;
+				const retailerAccount = await addRetailer()
 
+                if (retailerAccount) {
+					console.log('Retailer account:', retailerAccount)
+                    metamaskAddress = retailerAccount
+                } else {
+                    console.error('Error adding retailer')
+                }
+                break
             case "distributor":
-                break;
+                const distributorAccount = await addDistributor()
 
+                if (distributorAccount) {
+					console.log('Distributor account:', distributorAccount)
+                    metamaskAddress = distributorAccount
+                } else {
+                    console.error('Error adding distributor')
+                }
+                break
             default:
-                break;
+				const error = console.error('Error adding entity. Specified role not valid.')
+				throw error
         }
 
-        // Return the response from the database operation
-        return dbResponse;
+		if (metamaskAddress !== null) {
+			const dbResponse = await api.post("/create-entity", {
+				name,
+				surname,
+				email,
+				password,
+				address_1,
+				address_2,
+				companyName,
+				shopName,
+				metamaskAddress,
+				role,
+			})
+
+			return dbResponse
+		} else {
+			const error = console.error("Error creating entity. Can't catch the contract event.")
+			throw error
+		}
     } catch (error) {
-        console.error('Error creating entity:', error);
-        throw error;
+        console.error('Error creating entity:', error)
+        throw error
     }
 };
 
