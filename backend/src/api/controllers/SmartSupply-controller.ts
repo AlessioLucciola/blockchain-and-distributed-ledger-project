@@ -180,15 +180,19 @@ const SmartSupplyController = {
 			{},
 			{},
 			{
-				name: string
+				name?: string
+				productId?: string
+				includeInstances?: string
 			}
 		>,
 		res: Response,
 		next: NextFunction
 	) {
 		try {
-			const { name } = req.query
-			const data = await service.searchProduct({ name })
+			const { name, productId, includeInstances } = req.query
+			let safeIncludeInstances = false
+			if (includeInstances == "true" || includeInstances == "True") safeIncludeInstances = true
+			const data = await service.searchProduct({ name, productId: productId ? parseInt(productId) : undefined, includeInstances: safeIncludeInstances })
 			res.json({
 				data: data,
 			})
@@ -241,6 +245,50 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
+	getProductInstancesFromSeller: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				sellerId: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { sellerId } = req.query
+			const data = await service.getProductsInstancesFromSeller({ sellerId: parseInt(sellerId) })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	getSellerById: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				sellerId: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { sellerId } = req.query
+			const data = await service.getSellerById({ id: parseInt(sellerId) })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
 
 	login: async function (
 		req: Request<
@@ -261,13 +309,9 @@ const SmartSupplyController = {
 			if (!data) throw new Error("Login failed")
 			const { entity, token } = data
 
-			const WEEK_IN_SECONDS = 7 * 24 * 60 * 60
-			const expirationDate = new Date(Date.now() + WEEK_IN_SECONDS * 1000) //One week later
-
 			res.cookie("entityToken", token, {
 				httpOnly: false,
 				sameSite: "strict",
-				expires: expirationDate,
 			})
 
 			res.json({

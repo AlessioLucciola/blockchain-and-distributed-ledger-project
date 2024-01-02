@@ -65,15 +65,28 @@ class SmartSupplyRepository {
 		})
 		return { productInstance, updatedProduct }
 	}
-	async searchProduct({ name }: { name: string }): Promise<Products[]> {
+	async searchProduct({ name, productId, includeInstances }: { name?: string; productId?: number; includeInstances: boolean }): Promise<Products[]> {
 		return prisma.products.findMany({
 			where: {
-				name: {
-					contains: name,
-				},
+				name: name
+					? {
+							contains: name,
+					  }
+					: undefined,
+				uid: productId ? productId : undefined,
 			},
 			include: {
-				productInstances: true,
+				productInstances: includeInstances,
+			},
+		})
+	}
+	async getProductsInstancesFromSeller({ sellerId }: { sellerId: number }): Promise<ProductInstances[]> {
+		return prisma.productInstances.findMany({
+			where: {
+				soldById: sellerId,
+			},
+			include: {
+				product: true,
 			},
 		})
 	}
@@ -101,6 +114,13 @@ class SmartSupplyRepository {
 		return prisma.entity.findUnique({
 			where: {
 				email,
+			},
+		})
+	}
+	async getSellerById({ id }: { id: number }): Promise<Entity | null> {
+		return prisma.entity.findUnique({
+			where: {
+				id,
 			},
 		})
 	}

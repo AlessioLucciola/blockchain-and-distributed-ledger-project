@@ -7,7 +7,7 @@ import { RightCaretIcon } from "../shared/icons"
 export default function MySales() {
 	return (
 		<div className="bg-background h-screen w-screen pb-20 overflow-y-scroll">
-			<Navbar showLinks={false} role={Roles.MANUFACTURER} />
+			<Navbar showLinks={false} />
 			<div className="mt-36 px-10">
 				<GradientText text="My Sales" className="text-4xl" />
 				<div className="flex flex-col gap-2">

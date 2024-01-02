@@ -7,6 +7,7 @@ import { Entity } from "../shared/types"
 export const SessionContext = createContext({
 	entityInfo: undefined as Entity | undefined,
 	logout: () => {},
+	loading: true,
 })
 
 interface Props {
@@ -20,32 +21,28 @@ interface Props {
 export function SessionProvider({ children }: Props) {
 	const [cookies, removeCookie] = useCookies()
 	const [entityInfo, setEntityInfo] = useState<Entity>()
+	const [loading, setLoading] = useState(true)
 	const contextValue = {
 		logout,
 		entityInfo,
-	}
-
-	async function getUserIdFromJWT() {
-		const { data } = await getEntityInfoFromToken()
-		console.log(data)
-		setEntityInfo(data.data)
+		loading,
 	}
 
 	useEffect(() => {
 		const fetchData = async () => {
 			if (cookies.entityToken && !entityInfo) {
-			try {
-				const { data } = await getEntityInfoFromToken();
-				setEntityInfo(data.data);
-			} catch (error) {
-				console.error("Error fetching entity info:", error);
+				try {
+					const { data } = await getEntityInfoFromToken()
+					setEntityInfo(data.data)
+				} catch (error) {
+					console.error("Error fetching entity info:", error)
+				}
 			}
-			}
-		};
-		
-		fetchData(); // Call the async function
-		
-	}, [cookies.entityToken, entityInfo]);
+			setLoading(false)
+		}
+
+		fetchData() // Call the async function
+	}, [cookies.entityToken, entityInfo])
 
 	function logout() {
 		removeCookie("entityToken")
