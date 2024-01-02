@@ -66,6 +66,10 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 	return res.data.data
 }
 
+export const getProductInstancesFromSeller = async ({ sellerId }: { sellerId: string }): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
+	const res = await api.get("/get-product-instances-from-seller", { params: { sellerId } })
+	return res
+}
 export const getEntityInfoFromToken = async (): Promise<AxiosResponse<{ data: Entity }>> => {
 	const res = await api.get("/get-entity-info-from-token", { withCredentials: true })
 	return res

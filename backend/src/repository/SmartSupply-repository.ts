@@ -80,6 +80,16 @@ class SmartSupplyRepository {
 			},
 		})
 	}
+	async getProductsInstancesFromSeller({ sellerId }: { sellerId: number }): Promise<ProductInstances[]> {
+		return prisma.productInstances.findMany({
+			where: {
+				soldById: sellerId,
+			},
+			include: {
+				product: true,
+			},
+		})
+	}
 	async getProductInstanceInfo({ productId, productInstanceId }: { productId: number; productInstanceId: number }): Promise<ProductInstances | null> {
 		return prisma.productInstances.findUnique({
 			where: {

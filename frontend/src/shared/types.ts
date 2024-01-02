@@ -32,4 +32,5 @@ export type ProductInstance = {
 	productId: string
 	soldBy: string
 	price: number
+	product?: Product
 }

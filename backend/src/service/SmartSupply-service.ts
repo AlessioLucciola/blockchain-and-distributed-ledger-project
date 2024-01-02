@@ -1,4 +1,4 @@
-import { Entity, Products, Roles } from "@prisma/client"
+import { Entity, ProductInstances, Products, Roles } from "@prisma/client"
 import SmartSupplyRepository from "../repository/SmartSupply-repository"
 import { generateToken, resolveToken } from "../../utils/authUtils"
 
@@ -48,6 +48,9 @@ class SmartSupplyService {
 		const decoded = resolveToken({ token }) as { payload: Entity; iat: number; exp: number }
 		if (!decoded) throw new Error(`Entity with token ${token} not found`)
 		return decoded.payload as Entity
+	}
+	async getProductsInstancesFromSeller({ sellerId }: { sellerId: number }): Promise<ProductInstances[]> {
+		return this.repository.getProductsInstancesFromSeller({ sellerId })
 	}
 }
 

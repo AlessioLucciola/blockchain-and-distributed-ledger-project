@@ -7,22 +7,19 @@ import CreateProductModal from "../components/CreateProductModal"
 import { useSessionContext } from "../context/exportContext"
 import MessagePage from "./MessagePage"
 import { useNavigate } from "react-router-dom"
+import { Product, ProductInstance } from "../shared/types"
+import { getProductInstancesFromSeller } from "../assets/api/apiCalls"
 
 export default function Shop() {
 	const [showCreateProductModal, setShowCreateProductModal] = useState(false)
 	const navigate = useNavigate()
 	const sessionContext = useSessionContext()
-
 	const [isAuthorized, setIsAuthorized] = useState<boolean | undefined>(undefined)
-	useEffect(() => {
-		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
-			navigate("/login")
-		}
-		console.log(sessionContext)
-		if (sessionContext.entityInfo?.role === Roles.CUSTOMER) {
-			setIsAuthorized(false)
-		}
-	}, [sessionContext])
+	const [myProducts, setMyProducts] = useState<ProductInstance[]>([])
+	const [mySales, setMySales] = useState<Product[]>([])
+
+	const recentlySoldProductRef = React.useRef<HTMLDivElement | null>(null)
+	const recentlyAddedProductRef = React.useRef<HTMLDivElement | null>(null)
 
 	const scroll = (ref: React.MutableRefObject<HTMLDivElement | null>, direction: "left" | "right") => {
 		if (!ref.current) return
@@ -32,8 +29,26 @@ export default function Shop() {
 			ref.current.scrollLeft += 500 // Change 300 to the amount you want to scroll
 		}
 	}
-	const recentlyAddedProductRef = React.useRef<HTMLDivElement | null>(null)
-	const recentlySoldProductRef = React.useRef<HTMLDivElement | null>(null)
+
+	const getMyProducts = async () => {
+		const res = await getProductInstancesFromSeller({ sellerId: sessionContext.entityInfo?.id! })
+		if (res.status !== 200) {
+			alert("Error fetching products")
+			return
+		}
+		setMyProducts(res.data.data)
+	}
+
+	useEffect(() => {
+		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
+			navigate("/login")
+		}
+		console.log(sessionContext)
+		if (sessionContext.entityInfo?.role === Roles.CUSTOMER) {
+			setIsAuthorized(false)
+		}
+		getMyProducts()
+	}, [sessionContext])
 
 	if (isAuthorized === false) {
 		return (
@@ -51,7 +66,15 @@ export default function Shop() {
 
 	return (
 		<div className="bg-background h-screen w-screen pb-20 overflow-y-scroll">
-			<Navbar showLinks={false} role={Roles.MANUFACTURER} />
+			<Navbar
+				role={Roles.MANUFACTURER}
+				overrideLinks={[
+					{
+						name: "Logout",
+						action: sessionContext.logout,
+					},
+				]}
+			/>
 			<CreateProductModal showModal={showCreateProductModal} setShowModal={setShowCreateProductModal} />
 			<div className="mt-36 px-10">
 				<GradientText text="Your Products" className="text-4xl " />
@@ -72,12 +95,16 @@ export default function Shop() {
 							Add a new product
 						</p>
 					</div>
+
+					{myProducts.map(({ product, price }) => (
+						<ProductCard name={product!.name} id={product!.uid!} price={price.toFixed(2)} image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"} key={product!.uid!} />
+					))}
+					{/* <ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
-					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
-					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" /> */}
 				</div>
 				<span className="flex w-full justify-between items-center">
 					<p className="font-semibold  text-text pt-5 text-3xl">Recent Sales</p>

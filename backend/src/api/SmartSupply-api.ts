@@ -13,6 +13,7 @@ const SmartSupplyAPI = (app: Express) => {
 	app.get("/api/get-product-info", SmartSupplyController.getProductInfo)
 	app.post("/api/login", SmartSupplyController.login)
 	app.get("/api/get-entity-info-from-token", SmartSupplyController.getEntityInfoFromToken)
+	app.get("/api/get-product-instances-from-seller", SmartSupplyController.getProductInstancesFromSeller)
 }
 
 export default SmartSupplyAPI

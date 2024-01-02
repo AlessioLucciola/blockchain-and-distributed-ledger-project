@@ -81,7 +81,7 @@ export default function CreateProductModal({ showModal, setShowModal }: CreatePr
 								<div className="rounded-t flex p-5 items-start justify-between">
 									<div className="flex gap-2 justify-between">
 										{/*Left col*/}
-										<ProductList name={name} uid={uid} setUid={setUid} />
+										<ProductList name={name} uid={uid} setUid={setUid} setName={setName} />
 										{/*Right col*/}
 										<div className="flex flex-col p-6 gap-10 relative">
 											{uid ? (
@@ -144,8 +144,9 @@ interface ProductListProps {
 	name?: string
 	uid?: number
 	setUid: (uid: number) => void
+	setName: (name: string) => void
 }
-const ProductList = ({ name, uid, setUid }: ProductListProps) => {
+const ProductList = ({ name, uid, setUid, setName }: ProductListProps) => {
 	const [productList, setProductList] = useState<Product[]>([])
 	const [details, setDetails] = useState<Product | undefined>()
 	const getProductList = async () => {
@@ -183,7 +184,13 @@ const ProductList = ({ name, uid, setUid }: ProductListProps) => {
 						<div className=" flex flex-nowrap gap-2 justify-between items-center">
 							<GradientText text={uid?.toString()!} className="text-md" />
 							<p className="font-semibold text-text text-md">{name}</p>
-							<p className="bg-accent rounded-lg cursor-pointer font-semibold shadow-lg text-text py-1 px-3 select-none" onClick={() => setUid(parseInt(uid!))}>
+							<p
+								className="bg-accent rounded-lg cursor-pointer font-semibold shadow-lg text-text py-1 px-3 select-none"
+								onClick={() => {
+									setUid(parseInt(uid!))
+									setName(name)
+								}}
+							>
 								Sell this
 							</p>
 							<div className="flex gap-1 items-center" onClick={() => toggleDetails(parseInt(uid!))}>

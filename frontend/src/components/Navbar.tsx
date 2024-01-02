@@ -23,6 +23,12 @@ export default function Navbar({ showLinks = true, role, overrideLinks }: Navbar
 					<div className="bg-gradient-to-b bg-clip-text from-text to-secondary text-transparent text-2xl">Smart Supply.</div>
 				</div>
 				<div className="flex flex-row pr-10 gap-4 justify-center items-center">
+					{role && (
+						<div className="flex gap-4 items-center">
+							{getRoleIcon(role!)}
+							<p className="text-primary text-2xl">Domiziano Scarcelli</p>
+						</div>
+					)}
 					{showLinks && !overrideLinks && (
 						<>
 							<div className="cursor-pointer text-primary hover:underline">About.</div>
@@ -39,12 +45,6 @@ export default function Navbar({ showLinks = true, role, overrideLinks }: Navbar
 								{name}
 							</div>
 						))}
-					{role && (
-						<div className="flex gap-4 items-center">
-							{getRoleIcon(role!)}
-							<p className="text-primary text-2xl">Domiziano Scarcelli</p>
-						</div>
-					)}
 				</div>
 			</div>
 		</div>
