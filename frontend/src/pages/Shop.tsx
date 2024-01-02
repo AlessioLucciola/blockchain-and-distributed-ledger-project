@@ -97,14 +97,15 @@ export default function Shop() {
 					</div>
 
 					{myProducts.map(({ product, price }) => (
-						<ProductCard name={product!.name} id={product!.uid!} price={price.toFixed(2)} image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"} key={product!.uid!} />
+						<ProductCard
+							name={product!.name}
+							id={product!.uid!}
+							price={price.toFixed(2)}
+							image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"}
+							key={product!.uid!}
+							onClick={() => navigate(`/product/${product!.uid!}`)}
+						/>
 					))}
-					{/* <ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
-					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
-					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
-					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
-					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
-					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" /> */}
 				</div>
 				<span className="flex w-full justify-between items-center">
 					<p className="font-semibold  text-text pt-5 text-3xl">Recent Sales</p>

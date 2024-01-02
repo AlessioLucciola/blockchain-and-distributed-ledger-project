@@ -173,19 +173,19 @@ const ProductList = ({ name, uid, setUid, setName }: ProductListProps) => {
 	return (
 		<div className="flex flex-col w-full gap-2">
 			<p className="font-bold text-text text-lg drop-shadow-lg">Similar Products</p>
-			<div className="bg-background rounded-xl flex flex-nowrap shadow-lg p-3 gap-2 justify-between">
+			<div className="bg-background rounded-xl grid p-3 gap-2 grid-cols-[1fr_3fr_3fr_3fr] drop-shadow-lg place-items-center ">
 				<GradientText text={"ID"} className="text-md" />
 				<p className="font-semibold text-text text-md">Name</p>
 				<p className="font-semibold text-text text-md invisible">Name</p>
 			</div>
 			{productList.map(({ name, uid }) => {
 				return (
-					<div className="bg-background rounded-xl flex flex-col shadow-lg p-3 gap-2">
-						<div className=" flex flex-nowrap gap-2 justify-between items-center">
+					<div className="bg-background rounded-xl flex flex-col shadow-lg gap-2">
+						<div className="grid p-3 gap-2 grid-cols-[1fr_3fr_3fr_3fr] place-items-center">
 							<GradientText text={uid?.toString()!} className="text-md" />
-							<p className="font-semibold text-text text-md">{name}</p>
+							<p className="font-semibold text-text text-md text-nowrap">{name}</p>
 							<p
-								className="bg-accent rounded-lg cursor-pointer font-semibold shadow-lg text-text py-1 px-3 select-none"
+								className="bg-accent rounded-lg cursor-pointer font-semibold shadow-lg text-nowrap text-text py-1 px-3 select-none"
 								onClick={() => {
 									setUid(parseInt(uid!))
 									setName(name)
@@ -198,10 +198,35 @@ const ProductList = ({ name, uid, setUid, setName }: ProductListProps) => {
 								<RightCaretIcon className={`h-4 fill-text w-4 ${details && uid == details.uid! && "rotate-90"}`} />
 							</div>
 						</div>
-						{details && uid === details.uid! && <div className="">{JSON.stringify(details.productInstances)}</div>}
+						{details && uid === details.uid! && (
+							<div className="max-h-[500px] pb-5 overflow-y-auto ">
+								<div className="grid pl-10 grid-cols-3">
+									<GradientText text="Id" className="text-md" />
+									<GradientText text="Sold By" className="text-md" />
+									<GradientText text="Price" className="text-md" />
+								</div>
+								{details.productInstances.map(({ soldBy, price, id }) => (
+									<DetailsCard instanceId={parseInt(id!)} producerId={parseInt(soldBy)} price={price} />
+								))}
+							</div>
+						)}
 					</div>
 				)
 			})}
+		</div>
+	)
+}
+interface DetailsCardProps {
+	instanceId: number
+	producerId: number
+	price: number
+}
+const DetailsCard = ({ instanceId, producerId, price }: DetailsCardProps) => {
+	return (
+		<div className="grid py-1 pl-10 grid-cols-3">
+			<p className="font-semibold text-text text-md drop-shadow-lg">{instanceId}</p>
+			<p className="font-semibold text-text text-md drop-shadow-lg">Nike</p>
+			<p className="font-semibold text-text text-md drop-shadow-lg">${price.toFixed(2)}</p>
 		</div>
 	)
 }
