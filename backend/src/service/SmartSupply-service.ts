@@ -1,4 +1,4 @@
-import { Entity, Products, Roles } from "@prisma/client"
+import { Entity, ProductInstances, Products, Roles } from "@prisma/client"
 import SmartSupplyRepository from "../repository/SmartSupply-repository"
 import { generateToken, resolveToken } from "../../utils/authUtils"
 
@@ -23,8 +23,9 @@ class SmartSupplyService {
 	async addProductInstance({ productId, soldBy, price }: { productId: number; soldBy: number; price: number }) {
 		return this.repository.addProductInstance({ productId, soldBy, price })
 	}
-	async searchProduct({ name }: { name: string }): Promise<Products[]> {
-		return this.repository.searchProduct({ name })
+	async searchProduct({ name, productId, includeInstances }: { name?: string; productId?: number; includeInstances?: boolean }): Promise<Products[]> {
+		if (includeInstances === undefined || includeInstances === null) includeInstances = false
+		return this.repository.searchProduct({ name, productId, includeInstances })
 	}
 	async getProductInstanceInfo({ productInstanceId, productId }: { productId: number; productInstanceId: number }): Promise<any> {
 		return this.repository.getProductInstanceInfo({ productInstanceId, productId })
@@ -47,6 +48,12 @@ class SmartSupplyService {
 		const decoded = resolveToken({ token }) as { payload: Entity; iat: number; exp: number }
 		if (!decoded) throw new Error(`Entity with token ${token} not found`)
 		return decoded.payload as Entity
+	}
+	async getProductsInstancesFromSeller({ sellerId }: { sellerId: number }): Promise<ProductInstances[]> {
+		return this.repository.getProductsInstancesFromSeller({ sellerId })
+	}
+	async getSellerById({ id }: { id: number }): Promise<Entity | null> {
+		return this.repository.getSellerById({ id })
 	}
 }
 
