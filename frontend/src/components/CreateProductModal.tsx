@@ -103,7 +103,13 @@ export default function CreateProductModal({ showModal, setShowModal }: CreatePr
 												<div className="flex gap-2 items-center">
 													<p className="bg-background rounded-lg h-fit shadow-lg text-primary p-1 px-2">Product ID</p>
 													<p className="font-bold text-text text-lg box-shadow-lg">{uid}</p>
-													<p className="bg-background rounded-xl cursor-pointer font-semibold shadow-lg text-text py-1 px-3 selecto-none" onClick={() => setUid(undefined)}>
+													<p
+														className="bg-background rounded-xl cursor-pointer font-semibold shadow-lg text-text py-1 px-3 selecto-none"
+														onClick={() => {
+															setUid(undefined)
+															setName("")
+														}}
+													>
 														Reset
 													</p>
 												</div>
