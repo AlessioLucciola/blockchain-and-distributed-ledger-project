@@ -67,7 +67,6 @@ export default function Shop() {
 	return (
 		<div className="bg-background h-screen w-screen pb-20 overflow-y-scroll">
 			<Navbar
-				role={Roles.MANUFACTURER}
 				overrideLinks={[
 					{
 						name: "Logout",

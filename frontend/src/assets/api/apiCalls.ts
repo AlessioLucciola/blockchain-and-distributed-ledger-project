@@ -70,6 +70,10 @@ export const getProductInstancesFromSeller = async ({ sellerId }: { sellerId: st
 	const res = await api.get("/get-product-instances-from-seller", { params: { sellerId } })
 	return res
 }
+export const getSellerById = async ({ sellerId }: { sellerId: string }): Promise<AxiosResponse<{ data: Entity }>> => {
+	const res = await api.get("/get-seller-by-id", { params: { sellerId } })
+	return res
+}
 export const getEntityInfoFromToken = async (): Promise<AxiosResponse<{ data: Entity }>> => {
 	const res = await api.get("/get-entity-info-from-token", { withCredentials: true })
 	return res

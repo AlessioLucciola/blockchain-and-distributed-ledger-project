@@ -30,7 +30,7 @@ export type Product = {
 export type ProductInstance = {
 	id?: string
 	productId: string
-	soldBy: string
+	soldById: string
 	price: number
 	product?: Product
 }

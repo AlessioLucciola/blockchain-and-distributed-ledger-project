@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import InputField from "./InputField"
-import { addProduct, addProductInstance, searchProduct } from "../assets/api/apiCalls"
-import { Product } from "../shared/types"
+import { addProduct, addProductInstance, getSellerById, searchProduct } from "../assets/api/apiCalls"
+import { Entity, Product } from "../shared/types"
 import GradientText from "./GradientText"
 import { RightCaretIcon } from "../shared/icons"
 import { useSessionContext } from "../context/exportContext"
@@ -37,7 +37,7 @@ export default function CreateProductModal({ showModal, setShowModal }: CreatePr
 			productId = parseInt(res.data.data.uid!)
 		}
 		const sellerId = sessionContext.entityInfo!.id
-		const res = await addProductInstance({ productId: productId!.toString(), soldBy: parseInt(sellerId!), price: parseInt(price!) })
+		const res = await addProductInstance({ productId: productId!.toString(), soldBy: parseInt(sellerId!), price: parseFloat(price!) })
 		if (res.status !== 200) {
 			alert("Failed to add product instance")
 			return
@@ -61,7 +61,7 @@ export default function CreateProductModal({ showModal, setShowModal }: CreatePr
 			return false
 		}
 
-		if (price === undefined || parseInt(price) <= 0) {
+		if (price === undefined || parseFloat(price) <= 0) {
 			alert("Please enter a valid price")
 			return false
 		}
@@ -206,13 +206,13 @@ const ProductList = ({ name, uid, setUid, setName }: ProductListProps) => {
 						</div>
 						{details && uid === details.uid! && (
 							<div className="max-h-[500px] pb-5 overflow-y-auto ">
-								<div className="grid pl-10 grid-cols-3">
+								<div className="grid pl-10 grid-cols-[1fr_5fr_3fr]">
 									<GradientText text="Id" className="text-md" />
 									<GradientText text="Sold By" className="text-md" />
 									<GradientText text="Price" className="text-md" />
 								</div>
-								{details.productInstances.map(({ soldBy, price, id }) => (
-									<DetailsCard instanceId={parseInt(id!)} producerId={parseInt(soldBy)} price={price} />
+								{details.productInstances.map(({ soldById, price, id }) => (
+									<DetailsCard instanceId={parseInt(id!)} soldById={soldById} price={price} />
 								))}
 							</div>
 						)}
@@ -224,14 +224,24 @@ const ProductList = ({ name, uid, setUid, setName }: ProductListProps) => {
 }
 interface DetailsCardProps {
 	instanceId: number
-	producerId: number
+	soldById: string
 	price: number
 }
-const DetailsCard = ({ instanceId, producerId, price }: DetailsCardProps) => {
+const DetailsCard = ({ instanceId, soldById, price }: DetailsCardProps) => {
+	const [seller, setSeller] = useState<Entity | undefined>()
+
+	const getSellerByIdWrapper = async () => {
+		const res = await getSellerById({ sellerId: soldById })
+		setSeller(res.data.data)
+	}
+	useEffect(() => {
+		getSellerByIdWrapper()
+	}, [soldById])
+
 	return (
-		<div className="grid py-1 pl-10 grid-cols-3">
+		<div className="grid py-1 pl-10 grid-cols-[1fr_5fr_3fr]">
 			<p className="font-semibold text-text text-md drop-shadow-lg">{instanceId}</p>
-			<p className="font-semibold text-text text-md drop-shadow-lg">Nike</p>
+			<p className="font-semibold text-text text-md drop-shadow-lg">{seller?.companyName}</p>
 			<p className="font-semibold text-text text-md drop-shadow-lg">${price.toFixed(2)}</p>
 		</div>
 	)

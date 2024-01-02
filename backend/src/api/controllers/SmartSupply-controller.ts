@@ -267,6 +267,28 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
+	getSellerById: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				sellerId: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { sellerId } = req.query
+			const data = await service.getSellerById({ id: parseInt(sellerId) })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
 
 	login: async function (
 		req: Request<

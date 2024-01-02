@@ -21,7 +21,7 @@ const router = createBrowserRouter(
 			<Route path="/" element={<Hero />} />
 			<Route path="register" element={<Register />} />
 			<Route path="login" element={<Login />} />
-			<Route path="product/:id" element={<ProductInfo />} />
+			<Route path="product/:productId/:instanceId?" element={<ProductInfo />} />
 			<Route path="shop" element={<Shop />} />
 			<Route path="orders" element={<MyOrders />} />
 			<Route path="sales" element={<MySales />} />

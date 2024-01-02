@@ -117,5 +117,12 @@ class SmartSupplyRepository {
 			},
 		})
 	}
+	async getSellerById({ id }: { id: number }): Promise<Entity | null> {
+		return prisma.entity.findUnique({
+			where: {
+				id,
+			},
+		})
+	}
 }
 export default SmartSupplyRepository

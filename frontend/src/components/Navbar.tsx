@@ -1,6 +1,10 @@
 import { useNavigate } from "react-router-dom"
 import { getRoleIcon } from "../utils/renderUtils"
 import { Roles } from "../shared/constants"
+import { getSellerById } from "../assets/api/apiCalls"
+import { useSessionContext } from "../context/exportContext"
+import { useEffect, useState } from "react"
+import { Entity } from "../shared/types"
 
 type Link = {
 	name: string
@@ -9,11 +13,27 @@ type Link = {
 }
 interface NavbarProps {
 	showLinks?: boolean
-	role?: Roles
 	overrideLinks?: Link[]
 }
-export default function Navbar({ showLinks = true, role, overrideLinks }: NavbarProps) {
+export default function Navbar({ showLinks = true, overrideLinks }: NavbarProps) {
 	const navigate = useNavigate()
+	const sessionContext = useSessionContext()
+	const [entity, setEntity] = useState<Entity | undefined>()
+
+	const getSellerByIdWrapper = async () => {
+		if (!sessionContext.entityInfo) return
+		const res = await getSellerById({ sellerId: sessionContext.entityInfo!.id! })
+		setEntity(res.data.data)
+	}
+	const getEntityName = () => {
+		if (sessionContext.entityInfo?.role === Roles.CUSTOMER) {
+			return `${entity?.name} ${entity?.surname}`
+		}
+		return entity?.companyName
+	}
+	useEffect(() => {
+		getSellerByIdWrapper()
+	}, [sessionContext.entityInfo])
 
 	return (
 		<div className="flex flex-col align-center items-center">
@@ -23,10 +43,10 @@ export default function Navbar({ showLinks = true, role, overrideLinks }: Navbar
 					<div className="bg-gradient-to-b bg-clip-text from-text to-secondary text-transparent text-2xl">Smart Supply.</div>
 				</div>
 				<div className="flex flex-row pr-10 gap-4 justify-center items-center">
-					{role && (
+					{sessionContext.entityInfo && (
 						<div className="flex gap-4 items-center">
-							{getRoleIcon(role!)}
-							<p className="text-primary text-2xl">Domiziano Scarcelli</p>
+							{getRoleIcon(sessionContext.entityInfo?.role!)}
+							<p className="text-primary text-2xl">{getEntityName()}</p>
 						</div>
 					)}
 					{showLinks && !overrideLinks && (

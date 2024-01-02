@@ -52,6 +52,9 @@ class SmartSupplyService {
 	async getProductsInstancesFromSeller({ sellerId }: { sellerId: number }): Promise<ProductInstances[]> {
 		return this.repository.getProductsInstancesFromSeller({ sellerId })
 	}
+	async getSellerById({ id }: { id: number }): Promise<Entity | null> {
+		return this.repository.getSellerById({ id })
+	}
 }
 
 export default SmartSupplyService

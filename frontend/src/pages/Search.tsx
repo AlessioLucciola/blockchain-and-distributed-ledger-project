@@ -35,7 +35,7 @@ export default function Search() {
 
 	return (
 		<div className="bg-background h-screen w-screen overflow-scroll">
-			<Navbar role={Roles.CUSTOMER} showLinks={false} />
+			<Navbar showLinks={false} />
 			<div className="flex flex-col mt-36 w-screen gap-10 items-center align-center ">
 				<GradientText text={`What do you want to buy today?`} className="text-5xl" />
 				<div className="w-[50%] relative">
