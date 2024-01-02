@@ -12,45 +12,64 @@ export const getEntities = async ({ role }: { role?: string }): Promise<AxiosRes
 }
 
 export const createEntity = async ({
-	name,
-	surname,
-	email,
-	password,
-	address_1,
-	address_2,
-	companyName,
-	shopName,
-	metamaskAddress,
-	role,
+    name,
+    surname,
+    email,
+    password,
+    address_1,
+    address_2,
+    companyName,
+    shopName,
+    metamaskAddress,
+    role,
 }: Entity): Promise<AxiosResponse<{ message: string; data: Entity }>> => {
-	switch (role) {
-		case "manufacturer":
-			addManufacturer()
-			break
-		case "customer":
-		  break
-		case "retailer":
-		  break
-		case "distributor":
-		  break
-		default:
-		  break
-	}
+    try {
+        // Send the POST request to create the entity in the database
+        const dbResponse = await api.post("/create-entity", {
+            name,
+            surname,
+            email,
+            password,
+            address_1,
+            address_2,
+            companyName,
+            shopName,
+            metamaskAddress,
+            role,
+        });
 
-	const res = await api.post("/create-entity", {
-		name,
-		surname,
-		email,
-		password,
-		address_1,
-		address_2,
-		companyName,
-		shopName,
-		metamaskAddress,
-		role,
-	})
-	return res
-}
+        switch (role) {
+            case "manufacturer":
+                const manufacturerAccount = await addManufacturer();
+
+                if (manufacturerAccount) {
+                    console.log('Manufacturer account:', manufacturerAccount);
+                } else {
+                    console.error('Error adding manufacturer');
+                }
+                break;
+
+            case "customer":
+                break;
+
+            case "retailer":
+                break;
+
+            case "distributor":
+                break;
+
+            default:
+                break;
+        }
+
+        // Return the response from the database operation
+        return dbResponse;
+    } catch (error) {
+        console.error('Error creating entity:', error);
+        throw error;
+    }
+};
+
 export const deleteEntity = async ({ id }: { id: string }): Promise<AxiosResponse<{ message: string; data: Entity }>> => {
 	const res = await api.delete("/delete-entity", { params: { id } })
 	return res
