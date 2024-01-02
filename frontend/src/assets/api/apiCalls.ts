@@ -46,21 +46,13 @@ export const addProduct = async ({ name, description }: { name: string; descript
 	return res
 }
 
-export const addProductInstance = async ({
-	productInstanceId,
-	productId,
-	soldBy,
-}: {
-	productInstanceId: string
-	productId: string
-	soldBy: number
-}): Promise<AxiosResponse<{ message: string; data: any }>> => {
+export const addProductInstance = async ({ productId, soldBy, price }: { productId: string; soldBy: number; price: number }): Promise<AxiosResponse<{ message: string; data: any }>> => {
 	//TODO: change any to correct type
-	const res = await api.post("/add-product-instance", { productInstanceId, productId, soldBy })
+	const res = await api.post("/add-product-instance", { productId, soldBy, price })
 	return res
 }
-export const searchProduct = async ({ name }: { name: string }): Promise<AxiosResponse<{ data: Product[] }>> => {
-	const res = await api.get("/search-product", { params: { name } })
+export const searchProduct = async ({ name, productId, includeInstances }: { name?: string; productId?: number; includeInstances?: boolean }): Promise<AxiosResponse<{ data: Product[] }>> => {
+	const res = await api.get("/search-product", { params: { name, productId, includeInstances } })
 	return res
 }
 

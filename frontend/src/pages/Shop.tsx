@@ -1,10 +1,12 @@
-import React from "react"
+import React, { useState } from "react"
 import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
 import ProductCard from "../components/ProductCard"
 import { Roles } from "../shared/constants"
+import CreateProductModal from "../components/CreateProductModal"
 
 export default function Shop() {
+	const [showCreateProductModal, setShowCreateProductModal] = useState(false)
 	const scroll = (ref: React.MutableRefObject<HTMLDivElement | null>, direction: "left" | "right") => {
 		if (!ref.current) return
 		if (direction === "left") {
@@ -18,6 +20,7 @@ export default function Shop() {
 	return (
 		<div className="bg-background h-screen w-screen pb-20 overflow-y-scroll">
 			<Navbar showLinks={false} role={Roles.MANUFACTURER} />
+			<CreateProductModal showModal={showCreateProductModal} setShowModal={setShowCreateProductModal} />
 			<div className="mt-36 px-10">
 				<GradientText text="Your Products" className="text-4xl " />
 				<span className="flex w-full justify-between items-center">
@@ -33,7 +36,9 @@ export default function Shop() {
 				</span>
 				<div className="flex py-10 pt-5 gap-10 overflow-x-scroll scrollbar-none scroll-smooth  " ref={recentlyAddedProductRef}>
 					<div className={`bg-accent rounded-3xl flex flex-col p-10 items-center justify-center max-w-[300px] shadow-lg hover:shadow-black cursor-pointer`}>
-						<p className="font-semibold text-text text-4xl drop-shadow-lg">Add a new product</p>
+						<p className="font-semibold text-text text-4xl drop-shadow-lg" onClick={() => setShowCreateProductModal(true)}>
+							Add a new product
+						</p>
 					</div>
 					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />

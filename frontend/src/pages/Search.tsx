@@ -23,7 +23,7 @@ export default function Search() {
 	}
 
 	const performSearch = async (name: string): Promise<Product[]> => {
-		const { data } = await searchProduct({ name })
+		const { data } = await searchProduct({ name, includeInstances: true })
 		return data.data
 	}
 

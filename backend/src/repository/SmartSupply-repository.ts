@@ -65,15 +65,18 @@ class SmartSupplyRepository {
 		})
 		return { productInstance, updatedProduct }
 	}
-	async searchProduct({ name }: { name: string }): Promise<Products[]> {
+	async searchProduct({ name, productId, includeInstances }: { name?: string; productId?: number; includeInstances: boolean }): Promise<Products[]> {
 		return prisma.products.findMany({
 			where: {
-				name: {
-					contains: name,
-				},
+				name: name
+					? {
+							contains: name,
+					  }
+					: undefined,
+				uid: productId ? productId : undefined,
 			},
 			include: {
-				productInstances: true,
+				productInstances: includeInstances,
 			},
 		})
 	}
