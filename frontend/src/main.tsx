@@ -13,6 +13,7 @@ import MySales from "./pages/MySales.tsx"
 import Search from "./pages/Search.tsx"
 import Home from "./pages/Home.tsx"
 import { SessionProvider } from "./context/SessionProvider.tsx"
+import MessagePage from "./pages/MessagePage.tsx"
 
 const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -26,6 +27,20 @@ const router = createBrowserRouter(
 			<Route path="sales" element={<MySales />} />
 			<Route path="search" element={<Search />} />
 			<Route path="home" element={<Home />} />
+			<Route
+				path="*"
+				element={
+					<MessagePage
+						message={"Page Not Found :("}
+						buttons={[
+							{
+								text: "Return Home",
+								onClick: () => router.navigate("/home"),
+							},
+						]}
+					/>
+				}
+			/>
 		</>
 	)
 )

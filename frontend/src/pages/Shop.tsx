@@ -1,12 +1,29 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
 import ProductCard from "../components/ProductCard"
 import { Roles } from "../shared/constants"
 import CreateProductModal from "../components/CreateProductModal"
+import { useSessionContext } from "../context/exportContext"
+import MessagePage from "./MessagePage"
+import { useNavigate } from "react-router-dom"
 
 export default function Shop() {
 	const [showCreateProductModal, setShowCreateProductModal] = useState(false)
+	const navigate = useNavigate()
+	const sessionContext = useSessionContext()
+
+	const [isAuthorized, setIsAuthorized] = useState<boolean | undefined>(undefined)
+	useEffect(() => {
+		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
+			navigate("/login")
+		}
+		console.log(sessionContext)
+		if (sessionContext.entityInfo?.role === Roles.CUSTOMER) {
+			setIsAuthorized(false)
+		}
+	}, [sessionContext])
+
 	const scroll = (ref: React.MutableRefObject<HTMLDivElement | null>, direction: "left" | "right") => {
 		if (!ref.current) return
 		if (direction === "left") {
@@ -17,6 +34,21 @@ export default function Shop() {
 	}
 	const recentlyAddedProductRef = React.useRef<HTMLDivElement | null>(null)
 	const recentlySoldProductRef = React.useRef<HTMLDivElement | null>(null)
+
+	if (isAuthorized === false) {
+		return (
+			<MessagePage
+				message="You are not authorized to view this page"
+				buttons={[
+					{
+						text: "Go to Home",
+						onClick: () => navigate("/"),
+					},
+				]}
+			/>
+		)
+	}
+
 	return (
 		<div className="bg-background h-screen w-screen pb-20 overflow-y-scroll">
 			<Navbar showLinks={false} role={Roles.MANUFACTURER} />
