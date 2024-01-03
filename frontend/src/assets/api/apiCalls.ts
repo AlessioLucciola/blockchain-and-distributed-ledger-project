@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance } from "../../shared/types"
-import { addCustomer, addDistributor, addManufacturer, addRetailer } from "../api/contractCalls"
+import { getProductStageFromId, getProductLocationFromId, formatUnixTimestampToDatetime } from "../../utils/typeUtils"
+import { addCustomer, addDistributor, addManufacturer, addRetailer, getContractProductInfo, isManufacturer, produceProduct } from "../api/contractCalls"
 
 export const api = axios.create({
 	baseURL: "http://localhost:3000/api",
@@ -113,8 +114,22 @@ export const addProduct = async ({ name, description }: { name: string; descript
 
 export const addProductInstance = async ({ productId, soldBy, price }: { productId: string; soldBy: number; price: number }): Promise<AxiosResponse<{ message: string; data: any }>> => {
 	//TODO: change any to correct type
-	const res = await api.post("/add-product-instance", { productId, soldBy, price })
-	return res
+	try {
+		if (await isManufacturer()) {
+			const res: AxiosResponse = await api.post("/add-product-instance", { productId, soldBy, price })
+			const id: number = res.data['data']['productInstance']['id']
+			const uid: number = res.data['data']['productInstance']['productId']
+
+			await produceProduct(id, uid)
+			return res
+		} else {
+			const error = console.error("Error adding a new product: Entity is not a manufacturer")
+			throw error
+		}
+	} catch (error) {
+		console.error('Error adding a new product:', error)
+        throw error
+	}
 }
 export const searchProduct = async ({ name, productId, includeInstances }: { name?: string; productId?: number; includeInstances?: boolean }): Promise<AxiosResponse<{ data: Product[] }>> => {
 	const res = await api.get("/search-product", { params: { name, productId, includeInstances } })
@@ -128,7 +143,44 @@ export const getProductInstanceInfo = async ({ productInstanceId, productId }: {
 
 export const getProductInfo = async ({ productId }: { productId: string }): Promise<Product> => {
 	const res = await api.get("/get-product-info", { params: { productId } })
-	return res.data.data
+
+	const product: Product = res.data.data
+	for (const productInstances of product.productInstances) {
+		if (productInstances.id !== undefined) {
+			const proxyResult = await getContractProductInfo(productInstances.id);
+
+			// Assign the values from ProxyResult to ProductInstance
+			productInstances.currentOwner = proxyResult[2].toString()
+			productInstances.previousOwner = proxyResult[3].toString()
+			productInstances.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
+			productInstances.productState = getProductStageFromId(proxyResult[5].toString())
+			productInstances.productLocation = getProductLocationFromId(proxyResult[6].toString())
+			const ownershipProxy = proxyResult[7]
+			productInstances.ownership = {
+				  manufacturer: ownershipProxy[0].toString(),
+				  distributor: ownershipProxy[1].toString(),
+				  retailer: ownershipProxy[2].toString(),
+				  customer: ownershipProxy[3].toString(),
+			}
+			const distributorBankTransactionProxy = proxyResult[8];
+			productInstances.bankTransaction = {
+				distributorBankTransactionID: distributorBankTransactionProxy[0].toString(),
+				retailerBankTransactionID: distributorBankTransactionProxy[1].toString(),
+			};
+
+			const rewardsProxy = proxyResult[9];
+			productInstances.rewards = {
+				manufacturerRewarded: rewardsProxy[0].toString(),
+				distributorRewarded: rewardsProxy[1].toString(),
+				retailerRewarded: rewardsProxy[2].toString(),
+			};
+			console.log(product)
+		} else {
+			console.error("Product instance has undefined id:", productInstances)
+		}
+	}
+
+	return product
 }
 
 export const getProductInstancesFromSeller = async ({ sellerId }: { sellerId: string }): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {

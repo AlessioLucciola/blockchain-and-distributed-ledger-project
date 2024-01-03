@@ -167,7 +167,7 @@ const SmartSupplyController = {
 			const { productId, soldBy, price } = req.body
 			const data = await service.addProductInstance({ productId: parseInt(productId), soldBy: parseInt(soldBy), price: parseFloat(price) })
 			res.json({
-				message: `Product instance with id ${data.productInstance.id} was added to product with id ${data.updatedProduct.uid} successfully`,
+				message: `Product instance with id ${data.productInstance.id} was added to product with uid ${data.updatedProduct.uid} successfully`,
 				data: data,
 			})
 		} catch (err) {

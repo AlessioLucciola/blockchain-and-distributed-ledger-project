@@ -1,4 +1,4 @@
-import { Roles } from "./constants"
+import { ProductStage, ProductLocation, Roles } from "./constants"
 
 export type SearchResult = {
 	id: string
@@ -33,4 +33,30 @@ export type ProductInstance = {
 	soldById: string
 	price: number
 	product?: Product
+	currentOwner: string
+	previousOwner: string
+	creationDate: string
+	productState: ProductStage
+	productLocation: ProductLocation
+	ownership: ProductOwnership
+	bankTransaction: BankTransaction
+	rewards: GivenRewards
+}
+
+export type ProductOwnership = {
+	manufacturer: string
+	distributor: string
+	retailer: string
+	customer: string
+}
+
+export type BankTransaction = {
+	distributorBankTransactionID: string
+    retailerBankTransactionID: string
+}
+
+export type GivenRewards = {
+	manufacturerRewarded: boolean
+    distributorRewarded: boolean
+    retailerRewarded: boolean
 }

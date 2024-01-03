@@ -16,6 +16,7 @@ export enum ProductStage {
 	PURCHASED = "purchased",
 	SHIPPED = "shipped",
 	RECEIVED = "received",
+	UNKNOWN = "undefined",
 }
 
 export enum ProductLocation {
@@ -24,4 +25,5 @@ export enum ProductLocation {
 	IN_RETAILER = "in retailer",
 	IN_CUSTOMER = "in customer",
 	SHIPPING = "shipping",
+	UNKNOWN = "undefined"
 }

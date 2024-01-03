@@ -499,4 +499,64 @@ export const isVerified = async () => {
       console.error('Failed to get role information:', error)
       return error
     }
-  }
+}
+
+export const produceProduct = async (_productID: number, _productUID: number): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+  
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                // Call the productProduct function on the contract by sending the id and uid of a product
+                contract.produceProduct(_productID, _productUID)
+                    .then((produceProductTransaction) => {
+                        return produceProductTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log('produceProduct function called successfully')
+                    })
+                    .catch((error) => {
+                        console.error('Error calling produceProduct:', error)
+                        reject(error);
+                    });
+  
+                contract.on('ProductProduced', (productId, manufacturer) => {
+                    const event_ret = {
+                        "productId": productId,
+                        "manufacturer": manufacturer
+                    }
+                    console.log('Event Captured:', event_ret)
+                    resolve(event_ret);
+                });
+            });
+        } else {
+            console.error('Contract instance is null');
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to produce a product:', error);
+        return null
+    }
+}
+
+export const getContractProductInfo = async (_productID: string) => {
+    try {
+      // Get the contract instance by awaiting the promise
+      const contract = await getContractInstance();
+  
+      if (contract) {
+        // Get the struct with the info on a product
+        const productInfo = await contract.products(_productID)
+        console.log('Info of the product: ', productInfo)
+  
+        return productInfo
+      } else {
+        console.error('Contract instance is null')
+      }
+    } catch (error) {
+      console.error('Failed to get product information:', error)
+      return error
+    }
+}
