@@ -1,195 +1,193 @@
 import { getContractInstance } from '../../utils/contractUtils'
-import { ethers } from 'ethers'
 
 export const addManufacturer = async (): Promise<string | null> => {
     try {
         // Get the contract instance by awaiting the promise
-        const contract = await getContractInstance();
+        const contract = await getContractInstance()
   
         if (contract) {
             // Create a promise to resolve when the event is emitted
             return new Promise((resolve, reject) => {
                 // Call the addManufacturer function on the contract
                 contract.addManufacturer()
-                    .then((addManufacturerTransaction) => {
-                        return addManufacturerTransaction.wait(); // Wait for the transaction to be mined
+                    .then((addCustomerTransaction) => {
+                        return addCustomerTransaction.wait()
                     })
                     .then(() => {
-                        console.log('addManufacturer function called successfully');
+                        console.log('addManufacturer function called successfully')
                     })
                     .catch((error) => {
-                        console.error('Error calling addManufacturer:', error);
-                        reject(error);
-                    });
+                        console.error('Error calling addManufacturer:', error)
+                        reject(error)
+                    })
   
-                // Set up an event listener for ManufacturerAdded
                 contract.on('ManufacturerAdded', (account) => {
-                    console.log('Event Captured:', account);
-                    resolve(account); // Resolve the promise with the account value
-                });
-            });
+                    console.log('Event Captured:', account)
+                    resolve(account)
+                })
+            })
         } else {
             console.error('Contract instance is null');
-            return null;
+            return null
         }
     } catch (error) {
-        console.error('Failed to get role:', error);
-        return null;
+        console.error('Failed to get role:', error)
+        return null
     }
-  };
+}
 
 export const addCustomer = async (): Promise<string | null> => {
-  try {
-      // Get the contract instance by awaiting the promise
-      const contract = await getContractInstance()
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
 
-      if (contract) {
-          // Create a promise to resolve when the event is emitted
-          return new Promise((resolve, reject) => {
-              // Call the addCustomer function on the contract
-              contract.addCustomer()
-                  .then((addCustomerTransaction) => {
-                      return addCustomerTransaction.wait()
-                  })
-                  .then(() => {
-                      console.log('addCustomer function called successfully')
-                  })
-                  .catch((error) => {
-                      console.error('Error calling addCustomer:', error)
-                      reject(error)
-                  })
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                // Call the addCustomer function on the contract
+                contract.addCustomer()
+                    .then((addCustomerTransaction) => {
+                        return addCustomerTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log('addCustomer function called successfully')
+                    })
+                    .catch((error) => {
+                        console.error('Error calling addCustomer:', error)
+                        reject(error)
+                    })
 
-              contract.on('CustomerAdded', (account) => {
-                  console.log('Event Captured:', account)
-                  resolve(account)
-              })
-          })
-      } else {
-          console.error('Contract instance is null');
-          return null
-      }
-  } catch (error) {
-      console.error('Failed to get role:', error)
-      return null
-  }
+                contract.on('CustomerAdded', (account) => {
+                    console.log('Event Captured:', account)
+                    resolve(account)
+                })
+            })
+        } else {
+            console.error('Contract instance is null');
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to get role:', error)
+        return null
+    }
 }
 
 export const addRetailer = async (): Promise<string | null> => {
-  try {
-      // Get the contract instance by awaiting the promise
-      const contract = await getContractInstance()
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
 
-      if (contract) {
-          // Create a promise to resolve when the event is emitted
-          return new Promise((resolve, reject) => {
-              // Call the addRetailer function on the contract
-              contract.addRetailer()
-                  .then((addRetailerTransaction) => {
-                      return addRetailerTransaction.wait()
-                  })
-                  .then(() => {
-                      console.log('addRetailer function called successfully')
-                  })
-                  .catch((error) => {
-                      console.error('Error calling addRetailer:', error)
-                      reject(error)
-                  })
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                // Call the addRetailer function on the contract
+                contract.addRetailer()
+                    .then((addRetailerTransaction) => {
+                        return addRetailerTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log('addRetailer function called successfully')
+                    })
+                    .catch((error) => {
+                        console.error('Error calling addRetailer:', error)
+                        reject(error)
+                    })
 
-              contract.on('RetailerAdded', (account) => {
-                  console.log('Event Captured:', account)
-                  resolve(account)
-              })
-          })
-      } else {
-          console.error('Contract instance is null');
-          return null
-      }
-  } catch (error) {
-      console.error('Failed to get role:', error)
-      return null
-  }
+                contract.on('RetailerAdded', (account) => {
+                    console.log('Event Captured:', account)
+                    resolve(account)
+                })
+            })
+        } else {
+            console.error('Contract instance is null');
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to get role:', error)
+        return null
+    }
 }
 
 export const addDistributor = async (): Promise<string | null> => {
-  try {
-      // Get the contract instance by awaiting the promise
-      const contract = await getContractInstance()
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
 
-      if (contract) {
-          // Create a promise to resolve when the event is emitted
-          return new Promise((resolve, reject) => {
-              // Call the addDistributor function on the contract
-              contract.addDistributor()
-                  .then((addDistributorTransaction) => {
-                      return addDistributorTransaction.wait()
-                  })
-                  .then(() => {
-                      console.log('addDistributor function called successfully')
-                  })
-                  .catch((error) => {
-                      console.error('Error calling addDistributor:', error)
-                      reject(error)
-                  })
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                // Call the addDistributor function on the contract
+                contract.addDistributor()
+                    .then((addDistributorTransaction) => {
+                        return addDistributorTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log('addDistributor function called successfully')
+                    })
+                    .catch((error) => {
+                        console.error('Error calling addDistributor:', error)
+                        reject(error)
+                    })
 
-              contract.on('DistributorAdded', (account) => {
-                  console.log('Event Captured:', account)
-                  resolve(account)
-              })
-          })
-      } else {
-          console.error('Contract instance is null');
-          return null
-      }
-  } catch (error) {
-      console.error('Failed to get role:', error)
-      return null
-  }
+                contract.on('DistributorAdded', (account) => {
+                    console.log('Event Captured:', account)
+                    resolve(account)
+                })
+            })
+        } else {
+            console.error('Contract instance is null');
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to get role:', error)
+        return null
+    }
 }
 
 export const isManufacturer = async () => {
-  try {
-    // Get the contract instance by awaiting the promise
-    const contract = await getContractInstance();
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance();
 
-    if (contract) {
-      // Get the role from the smart contract
-      const accounts = await window.ethereum.request({ method: 'eth_accounts' })
+        if (contract) {
+        // Get the role from the smart contract
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' })
 
-      // Check if the account is a manufacturer
-      const isManufacturer = await contract.isManufacturer(accounts[0])
-      console.log("Entity is a manufacturer: ", isManufacturer)
+        // Check if the account is a manufacturer
+        const isManufacturer = await contract.isManufacturer(accounts[0])
+        console.log("Entity is a manufacturer: ", isManufacturer)
 
-      return isManufacturer
-    } else {
-      console.error('Contract instance is null')
+        return isManufacturer
+        } else {
+        console.error('Contract instance is null')
+        }
+    } catch (error) {
+        console.error('Failed to get role information:', error)
+        return error
     }
-  } catch (error) {
-    console.error('Failed to get role information:', error)
-    return error
-  }
 }
 
 export const isCustomer = async () => {
-  try {
-    // Get the contract instance by awaiting the promise
-    const contract = await getContractInstance();
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance();
 
-    if (contract) {
-      // Get the role from the smart contract
-      const accounts = await window.ethereum.request({ method: 'eth_accounts' })
+        if (contract) {
+        // Get the role from the smart contract
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' })
 
-      // Check if the account is a customer
-      const isCustomer = await contract.isCustomer(accounts[0])
-      console.log('Entity is a customer: ', isCustomer)
+        // Check if the account is a customer
+        const isCustomer = await contract.isCustomer(accounts[0])
+        console.log('Entity is a customer: ', isCustomer)
 
-      return isCustomer
-    } else {
-      console.error('Contract instance is null')
+        return isCustomer
+        } else {
+        console.error('Contract instance is null')
+        }
+    } catch (error) {
+        console.error('Failed to get role information:', error)
+        return error
     }
-  } catch (error) {
-    console.error('Failed to get role information:', error)
-    return error
-  }
 }
 
 export const isRetailer = async () => {
@@ -444,7 +442,7 @@ export const grantVerificationPermission = async (accountAddress: string): Promi
 export const verifyEntity = async (): Promise<string | null> => {
     try {
         // Get the contract instance by awaiting the promise
-        const contract = await getContractInstance();
+        const contract = await getContractInstance()
   
         if (contract) {
             // Convert the amount to send (20 Wei)
@@ -455,30 +453,30 @@ export const verifyEntity = async (): Promise<string | null> => {
                 // Call the verifyEntity function on the contract with the specified value
                 contract.verifyEntity({ value: BigInt(amountToSend) })
                     .then((verifyEntityTransaction) => {
-                        return verifyEntityTransaction.wait();
+                        return verifyEntityTransaction.wait()
                     })
                     .then(() => {
-                        console.log('verifyEntity function called successfully');
+                        console.log('verifyEntity function called successfully')
                     })
                     .catch((error) => {
-                        console.error('Error calling VerifyEntity:', error);
+                        console.error('Error calling VerifyEntity:', error)
                         reject(error);
                     });
   
                 contract.on('EntityVerified', (account) => {
-                    console.log('Event Captured:', account);
+                    console.log('Event Captured:', account)
                     resolve(account);
                 });
             });
         } else {
             console.error('Contract instance is null');
-            return null;
+            return null
         }
     } catch (error) {
         console.error('Failed to get role:', error);
-        return null;
+        return null
     }
-};
+}
 
 export const isVerified = async () => {
     try {

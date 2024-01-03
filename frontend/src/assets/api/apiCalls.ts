@@ -29,10 +29,11 @@ export const createEntity = async ({
                 const manufacturerAccount = await addManufacturer()
 
                 if (manufacturerAccount) {
-					metamaskAddress = manufacturerAccount
-                    console.log('Manufacturer account:', manufacturerAccount)
+					console.log('Manufacturer account:', manufacturerAccount)
+                    metamaskAddress = manufacturerAccount
                 } else {
-                    console.error('Error adding manufacturer')
+                    const error = console.error('Error adding manufacturer')
+					throw error
                 }
 				break
             case "customer":
@@ -42,7 +43,8 @@ export const createEntity = async ({
 					console.log('Customer account:', customerAccount)
                     metamaskAddress = customerAccount
                 } else {
-                    console.error('Error adding customer')
+                    const error = console.error('Error adding customer')
+					throw error
                 }
                 break
             case "retailer":
@@ -52,7 +54,8 @@ export const createEntity = async ({
 					console.log('Retailer account:', retailerAccount)
                     metamaskAddress = retailerAccount
                 } else {
-                    console.error('Error adding retailer')
+                    const error = console.error('Error adding retailer')
+					throw error
                 }
                 break
             case "distributor":
@@ -62,7 +65,8 @@ export const createEntity = async ({
 					console.log('Distributor account:', distributorAccount)
                     metamaskAddress = distributorAccount
                 } else {
-                    console.error('Error adding distributor')
+                    const error = console.error('Error adding distributor')
+					throw error
                 }
                 break
             default:
@@ -70,7 +74,9 @@ export const createEntity = async ({
 				throw error
         }
 
+		console.log(metamaskAddress)
 		if (metamaskAddress !== null) {
+			console.log(metamaskAddress, "ok")
 			const dbResponse = await api.post("/create-entity", {
 				name,
 				surname,
