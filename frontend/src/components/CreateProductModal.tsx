@@ -27,14 +27,15 @@ export default function CreateProductModal({ showModal, setShowModal }: CreatePr
 			return
 		}
 
-		const existingProductRes = await searchProduct({ productId: productId })
-		if (existingProductRes.data.data.length == 0) {
+		//const existingProductRes = await searchProduct({ productId: productId })
+		if (!productId) {
 			const res = await addProduct({ name: name!, description: description! })
 			if (res.status !== 200) {
 				alert("Failed to add product")
 				return
 			}
 			productId = parseInt(res.data.data.uid!)
+			console.log(productId)
 		}
 		const sellerId = sessionContext.entityInfo!.id
 		const res = await addProductInstance({ productId: productId!.toString(), soldBy: parseInt(sellerId!), price: parseFloat(price!) })
