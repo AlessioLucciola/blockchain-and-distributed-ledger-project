@@ -147,7 +147,7 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 	const product: Product = res.data.data
 	for (const productInstances of product.productInstances) {
 		if (productInstances.id !== undefined) {
-			const proxyResult = await getContractProductInfo(productInstances.id);
+			const proxyResult = await getContractProductInfo(parseInt(productInstances.id))
 
 			// Assign the values from ProxyResult to ProductInstance
 			productInstances.currentOwner = proxyResult[2].toString()

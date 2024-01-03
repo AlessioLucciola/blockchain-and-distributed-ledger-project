@@ -541,7 +541,7 @@ export const produceProduct = async (_productID: number, _productUID: number): P
     }
 }
 
-export const getContractProductInfo = async (_productID: string) => {
+export const getContractProductInfo = async (_productID: number) => {
     try {
       // Get the contract instance by awaiting the promise
       const contract = await getContractInstance();
@@ -558,5 +558,222 @@ export const getContractProductInfo = async (_productID: string) => {
     } catch (error) {
       console.error('Failed to get product information:', error)
       return error
+    }
+}
+
+export const changeBankTransactionID = async (_productID: number, _transactionID: string): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+  
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                // Call the changeBankTransactionID function to change the bank transaction ID of a payment
+                contract.changeBankTransactionID(_productID, _transactionID)
+                    .then((changeBankTransactionIDTransaction) => {
+                        return changeBankTransactionIDTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log('changeBankTransactionID function called successfully')
+                    })
+                    .catch((error) => {
+                        console.error('Error calling changeBankTransactionID:', error)
+                        reject(error);
+                    });
+  
+                contract.on('BankTransactionChanged', (productID, entity) => {
+                    const event_ret = {
+                        "productId": productID,
+                        "entity": entity
+                    }
+                    console.log('Event Captured:', event_ret)
+                    resolve(event_ret);
+                });
+            });
+        } else {
+            console.error('Contract instance is null');
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to change the bank transaction ID:', error);
+        return null
+    }
+}
+
+export const changeOnSale = async (_productID: number): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+  
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                // Call the changeOnSale function to flag an owned product as "on sale"
+                contract.changeOnSale(_productID)
+                    .then((changeOnSaleTransaction) => {
+                        return changeOnSaleTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log('changeOnSale function called successfully')
+                    })
+                    .catch((error) => {
+                        console.error('Error calling changeOnSale:', error)
+                        reject(error);
+                    });
+  
+                contract.on('ChangedOnSale', (productID, owner) => {
+                    const event_ret = {
+                        "productId": productID,
+                        "owner": owner
+                    }
+                    console.log('Event Captured:', event_ret)
+                    resolve(event_ret);
+                });
+            });
+        } else {
+            console.error('Contract instance is null');
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to change the state of a product to "onSale":', error);
+        return null
+    }
+}
+
+export const purchaseProduct = async (_productID: number): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+  
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise(async (resolve, reject) => {
+                // Call the purchaseProduct function to purchase a product
+                if (await isCustomer()) {
+                    // If the entity is a customer, he also has to send a certain amount of coins to the get product certification
+                    contract.purchaseProduct(_productID, { value: BigInt("20") })
+                    .then((purchaseProductTransaction) => {
+                        return purchaseProductTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log('purchaseProduct function called successfully')
+                    })
+                    .catch((error) => {
+                        console.error('Error calling purchaseProduct:', error)
+                        reject(error)
+                    })
+                } else {
+                    contract.purchaseProduct(_productID)
+                    .then((purchaseProductTransaction) => {
+                        return purchaseProductTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log('purchaseProduct function called successfully')
+                    })
+                    .catch((error) => {
+                        console.error('Error calling purchaseProduct:', error)
+                        reject(error)
+                    })
+                }
+  
+                contract.on('ProductPurchased', (productID, oldOwner, newOwner) => {
+                    const event_ret = {
+                        "productId": productID,
+                        "oldOwner": oldOwner,
+                        "newOwner": newOwner
+                    }
+                    console.log('Event Captured:', event_ret)
+                    resolve(event_ret)
+                })
+            })
+        } else {
+            console.error('Contract instance is null');
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to puchase a product:', error);
+        return null
+    }
+}
+
+export const shipProduct = async (_productID: number, _receiver: string): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+  
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise(async (resolve, reject) => {
+                // Call the shipProduct function to ship a product
+                contract.shipProduct(_productID, _receiver)
+                .then((shipProductTransaction) => {
+                    return shipProductTransaction.wait()
+                })
+                .then(() => {
+                    console.log('shipProduct function called successfully')
+                })
+                .catch((error) => {
+                    console.error('Error calling shipProduct:', error)
+                    reject(error)
+                })
+  
+                contract.on('ProductShipped', (productID, sender, receiver) => {
+                    const event_ret = {
+                        "productId": productID,
+                        "sender": sender,
+                        "receiver": receiver
+                    }
+                    console.log('Event Captured:', event_ret)
+                    resolve(event_ret)
+                })
+            })
+        } else {
+            console.error('Contract instance is null');
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to puchase a product:', error);
+        return null
+    }
+}
+
+export const receiveProduct = async (_productID: number): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+  
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise(async (resolve, reject) => {
+                // Call the receiveProduct function to mark a product as received
+                contract.receiveProduct(_productID)
+                .then((receiveProductTransaction) => {
+                    return receiveProductTransaction.wait()
+                })
+                .then(() => {
+                    console.log('receiveProduct function called successfully')
+                })
+                .catch((error) => {
+                    console.error('Error calling receiveProduct:', error)
+                    reject(error)
+                })
+  
+                contract.on('ProductReceived', (productID, receiver) => {
+                    const event_ret = {
+                        "productId": productID,
+                        "receiver": receiver
+                    }
+                    console.log('Event Captured:', event_ret)
+                    resolve(event_ret)
+                })
+            })
+        } else {
+            console.error('Contract instance is null');
+            return null
+        }
+    } catch (error) {
+        console.error('Failed to puchase a product:', error);
+        return null
     }
 }
