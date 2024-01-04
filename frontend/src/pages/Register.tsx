@@ -121,7 +121,7 @@ function RegisterForm({ role }: RegisterFormProps) {
 				address_1: values["Address"],
 				email: values["Email"],
 				password: values["Password"],
-				metamaskAddress: "0x0000000000",
+				metamaskAddress: walletAddress || '',
 				role: roleState,
 			}
 		} else {
@@ -133,21 +133,21 @@ function RegisterForm({ role }: RegisterFormProps) {
 				password: values["Password"],
 				companyName: values["Company Name"],
 				shopName: values["Shop Name"],
-				metamaskAddress: "0x0000000000",
+				metamaskAddress: walletAddress || '',
 				role: roleState!,
 			}
 		}
-
+		
 		try {
 			const res = await createEntity(entity)
-			if (res.status === 200) {
+			if (res && res.status === 200) {
 				console.log('Response from createEntity:', res)
 				alert("Account created successfully")
 				navigate("/login")
 			}
 		} catch (error) {
 			console.error('Error in registerEntity:', error);
-    		alert('Error creating account. Please try again.')
+			alert('Error creating account. Please try again.')
 		}
 	}
 

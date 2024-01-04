@@ -21,10 +21,10 @@ export const createEntity = async ({
     address_2,
     companyName,
     shopName,
+	metamaskAddress,
     role,
 }: Entity): Promise<AxiosResponse<{ message: string; data: Entity }, any> | undefined> => {
     try {
-		let metamaskAddress = null
         switch (role) {
             case "manufacturer":
                 const manufacturerAccount = await addManufacturer()
@@ -157,10 +157,10 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 			productInstances.productLocation = getProductLocationFromId(proxyResult[6].toString())
 			const ownershipProxy = proxyResult[7]
 			productInstances.ownership = {
-				  manufacturer: ownershipProxy[0].toString(),
-				  distributor: ownershipProxy[1].toString(),
-				  retailer: ownershipProxy[2].toString(),
-				  customer: ownershipProxy[3].toString(),
+				manufacturer: ownershipProxy[0].toString(),
+				distributor: ownershipProxy[1].toString(),
+				retailer: ownershipProxy[2].toString(),
+				customer: ownershipProxy[3].toString(),
 			}
 			const distributorBankTransactionProxy = proxyResult[8];
 			productInstances.bankTransaction = {

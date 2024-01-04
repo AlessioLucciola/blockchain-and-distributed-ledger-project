@@ -4,6 +4,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "./Entities.sol";
 import "./Utils.sol";
+import "hardhat/console.sol";
 
 contract SmartSupply is Entities, Utils {
     // Define a mapping that maps each productID to its corresponding struct
@@ -219,5 +220,13 @@ contract SmartSupply is Entities, Utils {
 
     function getBalance() public view returns(uint) {
         return address(this).balance;
+    }
+
+    fallback() external payable {
+        console.log("----- fallback:", msg.value);
+    }
+
+    receive() external payable {
+        console.log("----- receive:", msg.value);
     }
 }
