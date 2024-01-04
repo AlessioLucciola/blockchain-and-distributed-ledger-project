@@ -10,8 +10,8 @@ export const addManufacturer = async (): Promise<string | null> => {
             return new Promise((resolve, reject) => {
                 // Call the addManufacturer function on the contract
                 contract.addManufacturer()
-                    .then((addCustomerTransaction) => {
-                        return addCustomerTransaction.wait()
+                    .then((addManufacturerTransaction) => {
+                        return addManufacturerTransaction.wait()
                     })
                     .then(() => {
                         console.log('addManufacturer function called successfully')
