@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar"
 import GradientText from "../components/GradientText"
 import { useSessionContext } from "../context/exportContext"
 import { useEffect } from "react"
-import { removeDistributor } from "../assets/api/contractCalls"
+import { addManufacturer, removeDistributor } from "../assets/api/contractCalls"
 
 export default function Home() {
 	const navigate = useNavigate()
@@ -32,7 +32,7 @@ export default function Home() {
 									Fighting against counterfeit products <br /> with Blockchain-powered solution.
 								</p>
 							</div>
-							<Button text="test" onClick={() => removeDistributor()} />
+							<Button text="test" onClick={() => addManufacturer()} />
 							<Button text="Join Us" className="w-fit mt-16" onClick={() => navigate("/register")} />
 						</div>
 					</div>

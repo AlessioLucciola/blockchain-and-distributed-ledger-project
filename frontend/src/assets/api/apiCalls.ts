@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance } from "../../shared/types"
 import { getProductStageFromId, getProductLocationFromId, formatUnixTimestampToDatetime } from "../../utils/typeUtils"
-import { addCustomer, addDistributor, addManufacturer, addRetailer, getContractProductInfo, getEntityRole, isManufacturer, produceProduct } from "../api/contractCalls"
+import { addCustomer, addDistributor, addManufacturer, addRetailer, getContractProductInfo, getEntityRole, isManufacturer, produceProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer } from "../api/contractCalls"
 
 export const api = axios.create({
 	baseURL: "http://localhost:3000/api",
@@ -105,59 +105,59 @@ export const createEntity = async ({
 export const deleteEntity = async ({ id }: { id: string }): Promise<AxiosResponse<{ message: string; data: Entity }>> => {
 	try {
 		const entityRole = await getEntityRole()
+		console.log(entityRole)
 		let metamaskAddress
 		
 		switch (entityRole) {
             case "manufacturer":
-                const manufacturerAccount = await addManufacturer()
+                const manufacturerAccount = await removeManufacturer()
 
                 if (manufacturerAccount) {
 					console.log('Manufacturer account:', manufacturerAccount)
                     metamaskAddress = manufacturerAccount
                 } else {
-                    const error = console.error('Error adding manufacturer')
+                    const error = console.error('Error deleting manufacturer')
 					throw error
                 }
 				break
             case "customer":
-				const customerAccount = await addCustomer()
+				const customerAccount = await removeCustomer()
 
                 if (customerAccount) {
 					console.log('Customer account:', customerAccount)
                     metamaskAddress = customerAccount
                 } else {
-                    const error = console.error('Error adding customer')
+                    const error = console.error('Error deleting customer')
 					throw error
                 }
                 break
             case "retailer":
-				const retailerAccount = await addRetailer()
+				const retailerAccount = await removeRetailer()
 
                 if (retailerAccount) {
 					console.log('Retailer account:', retailerAccount)
                     metamaskAddress = retailerAccount
                 } else {
-                    const error = console.error('Error adding retailer')
+                    const error = console.error('Error deleting retailer')
 					throw error
                 }
                 break
             case "distributor":
-                const distributorAccount = await addDistributor()
+                const distributorAccount = await removeDistributor()
 
                 if (distributorAccount) {
 					console.log('Distributor account:', distributorAccount)
                     metamaskAddress = distributorAccount
                 } else {
-                    const error = console.error('Error adding distributor')
+                    const error = console.error('Error deleting distributor')
 					throw error
                 }
                 break
             default:
-				const error = console.error('Error adding entity. Specified role not valid.')
+				const error = console.error('Error deleting entity. Role of the entity is not valid.')
 				throw error
         }
 
-		console.log(metamaskAddress)
 		if (metamaskAddress !== null) {
 			const res = await api.delete("/delete-entity", { params: { id } })
 			return res

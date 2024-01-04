@@ -6,9 +6,13 @@ import { CartIcon, StoreIcon, TagIcon } from "../shared/icons"
 import { getRoleIcon } from "../utils/renderUtils"
 import React, { useEffect } from "react"
 import { useSessionContext } from "../context/exportContext"
+import Button from "../components/Button"
+import { deleteEntity } from "../assets/api/apiCalls"
+import DeleteAccountModal from "../components/DeleteAccountModal"
 export default function Home() {
 	const navigate = useNavigate()
 	const sessionContext = useSessionContext()
+	const [showDeleteModal, setShowDeleteModal] = React.useState(false)
 
 	useEffect(() => {
 		if (!sessionContext.entityInfo) {
@@ -28,10 +32,18 @@ export default function Home() {
 				</span>
 			</div>
 			<div className="flex pt-40 gap-5 items-center justify-center">
-				<Card title="My Sales" Icon={TagIcon} onClick={() => navigate("/sales")} />
+				{sessionContext.entityInfo?.role as Roles !== Roles.MANUFACTURER ? <Card title="My Sales" Icon={TagIcon} onClick={() => navigate("/sales")} /> : ""}
 				<Card title="My Orders" Icon={CartIcon} onClick={() => navigate("/orders")} />
 				<Card title="My Shop" Icon={StoreIcon} onClick={() => navigate("/shop")} />
 			</div>
+			<div className="flex flex-col pt-40 gap-5 items-center justify-center">
+				<GradientText text="Account settings:" className="text-3xl" />
+				<span className="flex pt-2 gap-2 items-center justify-center">
+					<Button text="Delete Account" onClick={() => setShowDeleteModal(true)} />
+					<Button text="Verify Account" onClick={() => navigate("/orders")} />
+				</span>
+			</div>
+			< DeleteAccountModal showModal={showDeleteModal} setShowModal={() => setShowDeleteModal(!showDeleteModal)} />
 		</div>
 	)
 }

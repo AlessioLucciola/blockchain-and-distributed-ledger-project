@@ -417,19 +417,14 @@ export const getEntityRole = async (): Promise<string | null> => {
         const contract = await getContractInstance()
 
         if (contract) {
-            // Get the role from the smart contract
-            const accounts = await window.ethereum.request({
-                method: "eth_accounts",
-            })
-
             // Check if the account is a manufacturer
-            if (await contract.isManufacturer(accounts[0])) {
+            if (await isManufacturer()) {
                 return "manufacturer"
-            } else if (await contract.isDistributor(accounts[0])) {
+            } else if (await isDistributor()) {
                 return "distributor"
-            } else if (await contract.isRetailer(accounts[0])) {
+            } else if (await isRetailer()) {
                 return "retailer"
-            } else if (await contract.isCustomer(accounts[0])) {
+            } else if (await isCustomer()) {
                 return "customer"
             }
             return null
