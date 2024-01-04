@@ -17,6 +17,8 @@ export type Entity = {
 	companyName?: string
 	shopName?: string
 	metamaskAddress: string
+	verificationID: string
+	accountVerified: boolean
 	role: Roles
 }
 
@@ -48,6 +50,13 @@ export type ProductOwnership = {
 	distributor: string
 	retailer: string
 	customer: string
+}
+
+export type Verifications = {
+	id?: string
+    entityId: string
+    verificationId: string
+    accountVerified: boolean
 }
 
 export type BankTransaction = {

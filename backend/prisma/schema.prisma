@@ -39,9 +39,18 @@ model Entity {
     shopName         String?
     metamaskAddress  String
     role             Roles
+    verification     Verifications?
     ProductInstances ProductInstances[]
 
     @@unique([email])
+}
+
+model Verifications {
+    id                 Int          @id @default(autoincrement())
+    entityId           Int          @unique
+    verificationId     String
+    accountVerified    Boolean      @default(false)
+    entity             Entity       @relation(fields: [entityId], references: [id])
 }
 
 enum Roles {

@@ -7,12 +7,13 @@ import { getRoleIcon } from "../utils/renderUtils"
 import React, { useEffect } from "react"
 import { useSessionContext } from "../context/exportContext"
 import Button from "../components/Button"
-import { deleteEntity } from "../assets/api/apiCalls"
 import DeleteAccountModal from "../components/DeleteAccountModal"
+import VerifyAccountModal from "../components/VerifyAccountModal"
 export default function Home() {
 	const navigate = useNavigate()
 	const sessionContext = useSessionContext()
 	const [showDeleteModal, setShowDeleteModal] = React.useState(false)
+	const [showVerifyAccountModal, setShowVerifyAccountModal] = React.useState(false)
 
 	useEffect(() => {
 		if (!sessionContext.entityInfo) {
@@ -40,10 +41,11 @@ export default function Home() {
 				<GradientText text="Account settings:" className="text-3xl" />
 				<span className="flex pt-2 gap-2 items-center justify-center">
 					<Button text="Delete Account" onClick={() => setShowDeleteModal(true)} />
-					<Button text="Verify Account" onClick={() => navigate("/orders")} />
+					<Button text="Verify Account" onClick={() => setShowVerifyAccountModal(true)} />
 				</span>
 			</div>
-			< DeleteAccountModal showModal={showDeleteModal} setShowModal={() => setShowDeleteModal(!showDeleteModal)} />
+			<DeleteAccountModal showModal={showDeleteModal} setShowModal={() => setShowDeleteModal(!showDeleteModal)} />
+			<VerifyAccountModal showModal={showVerifyAccountModal} setShowModal={() => setShowVerifyAccountModal(!showVerifyAccountModal)} />
 		</div>
 	)
 }

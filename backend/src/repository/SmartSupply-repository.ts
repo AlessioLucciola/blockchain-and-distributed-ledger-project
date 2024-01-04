@@ -1,4 +1,4 @@
-import { Entity, PrismaClient, ProductInstances, Products, Roles } from "@prisma/client"
+import { Entity, PrismaClient, ProductInstances, Products, Roles, Verifications } from "@prisma/client"
 
 const prisma: PrismaClient = new PrismaClient()
 
@@ -121,6 +121,21 @@ class SmartSupplyRepository {
 		return prisma.entity.findUnique({
 			where: {
 				id,
+			},
+		})
+	}
+	async addVerificationId({ userID, verificationID }: { userID: number; verificationID: string }): Promise<Verifications> {
+		return prisma.verifications.create({
+			data: {
+				entityId: userID,
+				verificationId: verificationID,
+			},
+		})
+	}
+	async getVerificationInfoById({ userID }: { userID: number }): Promise<Verifications | null> {
+		return prisma.verifications.findUnique({
+			where: {
+				entityId: userID,
 			},
 		})
 	}

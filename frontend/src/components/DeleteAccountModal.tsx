@@ -1,13 +1,12 @@
-import { useRef, useState } from "react"
-import { deleteEntity} from "../assets/api/apiCalls"
+import { deleteEntity } from "../assets/api/apiCalls"
 import { useSessionContext } from "../context/exportContext"
 import Button from "./Button"
 
-interface CreateProductModalProps {
+interface DeleteAccountModalProps {
 	showModal: boolean
 	setShowModal: (showModal: boolean) => void
 }
-export default function CreateProductModal({ showModal, setShowModal }: CreateProductModalProps) {
+export default function DeleteAccountModal({ showModal, setShowModal }: DeleteAccountModalProps) {
 	const sessionContext = useSessionContext()
 
     const handleDeleteConfirmation = async () => {
@@ -21,7 +20,7 @@ export default function CreateProductModal({ showModal, setShowModal }: CreatePr
         } catch (error) {
           console.error("Error deleting account:", error);
         }
-      };
+    }
 	
 	return (
 		<>

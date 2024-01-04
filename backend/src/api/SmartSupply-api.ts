@@ -15,6 +15,8 @@ const SmartSupplyAPI = (app: Express) => {
 	app.get("/api/get-entity-info-from-token", SmartSupplyController.getEntityInfoFromToken)
 	app.get("/api/get-product-instances-from-seller", SmartSupplyController.getProductInstancesFromSeller)
 	app.get("/api/get-seller-by-id", SmartSupplyController.getSellerById)
+	app.post("/api/add-verification-id", SmartSupplyController.addVerificationId)
+	app.get("/api/get-verification-info", SmartSupplyController.getVerificationInfoById)
 }
 
 export default SmartSupplyAPI

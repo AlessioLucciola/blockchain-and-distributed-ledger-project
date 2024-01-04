@@ -1,4 +1,4 @@
-import { Entity, ProductInstances, Products, Roles } from "@prisma/client"
+import { Entity, ProductInstances, Products, Roles, Verifications } from "@prisma/client"
 import SmartSupplyRepository from "../repository/SmartSupply-repository"
 import { generateToken, resolveToken } from "../../utils/authUtils"
 
@@ -54,6 +54,12 @@ class SmartSupplyService {
 	}
 	async getSellerById({ id }: { id: number }): Promise<Entity | null> {
 		return this.repository.getSellerById({ id })
+	}
+	async addVerificationID({ userID, verificationID }: { userID: number; verificationID: string }): Promise<Verifications> {
+		return this.repository.addVerificationId({ userID, verificationID })
+	}
+	async getVerificationInfoById({ userID }: { userID: number }): Promise<Verifications | null> {
+		return this.repository.getVerificationInfoById({ userID })
 	}
 }
 

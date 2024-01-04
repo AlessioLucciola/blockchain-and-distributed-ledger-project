@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios"
-import { Entity, Product, ProductInstance } from "../../shared/types"
+import { Entity, Product, ProductInstance, Verifications } from "../../shared/types"
 import { getProductStageFromId, getProductLocationFromId, formatUnixTimestampToDatetime } from "../../utils/typeUtils"
 import { addCustomer, addDistributor, addManufacturer, addRetailer, getContractProductInfo, getEntityRole, isManufacturer, produceProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer } from "../api/contractCalls"
 
@@ -259,8 +259,17 @@ export const getEntityInfoFromToken = async (): Promise<AxiosResponse<{ data: En
 	const res = await api.get("/get-entity-info-from-token", { withCredentials: true })
 	return res
 }
-
 export const login = async ({ email, password }: { email: string; password: string }): Promise<AxiosResponse<{ data: { entity: Entity; token: string } }>> => {
 	const res = await api.post("/login", { email, password }, { withCredentials: true })
 	return res
 }
+export const addVerificationID = async ({ userID, verificationID }: { userID: string; verificationID: string }): Promise<AxiosResponse<{ data: { message: string } }>> => {
+	const res = await api.post("/add-verification-id", { userID, verificationID }, { withCredentials: true })
+	return res
+}
+export const getVerificationInfoById = async ({ userID }: { userID: string }): Promise<AxiosResponse<{ data: Verifications }>> => {
+	const res = await api.get("/get-verification-info", { params: { userID } })
+	return res
+}
+
+

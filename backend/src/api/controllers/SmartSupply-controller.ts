@@ -333,6 +333,52 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
+	addVerificationId: async function (
+	req: Request<
+		{},
+		{},
+		{
+			userID: string
+			verificationID: string
+		},
+		{}
+	>,
+	res: Response,
+	next: NextFunction
+	) {
+		try {
+			const { userID, verificationID } = req.body
+			const data = await service.addVerificationID({ userID: parseInt(userID), verificationID: verificationID })
+			res.json({
+				message: `Added verification id ${data.entityId} to user ${data.verificationId} successfully`,
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	getVerificationInfoById: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				userID: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { userID } = req.query
+			const data = await service.getVerificationInfoById({ userID: parseInt(userID) })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
 }
 
 export default SmartSupplyController
