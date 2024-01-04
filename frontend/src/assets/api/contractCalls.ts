@@ -411,6 +411,38 @@ export const removeDistributor = async (): Promise<string | null> => {
     }
 }
 
+export const getEntityRole = async (): Promise<string | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Get the role from the smart contract
+            const accounts = await window.ethereum.request({
+                method: "eth_accounts",
+            })
+
+            // Check if the account is a manufacturer
+            if (await contract.isManufacturer(accounts[0])) {
+                return "manufacturer"
+            } else if (await contract.isDistributor(accounts[0])) {
+                return "distributor"
+            } else if (await contract.isRetailer(accounts[0])) {
+                return "retailer"
+            } else if (await contract.isCustomer(accounts[0])) {
+                return "customer"
+            }
+            return null
+        } else {
+            console.error("Contract instance is null")
+            return null
+        }
+    } catch (error) {
+        console.error("Failed to get role information:", error)
+        return null
+    }
+}
+
 export const isVerificationPermitted = async () => {
     try {
         // Get the contract instance by awaiting the promise
