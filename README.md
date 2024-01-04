@@ -63,7 +63,8 @@ If you have some dependency problems, simply delete `node_modules` and `package-
         },
     };  
     ```
-5. Copy the contract address into the `.env` file
+3. Copy the contract address into the `.env` file
+4. Copy the `ABI` from `backend\artifacts\contracts\SmartSupply.sol\SmartSupply.json` to `frontend\src\assets\abi`
 
 ## CMD 4: PRISMA (optional)
 1. If you want to interact with the db via a browser, start
