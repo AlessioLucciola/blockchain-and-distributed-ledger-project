@@ -27,3 +27,5 @@ export enum ProductLocation {
 	SHIPPING = "shipping",
 	UNKNOWN = "undefined"
 }
+
+export const empty_account = "0x0000000000000000000000000000000000000000"

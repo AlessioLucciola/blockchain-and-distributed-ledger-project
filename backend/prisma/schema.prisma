@@ -37,7 +37,7 @@ model Entity {
     address_2        String?
     companyName      String?
     shopName         String?
-    metamaskAddress  String
+    metamaskAddress  String             @unique
     role             Roles
     verification     Verifications?
     ProductInstances ProductInstances[]

@@ -12,6 +12,9 @@ class SmartSupplyService {
 	async getEntities({ role }: { role?: Roles }): Promise<Entity[]> {
 		return this.repository.getEntities({ role })
 	}
+	async getEntityByAddress({ address }: { address: string }): Promise<Entity | null> {
+		return this.repository.getEntityByAddress({ address })
+	}
 	async createEntity({ name, surname, email, password, address_1, address_2, companyName, shopName, metamaskAddress, role }: Omit<Entity, "id">): Promise<Entity> {
 		return this.repository.createEntity({ name, surname, email, password, address_1, address_2, companyName, shopName, metamaskAddress, role })
 	}

@@ -76,6 +76,29 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
+	getEntityByAddress: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				address: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { address } = req.query
+			const data = await service.getEntityByAddress({ address: address })
+			res.json({
+				message: `Entity fetched successfully`,
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
 	deleteEntity: async function (
 		req: Request<
 			{},

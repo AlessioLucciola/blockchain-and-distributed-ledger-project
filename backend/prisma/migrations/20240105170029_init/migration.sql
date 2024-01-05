@@ -31,6 +31,7 @@ CREATE TABLE `Entity` (
     `metamaskAddress` VARCHAR(191) NOT NULL,
     `role` ENUM('admin', 'manufacturer', 'distributor', 'retailer', 'customer') NOT NULL,
 
+    UNIQUE INDEX `Entity_metamaskAddress_key`(`metamaskAddress`),
     UNIQUE INDEX `Entity_email_key`(`email`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

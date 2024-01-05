@@ -46,6 +46,17 @@ class SmartSupplyRepository {
             },
         })
     }
+    async getEntityByAddress({
+        address,
+    }: {
+        address: string
+    }): Promise<Entity | null> {
+        return prisma.entity.findUnique({
+            where: {
+                metamaskAddress: address,
+            },
+        })
+    }
     async deleteEntity({ id }: { id: number }): Promise<Entity> {
         return prisma.entity.delete({
             where: {

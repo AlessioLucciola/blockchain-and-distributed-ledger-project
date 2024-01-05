@@ -1,12 +1,12 @@
 import { useNavigate, useParams } from "react-router-dom"
 import Navbar from "../components/Navbar"
-import { GRADIENTS, Roles } from "../shared/constants"
+import { GRADIENTS, Roles, empty_account } from "../shared/constants"
 import Button from "../components/Button"
 import { DistributorIcon, ManufacturerIcon, RetailerIcon, RightCaretIcon } from "../shared/icons"
 import GradientText from "../components/GradientText"
 import { Entity, Product, ProductInstance } from "../shared/types"
 import { useEffect, useState } from "react"
-import { getProductInfo, getSellerById } from "../assets/api/apiCalls"
+import { getEntityByAddress, getProductInfo, getSellerById } from "../assets/api/apiCalls"
 
 export default function ProductInfo() {
 	const { productId, instanceId } = useParams()
@@ -87,7 +87,7 @@ export default function ProductInfo() {
 					<GradientText text="Model ID" className="text-xl" />
 					<p className="text-text text-xl">{currentInstance?.id}</p>
 				</div>
-				<HistoryChain />
+				<HistoryChain manufacturer={currentInstance?.ownership.manufacturer} distributor={currentInstance?.ownership.distributor} retailer={currentInstance?.ownership.retailer}/>
 				<div className="pb-20"></div>
 			</div>
 		</div>
@@ -125,23 +125,71 @@ const OtherProductTab = ({ id, price, soldById }: OtherProductTabProps) => {
 	)
 }
 
-const HistoryChain = () => {
+interface HistoryChainProps {
+	manufacturer?: string
+	distributor?: string
+	retailer?: string
+}
+const HistoryChain = ({ manufacturer, distributor, retailer } : HistoryChainProps) => {
+	const [manufacturerName, setManufacturerName] = useState<string>()
+	const [retailerName, setRetailerName] = useState<string>()
+	const [distributorName, setDistributorName] = useState<string>()
+
+	const getEntityInfo = async (address: string) => {
+		const res = await getEntityByAddress({ address: address })
+		if (res.status === 200) {
+			return res.data.data.companyName
+		}
+		console.log(res)
+	}
+
+	useEffect(() => {
+		const fetchData = async () => {
+		  if (manufacturer !== undefined && manufacturer !== empty_account) {
+			setManufacturerName(await getEntityInfo(manufacturer))
+		  }
+		  if (retailer !== undefined && retailer !== empty_account) {
+			setRetailerName(await getEntityInfo(retailer))
+		  }
+		  if (distributor !== undefined && distributor !== empty_account) {
+			setDistributorName(await getEntityInfo(distributor))
+		  }
+		}
+		fetchData()
+	}, [manufacturer, retailer, distributor])
+
 	return (
 		<div className="flex gap-3 items-center">
-			<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
+			{manufacturer !== undefined && manufacturer !== empty_account ? (
+				<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
 				<ManufacturerIcon className="h-fit fill-primary w-20" />
-				<p className="font-semibold text-text text-2xl">Nike</p>
-			</div>
-			<span className="bg-secondary rounded-lg h-1 w-20"></span>
-			<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
-				<DistributorIcon className="h-fit fill-primary w-20" />
-				<p className="font-semibold text-text text-2xl">Kicks Over Coffee</p>
-			</div>
-			<span className="bg-secondary rounded-lg h-1 w-20"></span>
-			<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
-				<RetailerIcon className="h-fit fill-primary w-20" />
-				<p className="font-semibold text-text text-2xl">Foot Locker</p>
-			</div>
+				<p className="font-semibold text-text text-2xl">{manufacturerName}</p>
+				</div>
+			) : (
+				""
+			)}
+			{distributor !== undefined && distributor !== empty_account ? (
+				<>
+					<span className="bg-secondary rounded-lg h-1 w-20"></span>
+					<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
+						<DistributorIcon className="h-fit fill-primary w-20" />
+						<p className="font-semibold text-text text-2xl">{distributorName}</p>
+					</div>
+				</>
+			) : (
+				""
+			)}
+			{retailer !== undefined && retailer !== empty_account ? (
+				<>
+					<span className="bg-secondary rounded-lg h-1 w-20"></span>
+					<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
+						<RetailerIcon className="h-fit fill-primary w-20" />
+						<p className="font-semibold text-text text-2xl">{retailerName}</p>
+					</div>
+				</>
+			) : (
+				""
+			)}
 		</div>
 	)
 }

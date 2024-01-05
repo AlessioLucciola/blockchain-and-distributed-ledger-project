@@ -12,6 +12,11 @@ export const getEntities = async ({ role }: { role?: string }): Promise<AxiosRes
 	return res
 }
 
+export const getEntityByAddress = async ({ address }: { address: string }): Promise<AxiosResponse<{ data: Entity }>> => {
+	const res = await api.get("/get-entity-by-address", { params: { address } })
+	return res
+}
+
 export const createEntity = async ({
     name,
     surname,
@@ -77,7 +82,6 @@ export const createEntity = async ({
 
 		console.log(metamaskAddress)
 		if (metamaskAddress !== null) {
-			console.log(metamaskAddress, "ok")
 			const dbResponse = await api.post("/create-entity", {
 				name,
 				surname,
