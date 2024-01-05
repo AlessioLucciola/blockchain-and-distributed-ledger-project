@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
-import { Entity, Product, ProductInstance, Verifications } from "../../shared/types"
+import { Entity, Product, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
 import { getProductStageFromId, getProductLocationFromId, formatUnixTimestampToDatetime } from "../../utils/typeUtils"
-import { addCustomer, addDistributor, addManufacturer, addRetailer, getContractProductInfo, getEntityRole, isManufacturer, produceProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer } from "../api/contractCalls"
+import { addCustomer, addDistributor, addManufacturer, addRetailer, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, verifyEntity } from "../api/contractCalls"
 
 export const api = axios.create({
 	baseURL: "http://localhost:3000/api",
@@ -268,7 +268,53 @@ export const addVerificationID = async ({ userID, verificationID }: { userID: st
 	return res
 }
 export const getVerificationInfoById = async ({ userID }: { userID: string }): Promise<AxiosResponse<{ data: Verifications }>> => {
-	const res = await api.get("/get-verification-info", { params: { userID } })
+	const res = await api.get("/get-verification-info-by-id", { params: { userID } })
+	return res
+}
+export const getVerifications = async (): Promise<AxiosResponse<{ data: VerificationWithEntity[] }>> => {
+	const res = await api.get("/get-verifications")
+	return res
+}
+export const getPendingVerifications = async (): Promise<AxiosResponse<{ data: VerificationWithEntity[] }>> => {
+	const res = await api.get("/get-pending-verifications")
+	return res
+}
+export const updateVerificationGranted = async ({ id, accountVerified, metamaskAddress }: { id: string; accountVerified?: boolean, metamaskAddress?: string }): Promise<AxiosResponse<{data: {message: string}}, any> | undefined> => {
+	try {
+		let contractRes
+		if (metamaskAddress !== undefined) {
+			if (accountVerified) {
+				contractRes = await grantVerificationPermission(metamaskAddress)
+			} else {
+				//TO DO: revoke permission
+			}
+		}
+
+		if (contractRes) {
+			const url = `/update-verification-granted?id=${id}&accountVerified=${accountVerified}`
+			const res = await api.patch(url)
+			return res
+		}
+	} catch (error) {
+		console.error('Error updating verification:', error)
+		throw error
+	}
+}
+export const updateVerificationPayment = async ({ id, verificationPaid}: { id: string; verificationPaid: boolean}): Promise<AxiosResponse<{data: {message: string}}, any> | undefined> => {
+	try {
+		const contractRes = await verifyEntity()
+		if (contractRes) {
+			const url = `/update-verification-payment?id=${id}&verificationPaid=${verificationPaid}`
+			const res = await api.patch(url)
+			return res
+		}
+	} catch (error) {
+		console.error('Error updating verification:', error)
+		throw error
+	}
+}
+export const deleteVerification = async ({ id }: { id: string }): Promise<AxiosResponse<{ data: { message: string } }>> => {
+	const res = await api.delete("/delete-verification", { params: { id } })
 	return res
 }
 

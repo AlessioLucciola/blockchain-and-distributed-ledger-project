@@ -50,6 +50,7 @@ model Verifications {
     entityId           Int          @unique
     verificationId     String
     accountVerified    Boolean      @default(false)
+    verificationPaid   Boolean      @default(false)
     entity             Entity       @relation(fields: [entityId], references: [id])
 }
 

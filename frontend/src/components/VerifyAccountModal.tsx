@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react"
 import InputField from "./InputField"
-import { addVerificationID, getVerificationInfoById } from "../assets/api/apiCalls"
+import { addVerificationID, getVerificationInfoById, updateVerificationPayment } from "../assets/api/apiCalls"
 import { useSessionContext } from "../context/exportContext"
 import { Verifications } from "../shared/types"
 
@@ -48,6 +48,16 @@ export default function VerifyAccountModal({ showModal, setShowModal }: VerifyAc
 		return
 	}
 
+	const payBadge = async (id: string, verificationPaid: boolean) => {
+		const res = await updateVerificationPayment({ id: id, verificationPaid: verificationPaid })
+		if (res !== undefined && res.status !== 200) {
+			alert("Error in the verification payment")
+		} else {
+			alert("Payment accepted")
+			getVerificationDetails()
+		}
+	}
+
 	const validateFields = async () => {
 		const verificationID = verificationRef.current?.value
 
@@ -72,16 +82,57 @@ export default function VerifyAccountModal({ showModal, setShowModal }: VerifyAc
 										<h3 className="font-semibold text-text pt-5 pl-5 text-3xl drop-shadow-lg">Verification Status</h3>
 										<div className="p-5">
 											<p className="text-white"> Business ID: {verificationDetails.verificationId} </p>
-											<p className="text-white"> Verification Status: {verificationDetails.accountVerified ? "Account verified" : "Waiting for SmartSupply to verify your account"} </p>
-										</div>
-										<div className="rounded-b flex p-6 items-center justify-end">
-											<button
-												className="bg-secondary rounded font-bold outline-none shadow text-text text-sm mr-1 mb-1 py-3 px-6 transition-all ease-linear duration-150 uppercase hover:shadow-lg focus:outline-none active:bg-emerald-600"
-												type="button"
-												onClick={() => setShowModal(false)}
-											>
-												Close
-											</button>
+											<p className="text-white"> Verification Status: {verificationDetails.accountVerified ? (
+												<>
+													{verificationDetails.verificationPaid ? (
+														<>
+															<p>Your account is verified and you have the badge</p>
+															<div className="rounded-b flex p-6 items-center justify-end">
+																<button
+																	className="bg-secondary rounded font-bold outline-none shadow text-text text-sm mr-1 mb-1 py-3 px-6 transition-all ease-linear duration-150 uppercase hover:shadow-lg focus:outline-none active:bg-emerald-600"
+																	type="button"
+																	onClick={() => setShowModal(false)}
+																>
+																	Close
+																</button>
+															</div>
+														</>
+													) : (
+														<>
+															<p>Account Verified. You can know get the badge.</p>
+															<div className="rounded-b flex p-6 items-center justify-end">
+																<button
+																	className="bg-secondary rounded font-bold outline-none shadow text-text text-sm mr-1 mb-1 py-3 px-6 transition-all ease-linear duration-150 uppercase hover:shadow-lg focus:outline-none active:bg-emerald-600"
+																	type="button"
+																	onClick={() => payBadge(verificationDetails.id, true)}
+																>
+																	Make the payment
+																</button>
+																<button
+																	className="bg-secondary rounded font-bold outline-none shadow text-text text-sm mr-1 mb-1 py-3 px-6 transition-all ease-linear duration-150 uppercase hover:shadow-lg focus:outline-none active:bg-emerald-600"
+																	type="button"
+																	onClick={() => setShowModal(false)}
+																>
+																	Close
+																</button>
+															</div>
+														</>
+													)}
+												</>
+											) : (
+												<>
+													<p>Waiting for SmartSupply to verify your account</p>
+													<div className="rounded-b flex p-6 items-center justify-end">
+														<button
+															className="bg-secondary rounded font-bold outline-none shadow text-text text-sm mr-1 mb-1 py-3 px-6 transition-all ease-linear duration-150 uppercase hover:shadow-lg focus:outline-none active:bg-emerald-600"
+															type="button"
+															onClick={() => setShowModal(false)}
+														>
+															Close
+														</button>
+													</div>
+												</>
+											)} </p>
 										</div>
 									</div>
 								) : (

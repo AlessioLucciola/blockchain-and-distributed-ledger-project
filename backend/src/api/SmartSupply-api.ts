@@ -16,7 +16,12 @@ const SmartSupplyAPI = (app: Express) => {
 	app.get("/api/get-product-instances-from-seller", SmartSupplyController.getProductInstancesFromSeller)
 	app.get("/api/get-seller-by-id", SmartSupplyController.getSellerById)
 	app.post("/api/add-verification-id", SmartSupplyController.addVerificationId)
-	app.get("/api/get-verification-info", SmartSupplyController.getVerificationInfoById)
+	app.get("/api/get-verification-info-by-id", SmartSupplyController.getVerificationInfoById)
+	app.get("/api/get-verifications", SmartSupplyController.getVerifications)
+	app.get("/api/get-pending-verifications", SmartSupplyController.getPendingVerifications)
+	app.delete("/api/delete-verification", SmartSupplyController.deleteVerification)
+	app.patch("/api/update-verification-payment", SmartSupplyController.updateVerificationPayment)
+	app.patch("/api/update-verification-granted", SmartSupplyController.updateVerificationGranted)
 }
 
 export default SmartSupplyAPI

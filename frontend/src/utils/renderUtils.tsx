@@ -1,5 +1,5 @@
 import { Roles } from "../shared/constants"
-import { CustomerIcon, DistributorIcon, ManufacturerIcon, RetailerIcon } from "../shared/icons"
+import { CustomerIcon, DistributorIcon, ManufacturerIcon, RetailerIcon, AdminIcon } from "../shared/icons"
 
 export const getRoleIcon = (role: Roles) => {
 	switch (role.toLowerCase()) {
@@ -11,6 +11,8 @@ export const getRoleIcon = (role: Roles) => {
 			return <RetailerIcon className="h-10 fill-primary w-10" />
 		case Roles.CUSTOMER:
 			return <CustomerIcon className="h-10 fill-primary w-10" />
+		case Roles.ADMIN:
+			return <AdminIcon className="h-10 fill-primary w-10" />
 		default:
 			return <CustomerIcon className="h-10 fill-primary w-10" />
 	}

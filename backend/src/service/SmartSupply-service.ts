@@ -1,6 +1,7 @@
 import { Entity, ProductInstances, Products, Roles, Verifications } from "@prisma/client"
 import SmartSupplyRepository from "../repository/SmartSupply-repository"
 import { generateToken, resolveToken } from "../../utils/authUtils"
+import { VerificationsWithEntity } from "../../shared/types"
 
 class SmartSupplyService {
 	repository: SmartSupplyRepository
@@ -60,6 +61,21 @@ class SmartSupplyService {
 	}
 	async getVerificationInfoById({ userID }: { userID: number }): Promise<Verifications | null> {
 		return this.repository.getVerificationInfoById({ userID })
+	}
+	async getVerifications(): Promise<VerificationsWithEntity[]> {
+		return this.repository.getVerifications()
+	}
+	async getPendingVerifications(): Promise<VerificationsWithEntity[]> {
+		return this.repository.getPendingVerifications()
+	}
+	async deleteVerification({ id }: { id: number }): Promise<Verifications> {
+		return this.repository.deleteVerification({ id })
+	}
+	async updateVerificationPayment({ id, verificationPaid }: { id: number; verificationPaid: boolean }): Promise<Verifications> {
+		return this.repository.updateVerificationPayment({ id, verificationPaid })
+	}
+	async updateVerificationGranted({ id, accountVerified }: { id: number; accountVerified: boolean }): Promise<Verifications> {
+		return this.repository.updateVerificationGranted({ id, accountVerified })
 	}
 }
 

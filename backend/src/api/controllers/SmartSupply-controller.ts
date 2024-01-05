@@ -379,6 +379,114 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
+	getVerifications: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const data = await service.getVerifications()
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	getPendingVerifications: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const data = await service.getPendingVerifications()
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	deleteVerification: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				id: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { id } = req.query
+			const data = await service.deleteVerification({ id: parseInt(id) })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	updateVerificationPayment: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				id: string,
+				verificationPaid: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { id, verificationPaid } = req.query
+    		const parsedVerificationPaid = verificationPaid === "true"
+			const data = await service.updateVerificationPayment({ id: parseInt(id), verificationPaid: parsedVerificationPaid })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	updateVerificationGranted: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				id: string,
+				accountVerified: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { id, accountVerified } = req.query
+    		const parsedaccountVerified = accountVerified === "true"
+			const data = await service.updateVerificationGranted({ id: parseInt(id), accountVerified: parsedaccountVerified })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
 }
 
 export default SmartSupplyController
