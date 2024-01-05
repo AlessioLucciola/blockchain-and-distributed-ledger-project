@@ -6,7 +6,7 @@ import { DistributorIcon, ManufacturerIcon, RetailerIcon, RightCaretIcon } from 
 import GradientText from "../components/GradientText"
 import { Entity, Product, ProductInstance } from "../shared/types"
 import { useEffect, useState } from "react"
-import { getEntityByAddress, getProductInfo, getSellerById } from "../assets/api/apiCalls"
+import { getEntityByAddress, getProductInfo, getSellerById, getVerificationInfoById } from "../assets/api/apiCalls"
 
 export default function ProductInfo() {
 	const { productId, instanceId } = useParams()
@@ -134,25 +134,52 @@ const HistoryChain = ({ manufacturer, distributor, retailer } : HistoryChainProp
 	const [manufacturerName, setManufacturerName] = useState<string>()
 	const [retailerName, setRetailerName] = useState<string>()
 	const [distributorName, setDistributorName] = useState<string>()
+	const [manufacturerVerificationInfo, setManufacturerVerificationInfo] = useState<boolean>()
+	const [distributorVerificationInfo, setDistributorVerificationInfo] = useState<boolean>()
+	const [retailerVerificationInfo, setRetailerVerificationInfo] = useState<boolean>()
 
 	const getEntityInfo = async (address: string) => {
 		const res = await getEntityByAddress({ address: address })
 		if (res.status === 200) {
-			return res.data.data.companyName
+			return {companyName: res.data.data.companyName, id: res.data.data.id}
 		}
-		console.log(res)
+	}
+
+	const getVerificationDetails = async (userID: string) => {
+		if (userID !== undefined) {
+			const res = await getVerificationInfoById({ userID: userID })
+			console.log(res)
+			if (res.status === 200) {
+				return res.data.data
+			}
+		}
 	}
 
 	useEffect(() => {
 		const fetchData = async () => {
 		  if (manufacturer !== undefined && manufacturer !== empty_account) {
-			setManufacturerName(await getEntityInfo(manufacturer))
+			const entity_res = await getEntityInfo(manufacturer)
+			setManufacturerName(entity_res?.companyName)
+			if (entity_res !== undefined) {
+				const ver_res = await getVerificationDetails(entity_res.id!.toString())
+				setManufacturerVerificationInfo(ver_res?.verificationPaid)
+			}
 		  }
 		  if (retailer !== undefined && retailer !== empty_account) {
-			setRetailerName(await getEntityInfo(retailer))
+			const entity_res = await getEntityInfo(retailer)
+			setRetailerName(entity_res?.companyName)
+			if (entity_res !== undefined) {
+				const ver_res = await getVerificationDetails(entity_res.id!.toString())
+				setRetailerVerificationInfo(ver_res?.verificationPaid)
+			}
 		  }
 		  if (distributor !== undefined && distributor !== empty_account) {
-			setDistributorName(await getEntityInfo(distributor))
+			const entity_res = await getEntityInfo(distributor)
+			setDistributorName(entity_res?.companyName)
+			if (entity_res !== undefined) {
+				const ver_res = await getVerificationDetails(entity_res.id!.toString())
+				setDistributorVerificationInfo(ver_res?.verificationPaid)
+			}
 		  }
 		}
 		fetchData()
@@ -164,6 +191,9 @@ const HistoryChain = ({ manufacturer, distributor, retailer } : HistoryChainProp
 				<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
 				<ManufacturerIcon className="h-fit fill-primary w-20" />
 				<p className="font-semibold text-text text-2xl">{manufacturerName}</p>
+				{manufacturerVerificationInfo && (
+					<div className="badge bg-green text-white">Verified</div>
+				)}
 				</div>
 			) : (
 				""
@@ -174,6 +204,9 @@ const HistoryChain = ({ manufacturer, distributor, retailer } : HistoryChainProp
 					<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
 						<DistributorIcon className="h-fit fill-primary w-20" />
 						<p className="font-semibold text-text text-2xl">{distributorName}</p>
+						{distributorVerificationInfo && (
+							<div className="badge bg-green text-white">Verified</div>
+						)}
 					</div>
 				</>
 			) : (
@@ -185,6 +218,9 @@ const HistoryChain = ({ manufacturer, distributor, retailer } : HistoryChainProp
 					<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
 						<RetailerIcon className="h-fit fill-primary w-20" />
 						<p className="font-semibold text-text text-2xl">{retailerName}</p>
+						{retailerVerificationInfo && (
+							<div className="badge bg-green text-white">Verified</div>
+						)}
 					</div>
 				</>
 			) : (
