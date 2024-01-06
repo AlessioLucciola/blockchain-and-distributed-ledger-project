@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar"
 import GradientText from "../components/GradientText"
 import { useSessionContext } from "../context/exportContext"
 import { useEffect } from "react"
-import { addManufacturer, removeDistributor } from "../assets/api/contractCalls"
+import { addManufacturer, isCustomer, isManufacturer, isRetailer, removeDistributor, removeRetailer } from "../assets/api/contractCalls"
 
 export default function Home() {
 	const navigate = useNavigate()

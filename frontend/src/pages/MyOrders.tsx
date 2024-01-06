@@ -1,20 +1,38 @@
+import React, { useEffect } from "react"
 import Button from "../components/Button"
 import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
-import { ProductStage, Roles } from "../shared/constants"
+import { ProductStage } from "../shared/constants"
 import { RightCaretIcon } from "../shared/icons"
+import PlaceOrderModal from "../components/PlaceOrderModal"
+import { useSessionContext } from "../context/exportContext"
+import { useNavigate } from "react-router-dom"
 
 export default function MyOrders() {
+	const navigate = useNavigate()
+	const sessionContext = useSessionContext()
+
+	useEffect(() => {
+		if (!sessionContext.entityInfo) {
+			navigate("/")
+		}
+	}, [sessionContext])
+	const [showPlaceOrderModal, setPlaceOrderModal] = React.useState(false)
+
 	return (
 		<div className="bg-background h-screen w-screen pb-20 overflow-y-scroll">
 			<Navbar showLinks={false} />
 			<div className="mt-36 px-10">
+				<Button text="+ Place a new order" onClick={() => navigate('/purchaseProduct')} />
+			</div>
+			<div className="mt-10 px-10">
 				<GradientText text="My Orders" className="text-4xl" />
 				<div className="flex flex-col gap-2">
 					<OrderCard name="Nike Dunk Low Diffused Taupe" price="100.43" status={ProductStage.PURCHASED} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 					<OrderCard name="Nike Dunk Low Diffused Taupe" price="100.43" status={ProductStage.SHIPPED} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 				</div>
 			</div>
+			<PlaceOrderModal showModal={showPlaceOrderModal} setShowModal={() => setPlaceOrderModal(!showPlaceOrderModal)} />
 		</div>
 	)
 }

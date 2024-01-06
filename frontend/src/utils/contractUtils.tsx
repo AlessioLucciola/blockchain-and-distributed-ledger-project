@@ -18,6 +18,7 @@ export const getContractInstance = async (): Promise<ethers.Contract | null> => 
       }
 
       const provider = new ethers.BrowserProvider(window.ethereum)
+      provider.pollingInterval = 100
 
       // Load the contract ABI
       const contractAddress = import.meta.env.VITE_SMART_SUPPLY_CONTRACT_ADDRESS || '0xDefaultContractAddress'

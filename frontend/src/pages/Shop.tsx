@@ -89,11 +89,13 @@ export default function Shop() {
 					</span>
 				</span>
 				<div className="flex py-10 pt-5 gap-10 overflow-x-scroll scrollbar-none scroll-smooth  " ref={recentlyAddedProductRef}>
-					<div className={`bg-accent rounded-3xl flex flex-col p-10 items-center justify-center max-w-[300px] shadow-lg hover:shadow-black cursor-pointer`}>
-						<p className="font-semibold text-text text-4xl drop-shadow-lg" onClick={() => setShowCreateProductModal(true)}>
-							Add a new product
-						</p>
-					</div>
+					{sessionContext.entityInfo?.role === Roles.MANUFACTURER ? (
+						<div className={`bg-accent rounded-3xl flex flex-col p-10 items-center justify-center max-w-[300px] shadow-lg hover:shadow-black cursor-pointer`}>
+							<p className="font-semibold text-text text-4xl drop-shadow-lg" onClick={() => setShowCreateProductModal(true)}>
+								Add a new product
+							</p>
+						</div>
+					) : ""}
 
 					{myProducts.map(({ product, price }) => (
 						<ProductCard

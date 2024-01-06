@@ -14,7 +14,7 @@ export const addManufacturer = async (): Promise<string | null> => {
                 })
 
                 // Call the addManufacturer function on the contract
-                contract
+                const res = contract
                     .addManufacturer()
                     .then((addManufacturerTransaction) => {
                         addManufacturerTransaction.wait()
@@ -248,6 +248,78 @@ export const isDistributor = async () => {
         }
     } catch (error) {
         console.error("Failed to get role information:", error)
+        return error
+    }
+}
+
+export const isManufacturerByAddress = async (address: string) => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Returns a boolean that tells if the entity is a manufacturer
+            const productInfo = await contract.manufacturers(address)
+            return productInfo
+        } else {
+            console.error("Contract instance is null")
+        }
+    } catch (error) {
+        console.error("Failed to get role info:", error)
+        return error
+    }
+}
+
+export const isDistributorByAddress = async (address: string) => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Returns a boolean that tells if the entity is a distributor
+            const productInfo = await contract.distributors(address)
+            return productInfo
+        } else {
+            console.error("Contract instance is null")
+        }
+    } catch (error) {
+        console.error("Failed to get role info:", error)
+        return error
+    }
+}
+
+export const isRetailerByAddress = async (address: string) => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Returns a boolean that tells if the entity is a retailer
+            const productInfo = await contract.retailers(address)
+            return productInfo
+        } else {
+            console.error("Contract instance is null")
+        }
+    } catch (error) {
+        console.error("Failed to get role info:", error)
+        return error
+    }
+}
+
+export const isCustomerByAddress = async (address: string) => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Returns a boolean that tells if the entity is a customer
+            const productInfo = await contract.customers(address)
+            return productInfo
+        } else {
+            console.error("Contract instance is null")
+        }
+    } catch (error) {
+        console.error("Failed to get role info:", error)
         return error
     }
 }

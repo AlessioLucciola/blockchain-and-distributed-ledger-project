@@ -43,6 +43,7 @@ export type ProductInstance = {
     ownership: ProductOwnership
     bankTransaction: BankTransaction
     rewards: GivenRewards
+    previousOwnerRole: Roles
 }
 
 export type ProductOwnership = {
