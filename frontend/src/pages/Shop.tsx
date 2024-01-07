@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
 import ProductCard from "../components/ProductCard"
@@ -9,6 +9,8 @@ import MessagePage from "./MessagePage"
 import { useNavigate } from "react-router-dom"
 import { Product, ProductInstance } from "../shared/types"
 import { getProductInstancesFromSeller } from "../assets/api/apiCalls"
+import Button from "../components/Button"
+import InputField from "../components/InputField"
 
 export default function Shop() {
 	const [showCreateProductModal, setShowCreateProductModal] = useState(false)
@@ -16,9 +18,9 @@ export default function Shop() {
 	const sessionContext = useSessionContext()
 	const [isAuthorized, setIsAuthorized] = useState<boolean | undefined>(undefined)
 	const [myProducts, setMyProducts] = useState<ProductInstance[]>([])
-	const [mySales, setMySales] = useState<Product[]>([])
+	const searchRef = useRef<HTMLInputElement | null>(null)
+    const [search, setSearch] = useState<string>("")
 
-	const recentlySoldProductRef = React.useRef<HTMLDivElement | null>(null)
 	const recentlyAddedProductRef = React.useRef<HTMLDivElement | null>(null)
 
 	const scroll = (ref: React.MutableRefObject<HTMLDivElement | null>, direction: "left" | "right") => {
@@ -43,11 +45,13 @@ export default function Shop() {
 		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
 			navigate("/login")
 		}
-		console.log(sessionContext)
 		if (sessionContext.entityInfo?.role === Roles.CUSTOMER) {
 			setIsAuthorized(false)
 		}
-		getMyProducts()
+
+		if (sessionContext.entityInfo?.id) {
+			getMyProducts()
+		}
 	}, [sessionContext])
 
 	if (isAuthorized === false) {
@@ -108,20 +112,49 @@ export default function Shop() {
 						/>
 					))}
 				</div>
-				<span className="flex w-full justify-between items-center">
-					<p className="font-semibold  text-text pt-5 text-3xl">Recent Sales</p>
-					<span className="flex gap-5 items-center">
-						<p className="cursor-pointer text-text text-3xl select-none" onClick={() => scroll(recentlySoldProductRef, "left")}>
-							{"<"}
-						</p>
-						<p className="cursor-pointer text-text text-3xl select-none" onClick={() => scroll(recentlySoldProductRef, "right")}>
-							{">"}
-						</p>
-					</span>
+				<span className="flex flex-col w-full justify-between">
+					<p className="font-semibold  text-text pt-5 text-3xl">Owned Products</p>
+					<div className="pt-5">
+                        <InputField name={"Product Name"} type={"text"} ref={searchRef} onChange={() => {setSearch(searchRef.current?.value!)}}/>
+                        <div className="flex flex-col gap-2 pt-10">
+                            {myProducts.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
+                                <div key={instance.id}>
+                                	<OwnedProductCard name={instance.product?.name} uid={instance.product?.uid} price={instance.price.toString()} owner={instance.previousOwner} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+								</div>
+							))}
+                        </div>
+                    </div>
 				</span>
-				<div className="flex py-10 pt-5 gap-10 overflow-x-scroll scrollbar-none scroll-smooth" ref={recentlySoldProductRef}>
-					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
-					<ProductCard name="Nike Dunk Low Diffused Taupe" id="092839283" price="$108.99" image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+			</div>
+		</div>
+	)
+}
+
+interface OwnedProductCardProps {
+	name: string | undefined
+    uid?: string | undefined
+    owner: string | undefined
+	price: string | undefined
+	image: string
+}
+function OwnedProductCard({ name, uid, owner, price, image }: OwnedProductCardProps) {
+    const navigate = useNavigate()
+
+	return (
+		<div className="flex gap-5">
+			<img src={image} alt="product image" className="h-fit w-[200px]" />
+			<div className="flex flex-row gap-10 justify-between">
+				<div className="flex flex-col h-full justify-around">
+					<p className="font-semibold text-text text-xl drop-shadow-lg">{name}</p>
+                    <p className="font-semibold text-text text-xl drop-shadow-lg">{owner}</p>
+                    <span className="flex gap-2 items-center">
+						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
+						<GradientText text={"€"+price} className="text-xl" />
+					</span>
+				</div>
+				<div className="flex flex-col gap-3 flex-end h-full justify-around">
+                    <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${uid}`)}/>
+					<Button text="Buy Product" className={`p-2 font-semibold`} />
 				</div>
 			</div>
 		</div>

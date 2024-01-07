@@ -24,9 +24,8 @@ export default function MyOrders() {
 	}, [sessionContext])
 
     useEffect(() => {
-        // Call getProductList when the component mounts or when the name changes
         getProductList(name)
-      }, [name])
+    }, [name])
     
 	const getProductList = async (name: string) => {
         const res = await searchProduct({ name: name, includeInstances: true })

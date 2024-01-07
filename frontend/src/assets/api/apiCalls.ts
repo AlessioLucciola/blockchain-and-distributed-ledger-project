@@ -204,11 +204,9 @@ export const searchProduct = async ({ name, productId, includeInstances }: { nam
     const products: Product[] = res.data.data
 
     if (includeInstances) {
-        // Fetch detailed information for each product and its instances
         await Promise.all(products.map(async (product) => {
             const updatedInstances = await Promise.all(product.productInstances.map(async (productInstance) => {
                 if (productInstance.id !== undefined) {
-					console.log(productInstance.id)
                     const proxyResult = await getContractProductInfo(parseInt(productInstance.id))
                     productInstance.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
                     const distributorBankTransactionProxy = proxyResult[8]
@@ -229,13 +227,11 @@ export const searchProduct = async ({ name, productId, includeInstances }: { nam
 
                 return productInstance
             }))
-            // Update product instances in the product
             return { ...product, productInstances: updatedInstances }
         })) as Product[]
 
         return res as AxiosResponse<{ data: Product[] }>
     }
-
     return res
 }
 

@@ -144,7 +144,18 @@ class SmartSupplyRepository {
     }): Promise<ProductInstances[]> {
         return prisma.productInstances.findMany({
             where: {
-                previousOwner: sellerId,
+                OR: [
+                    {
+                        currentOwner: sellerId,
+                        productState: {
+                            in: [0, 1, 4],
+                        },
+                    },
+                    {
+                        previousOwner: sellerId,
+                        productState: 2,
+                    },
+                ],
             },
             include: {
                 product: true,

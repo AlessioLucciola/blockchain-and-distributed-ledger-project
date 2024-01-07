@@ -102,8 +102,8 @@ export default function Home() {
 				<>
 				
 					<div className="flex pt-40 gap-5 items-center justify-center">
-						{sessionContext.entityInfo?.role as Roles !== Roles.MANUFACTURER ? <Card title="My Sales" Icon={TagIcon} onClick={() => navigate("/sales")} /> : ""}
-						<Card title="My Orders" Icon={CartIcon} onClick={() => navigate("/orders")} />
+						<Card title="My Sales" Icon={TagIcon} onClick={() => navigate("/sales")} />
+						{sessionContext.entityInfo?.role as Roles !== Roles.MANUFACTURER ? <Card title="My Orders" Icon={CartIcon} onClick={() => navigate("/orders")} />  : ""}
 						<Card title="My Shop" Icon={StoreIcon} onClick={() => navigate("/shop")} />
 					</div>
 					<div className="flex flex-col pt-40 gap-5 items-center justify-center">
