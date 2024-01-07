@@ -298,5 +298,19 @@ class SmartSupplyRepository {
             },
         })
     }
+    async productChangeOnSale({
+        productInstanceId,
+    }: {
+        productInstanceId: number
+    }): Promise<ProductInstances> {
+        return prisma.productInstances.update({
+            where: {
+                id: productInstanceId,
+            },
+            data: {
+                productState: 1,
+            }
+        })
+    }
 }
 export default SmartSupplyRepository

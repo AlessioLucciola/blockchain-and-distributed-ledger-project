@@ -80,6 +80,9 @@ class SmartSupplyService {
 	async updateVerificationGranted({ id, accountVerified }: { id: number; accountVerified: boolean }): Promise<Verifications> {
 		return this.repository.updateVerificationGranted({ id, accountVerified })
 	}
+	async productChangeOnSale({ productInstanceId  }: { productInstanceId: number }): Promise<ProductInstances> {
+		return this.repository.productChangeOnSale({ productInstanceId })
+	}
 }
 
 export default SmartSupplyService

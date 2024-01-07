@@ -23,6 +23,7 @@ const SmartSupplyAPI = (app: Express) => {
 	app.delete("/api/delete-verification", SmartSupplyController.deleteVerification)
 	app.patch("/api/update-verification-payment", SmartSupplyController.updateVerificationPayment)
 	app.patch("/api/update-verification-granted", SmartSupplyController.updateVerificationGranted)
+	app.patch("/api/product-change-on-sale", SmartSupplyController.productChangeOnSale)
 }
 
 export default SmartSupplyAPI

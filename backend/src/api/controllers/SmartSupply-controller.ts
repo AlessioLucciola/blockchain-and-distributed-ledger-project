@@ -510,6 +510,28 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
+	productChangeOnSale: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				productInstanceId: string,
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { productInstanceId } = req.query
+			const data = await service.productChangeOnSale({ productInstanceId: parseInt(productInstanceId) })
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
 }
 
 export default SmartSupplyController

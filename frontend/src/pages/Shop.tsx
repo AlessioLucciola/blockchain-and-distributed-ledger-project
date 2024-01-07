@@ -8,7 +8,7 @@ import { useSessionContext } from "../context/exportContext"
 import MessagePage from "./MessagePage"
 import { useNavigate } from "react-router-dom"
 import { Product, ProductInstance } from "../shared/types"
-import { getProductInstancesFromSeller } from "../assets/api/apiCalls"
+import { changeProductOnSale, getProductInstancesFromSeller } from "../assets/api/apiCalls"
 import Button from "../components/Button"
 import InputField from "../components/InputField"
 import { getProductStageFromId, getProductStageStringFromId } from "../utils/typeUtils"
@@ -121,7 +121,7 @@ export default function Shop() {
                         <div className="flex flex-col gap-2 pt-10">
                             {myProducts.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
                                 <div key={instance.id}>
-                                	<OwnedProductCard name={instance.product?.name} uid={instance.product?.uid} price={instance.price.toString()} productStage={instance.productState.toString()} owner={instance.previousOwner} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+                                	<OwnedProductCard name={instance.product?.name} id={instance.id} uid={instance.product?.uid} price={instance.price.toString()} productStage={instance.productState.toString()} owner={instance.previousOwner} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 								</div>
 							))}
                         </div>
@@ -134,14 +134,37 @@ export default function Shop() {
 
 interface OwnedProductCardProps {
 	name: string | undefined
-    uid?: string | undefined
+	uid: string | undefined
+    id: string | undefined
     owner: string | undefined
 	productStage: string | undefined
 	price: string | undefined
 	image: string
 }
-function OwnedProductCard({ name, uid, productStage, owner, price, image }: OwnedProductCardProps) {
+function OwnedProductCard({ name, id, uid, productStage, owner, price, image }: OwnedProductCardProps) {
     const navigate = useNavigate()
+	const [updatedProductStage, setUpdatedProductStage] = useState<ProductStage>()
+	const [updatedProductStageName, setUpdatedProductStageName] = useState<string>()
+
+	const changeOnSale = async (productInstanceId: string | undefined) => {
+		if (productInstanceId === undefined) return
+		const res = await changeProductOnSale({ productInstanceId: Number(productInstanceId) })
+		if (res === undefined || res.status !== 200) {
+			alert("Error fetching products")
+			return
+		} else {
+			alert("Product is now on sale")
+			setUpdatedProductStage(ProductStage.ON_SALE)
+			setUpdatedProductStageName(getProductStageStringFromId(ProductStage.ON_SALE))
+			return
+		}
+	}
+
+	useEffect(() => {
+		if (productStage === undefined) return
+        setUpdatedProductStage(getProductStageFromId(productStage))
+		setUpdatedProductStageName(getProductStageStringFromId(productStage))
+    }, [])
 
 	return (
 		<div className="flex gap-5">
@@ -151,7 +174,7 @@ function OwnedProductCard({ name, uid, productStage, owner, price, image }: Owne
 					<p className="font-semibold text-text text-xl drop-shadow-lg">{name}</p>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Status:</p>
-						<GradientText text={productStage !== undefined ? getProductStageStringFromId(productStage) : "Unknown"} className="text-xl" />
+						<GradientText text={productStage !== undefined ? updatedProductStageName : "Unknown"} className="text-xl" />
 					</span>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
@@ -160,10 +183,10 @@ function OwnedProductCard({ name, uid, productStage, owner, price, image }: Owne
 				</div>
 				<div className="flex flex-col gap-3 flex-end h-full justify-around">
                     <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${uid}`)}/>
-					{productStage !== undefined && (getProductStageFromId(productStage) === ProductStage.PRODUCED || getProductStageFromId(productStage) === ProductStage.RECEIVED) ? (
-						<Button text="Change on sale" className={`p-2 font-semibold`} />
+					{productStage !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED) ? (
+						<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(id)}/>
 					) : ""}
-					{productStage !== undefined && getProductStageFromId(productStage) === ProductStage.PURCHASED ? (
+					{productStage !== undefined && updatedProductStage === ProductStage.PURCHASED ? (
 						<Button text="Ship product" className={`p-2 font-semibold`} />
 					) : ""}
 				</div>

@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
 import { getProductStageFromId, getProductLocationFromId, formatUnixTimestampToDatetime } from "../../utils/typeUtils"
-import { addCustomer, addDistributor, addManufacturer, addRetailer, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, verifyEntity } from "../api/contractCalls"
+import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, verifyEntity } from "../api/contractCalls"
 
 export const api = axios.create({
 	baseURL: "http://localhost:3000/api",
@@ -340,5 +340,16 @@ export const deleteVerification = async ({ id }: { id: string }): Promise<AxiosR
 	const res = await api.delete("/delete-verification", { params: { id } })
 	return res
 }
-
+export const changeProductOnSale = async ({ productInstanceId }: { productInstanceId: number }): Promise<AxiosResponse<{data: {message: string}}, any> | undefined> => {
+	try {
+        const contract_res = await changeOnSale(productInstanceId)
+		if (contract_res) {
+			const res = await api.patch(`product-change-on-sale?productInstanceId=${productInstanceId}`)
+			return res
+		}
+	} catch (error) {
+        console.error('Error deleting entity:', error)
+        throw error
+    }
+}
 
