@@ -4,7 +4,6 @@ import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
 import { ProductStage } from "../shared/constants"
 import { RightCaretIcon } from "../shared/icons"
-import PlaceOrderModal from "../components/PlaceOrderModal"
 import { useSessionContext } from "../context/exportContext"
 import { useNavigate } from "react-router-dom"
 
@@ -17,7 +16,6 @@ export default function MyOrders() {
 			navigate("/")
 		}
 	}, [sessionContext])
-	const [showPlaceOrderModal, setPlaceOrderModal] = React.useState(false)
 
 	return (
 		<div className="bg-background h-screen w-screen pb-20 overflow-y-scroll">
@@ -32,7 +30,6 @@ export default function MyOrders() {
 					<OrderCard name="Nike Dunk Low Diffused Taupe" price="100.43" status={ProductStage.SHIPPED} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 				</div>
 			</div>
-			<PlaceOrderModal showModal={showPlaceOrderModal} setShowModal={() => setPlaceOrderModal(!showPlaceOrderModal)} />
 		</div>
 	)
 }

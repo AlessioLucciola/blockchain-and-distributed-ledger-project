@@ -19,12 +19,19 @@ model Products {
 }
 
 model ProductInstances {
-    id        Int      @id @default(autoincrement())
-    productId Int // Foreign key referencing Products
-    soldById  Int? // Foreign key referencing Entity
-    price     Float    @default(0)
-    soldBy    Entity?  @relation(fields: [soldById], references: [id])
-    product   Products @relation(fields: [productId], references: [uid])
+    id                  Int         @id @default(autoincrement())
+    productId           Int         // Foreign key referencing Products
+    currentOwner        Int         // Foreign key referencing Entity
+    previousOwner       Int
+    price               Float       @default(0)
+    manufacturerId      Int
+    distributorId       Int?
+    retailerId          Int?
+    customerId          Int?
+    productLocation     Int         @default(0)
+    productState        Int         @default(0)
+    owner               Entity      @relation(fields: [currentOwner], references: [id])
+    product             Products    @relation(fields: [productId], references: [uid])
 }
 
 model Entity {

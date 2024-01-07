@@ -94,7 +94,9 @@ class SmartSupplyRepository {
         const productInstance = await prisma.productInstances.create({
             data: {
                 productId: productId,
-                soldById: soldBy,
+                currentOwner: soldBy,
+                previousOwner: soldBy,
+                manufacturerId: soldBy,
                 price,
             },
         })
@@ -142,7 +144,7 @@ class SmartSupplyRepository {
     }): Promise<ProductInstances[]> {
         return prisma.productInstances.findMany({
             where: {
-                soldById: sellerId,
+                previousOwner: sellerId,
             },
             include: {
                 product: true,

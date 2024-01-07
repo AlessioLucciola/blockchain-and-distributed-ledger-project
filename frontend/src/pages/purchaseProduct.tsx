@@ -2,14 +2,13 @@ import React, { useEffect, useRef, useState } from "react"
 import Button from "../components/Button"
 import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
-import { ProductStage, Roles } from "../shared/constants"
-import { RightCaretIcon } from "../shared/icons"
+import { Roles } from "../shared/constants"
 import { useNavigate } from "react-router-dom"
 import { useSessionContext } from "../context/exportContext"
 import { Product } from "../shared/types"
 import { searchProduct } from "../assets/api/apiCalls"
 import InputField from "../components/InputField"
-import { isDistributor, isDistributorByAddress, isManufacturer, isManufacturerByAddress, isRetailer, isRetailerByAddress } from "../assets/api/contractCalls"
+import { isDistributorByAddress, isManufacturerByAddress, isRetailerByAddress } from "../assets/api/contractCalls"
 
 export default function MyOrders() {
     const navigate = useNavigate()
@@ -30,7 +29,8 @@ export default function MyOrders() {
       }, [name])
     
 	const getProductList = async (name: string) => {
-        const res = await searchProduct({ name: name, includeInstances: true });
+        const res = await searchProduct({ name: name, includeInstances: true })
+        console.log(res)
 
         if (res.status === 200) {
             const products = res.data.data;
@@ -70,19 +70,21 @@ export default function MyOrders() {
 			<Navbar showLinks={false} />
 			<div className="mt-36 px-10">
 				<GradientText text="Product Purchase" className="text-4xl" />
-                <p className="text-white">Purchase a certified product with SmartSupply. Find the product you like by typing the name:</p>
                 <div className="pt-5">
-                    <InputField name={"Product Name"} type={"text"} ref={nameRef} onChange={() => {setName(nameRef.current?.value!)}}/>
-                    <div className="flex flex-col gap-2">
-                        {productList.map((product, index) => (
-                            <div key={product.uid+'_'+index}>
-                                {product.productInstances.filter((instance) => instance.previousOwnerRole === getPreviousOwner()).map((instance) => (
-                                    <div key={instance.id}>
-                                        <OrderCard name={product.name} price={instance.price.toString()} owner={instance.previousOwner} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
+                    <p className="text-white">Purchase a certified product with SmartSupply. Find the product you like by typing the name:</p>
+                    <div className="pt-5">
+                        <InputField name={"Product Name"} type={"text"} ref={nameRef} onChange={() => {setName(nameRef.current?.value!)}}/>
+                        <div className="flex flex-col gap-2 pt-10">
+                            {productList.map((product, index) => (
+                                <div key={product.uid+'_'+index}>
+                                    {product.productInstances.filter((instance) => instance.previousOwnerRole === getPreviousOwner()).map((instance) => (
+                                        <div key={instance.id}>
+                                            <PurchaseCard name={product.name} uid={product.uid} price={instance.price.toString()} owner={instance.previousOwner} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 			</div>
@@ -90,13 +92,17 @@ export default function MyOrders() {
 	)
 }
 
-interface OrderCardProps {
+interface PurchaseCardProps {
 	name: string
+    uid?: string
     owner: string
 	price: string
 	image: string
 }
-function OrderCard({ name, owner, price, image }: OrderCardProps) {
+function PurchaseCard({ name, uid, owner, price, image }: PurchaseCardProps) {
+    const navigate = useNavigate()
+    console.log(uid)
+
 	return (
 		<div className="flex gap-5">
 			<img src={image} alt="product image" className="h-fit w-[200px]" />
@@ -110,7 +116,7 @@ function OrderCard({ name, owner, price, image }: OrderCardProps) {
 					</span>
 				</div>
 				<div className="flex flex-col gap-3 flex-end h-full justify-around">
-                    <Button text="Details" className={`p-2 font-semibold`} />
+                    <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${uid}`)}/>
 					<Button text="Buy Product" className={`p-2 font-semibold`} />
 				</div>
 			</div>
