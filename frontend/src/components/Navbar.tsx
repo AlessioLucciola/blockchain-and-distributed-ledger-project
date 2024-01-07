@@ -60,8 +60,8 @@ export default function Navbar({ showLinks = true, overrideLinks }: NavbarProps)
 					)}
 					{showLinks &&
 						overrideLinks &&
-						overrideLinks.map(({ name, path, action }) => (
-							<div className="cursor-pointer text-primary hover:underline" onClick={path ? () => navigate(path!) : action}>
+						overrideLinks.map(({ name, path, action }, index) => (
+							<div key={index} className="cursor-pointer text-primary hover:underline" onClick={path ? () => navigate(path!) : action}>
 								{name}
 							</div>
 						))}
