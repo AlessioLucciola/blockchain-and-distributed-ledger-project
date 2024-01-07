@@ -18,6 +18,24 @@ export const getProductStageFromId = (id: string) => {
 	}
 }
 
+export const getProductStageStringFromId = (id: string) => {
+	switch (id) {
+		case "0":
+			return "Produced"
+		case "1":
+			return "On Sale"
+		case "2":
+			return "Purchased by"
+		case "3":
+			return "Shipped to"
+		case "4":
+			return "Received by"
+		default:
+			console.error(`Unknown ProductStage ID: ${id}`);
+			return "Unknown"
+	}
+}
+
 export const getProductLocationFromId = (id: string) => {
 	switch (id) {
 		case "0":
