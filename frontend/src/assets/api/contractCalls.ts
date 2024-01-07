@@ -699,7 +699,7 @@ export const getContractProductInfo = async (_productID: number) => {
         if (contract) {
             // Get the struct with the info on a product
             const productInfo = await contract.products(_productID)
-            console.log("Info of the product: ", productInfo)
+            //console.log("Info of the product: ", productInfo)
 
             return productInfo
         } else {

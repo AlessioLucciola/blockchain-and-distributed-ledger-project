@@ -15,9 +15,9 @@ CREATE TABLE `ProductInstances` (
     `previousOwner` INTEGER NOT NULL,
     `price` DOUBLE NOT NULL DEFAULT 0,
     `manufacturerId` INTEGER NOT NULL,
-    `distributorId` INTEGER NOT NULL,
-    `retailerId` INTEGER NOT NULL,
-    `customerId` INTEGER NOT NULL,
+    `distributorId` INTEGER NULL,
+    `retailerId` INTEGER NULL,
+    `customerId` INTEGER NULL,
     `productLocation` INTEGER NOT NULL DEFAULT 0,
     `productState` INTEGER NOT NULL DEFAULT 0,
 

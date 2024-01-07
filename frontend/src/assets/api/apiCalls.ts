@@ -210,20 +210,7 @@ export const searchProduct = async ({ name, productId, includeInstances }: { nam
                 if (productInstance.id !== undefined) {
 					console.log(productInstance.id)
                     const proxyResult = await getContractProductInfo(parseInt(productInstance.id))
-
-                    // Assign the values from ProxyResult to ProductInstance
-                    productInstance.currentOwner = proxyResult[2].toString();
-                    productInstance.previousOwner = proxyResult[3].toString();
-                    productInstance.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()));
-                    productInstance.productState = getProductStageFromId(proxyResult[5].toString());
-                    productInstance.productLocation = getProductLocationFromId(proxyResult[6].toString());
-                    const ownershipProxy = proxyResult[7]
-                    productInstance.ownership = {
-                        manufacturer: ownershipProxy[0].toString(),
-                        distributor: ownershipProxy[1].toString(),
-                        retailer: ownershipProxy[2].toString(),
-                        customer: ownershipProxy[3].toString(),
-                    };
+                    productInstance.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
                     const distributorBankTransactionProxy = proxyResult[8]
                     productInstance.bankTransaction = {
                         distributorBankTransactionID: distributorBankTransactionProxy[0].toString(),
@@ -266,36 +253,24 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 			const proxyResult = await getContractProductInfo(parseInt(productInstances.id))
 
 			// Assign the values from ProxyResult to ProductInstance
-			productInstances.currentOwner = proxyResult[2].toString()
-			productInstances.previousOwner = proxyResult[3].toString()
 			productInstances.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
-			productInstances.productState = getProductStageFromId(proxyResult[5].toString())
-			productInstances.productLocation = getProductLocationFromId(proxyResult[6].toString())
-			const ownershipProxy = proxyResult[7]
-			productInstances.ownership = {
-				manufacturer: ownershipProxy[0].toString(),
-				distributor: ownershipProxy[1].toString(),
-				retailer: ownershipProxy[2].toString(),
-				customer: ownershipProxy[3].toString(),
-			}
-			const distributorBankTransactionProxy = proxyResult[8];
+			const distributorBankTransactionProxy = proxyResult[8]
 			productInstances.bankTransaction = {
 				distributorBankTransactionID: distributorBankTransactionProxy[0].toString(),
 				retailerBankTransactionID: distributorBankTransactionProxy[1].toString(),
-			};
+			}
 
 			const rewardsProxy = proxyResult[9];
 			productInstances.rewards = {
 				manufacturerRewarded: rewardsProxy[0].toString(),
 				distributorRewarded: rewardsProxy[1].toString(),
 				retailerRewarded: rewardsProxy[2].toString(),
-			};
-			console.log(product)
+			}
 		} else {
 			console.error("Product instance has undefined id:", productInstances)
 		}
 	}
-
+	console.log(product)
 	return product
 }
 

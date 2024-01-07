@@ -32,7 +32,6 @@ export type Product = {
 export type ProductInstance = {
     id?: string
     productId: string
-    soldById: string
     price: number
     product?: Product
     currentOwner: string
@@ -40,10 +39,12 @@ export type ProductInstance = {
     creationDate: string
     productState: ProductStage
     productLocation: ProductLocation
-    ownership: ProductOwnership
+    manufacturerId: string
+    distributorId: string
+    retailerId: string
+    customerId: string
     bankTransaction: BankTransaction
     rewards: GivenRewards
-    previousOwnerRole: Roles
 }
 
 export type ProductOwnership = {
