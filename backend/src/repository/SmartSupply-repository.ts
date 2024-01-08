@@ -359,21 +359,26 @@ class SmartSupplyRepository {
     async getOrders({ id, role }: { id: number, role: Roles }): Promise<ProductInstances[]> {
         let whereClause: any = {}
 
-        if (role === Roles.manufacturer) {
+        if (role === Roles.distributor) {
             whereClause = {
-                manufacturerId: id,
-            }
-        } else if (role === Roles.distributor) {
-            whereClause = {
-                distributorId: id,
+                distributorId: {
+                    equals: id,
+                    not: null,
+                },
             }
         } else if (role === Roles.retailer) {
             whereClause = {
-                retailerId: id,
+                retailerId: {
+                    equals: id,
+                    not: null,
+                },
             }
         } else if (role === Roles.customer) {
             whereClause = {
-                customerId: id,
+                customerId: {
+                    equals: id,
+                    not: null,
+                },
             }
         }
 
