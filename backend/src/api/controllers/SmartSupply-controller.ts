@@ -532,6 +532,31 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
+	getProductsOnSale: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				role: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+
+		try {
+			const query = req.query
+			const role = query.role as Roles
+			const data = await service.getProductsOnSale({ role: role })
+			res.json({
+				message: `Products currently sold by role ${role} fetched successfully`,
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	}
 }
 
 export default SmartSupplyController

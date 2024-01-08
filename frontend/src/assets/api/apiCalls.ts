@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
 import { getProductStageFromId, getProductLocationFromId, formatUnixTimestampToDatetime } from "../../utils/typeUtils"
 import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, verifyEntity } from "../api/contractCalls"
+import { Roles } from "../../shared/constants"
 
 export const api = axios.create({
 	baseURL: "http://localhost:3000/api",
@@ -113,7 +114,7 @@ export const deleteEntity = async ({ id }: { id: string }): Promise<AxiosRespons
 		let metamaskAddress
 		
 		switch (entityRole) {
-            case "manufacturer":
+            case Roles.MANUFACTURER:
                 const manufacturerAccount = await removeManufacturer()
 
                 if (manufacturerAccount) {
@@ -124,7 +125,7 @@ export const deleteEntity = async ({ id }: { id: string }): Promise<AxiosRespons
 					throw error
                 }
 				break
-            case "customer":
+            case Roles.CUSTOMER:
 				const customerAccount = await removeCustomer()
 
                 if (customerAccount) {
@@ -135,7 +136,7 @@ export const deleteEntity = async ({ id }: { id: string }): Promise<AxiosRespons
 					throw error
                 }
                 break
-            case "retailer":
+            case Roles.RETAILER:
 				const retailerAccount = await removeRetailer()
 
                 if (retailerAccount) {
@@ -146,7 +147,7 @@ export const deleteEntity = async ({ id }: { id: string }): Promise<AxiosRespons
 					throw error
                 }
                 break
-            case "distributor":
+            case Roles.DISTRIBUTOR:
                 const distributorAccount = await removeDistributor()
 
                 if (distributorAccount) {
@@ -351,5 +352,20 @@ export const changeProductOnSale = async ({ productInstanceId }: { productInstan
         console.error('Error deleting entity:', error)
         throw error
     }
+}
+export const getProductOnSale = async (): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
+	const currentRole = await getEntityRole()
+	let previousRole
+	if (currentRole === Roles.DISTRIBUTOR) {
+		previousRole = Roles.MANUFACTURER
+	} else if (currentRole === Roles.RETAILER) {
+		previousRole = Roles.DISTRIBUTOR
+	} else if (currentRole === Roles.CUSTOMER) {
+		previousRole = Roles.RETAILER
+	} else {
+		previousRole = undefined
+	}
+	const res = await api.get("/get-products-on-sale", { params: { previousRole	 } })
+	return res
 }
 

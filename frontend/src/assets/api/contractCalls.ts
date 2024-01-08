@@ -1,3 +1,4 @@
+import { Roles } from "../../shared/constants"
 import { getContractInstance } from "../../utils/contractUtils"
 
 export const addManufacturer = async (): Promise<string | null> => {
@@ -483,7 +484,7 @@ export const removeDistributor = async (): Promise<string | null> => {
     }
 }
 
-export const getEntityRole = async (): Promise<string | null> => {
+export const getEntityRole = async (): Promise<Roles | null> => {
     try {
         // Get the contract instance by awaiting the promise
         const contract = await getContractInstance()
@@ -491,13 +492,13 @@ export const getEntityRole = async (): Promise<string | null> => {
         if (contract) {
             // Check if the account is a manufacturer
             if (await isManufacturer()) {
-                return "manufacturer"
+                return Roles.MANUFACTURER
             } else if (await isDistributor()) {
-                return "distributor"
+                return  Roles.DISTRIBUTOR
             } else if (await isRetailer()) {
-                return "retailer"
+                return Roles.RETAILER
             } else if (await isCustomer()) {
-                return "customer"
+                return Roles.CUSTOMER
             }
             return null
         } else {

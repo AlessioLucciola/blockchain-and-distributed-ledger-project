@@ -312,5 +312,18 @@ class SmartSupplyRepository {
             }
         })
     }
+    async getProductsOnSale({ role }: { role: Roles }): Promise<ProductInstances[]> {
+        return prisma.productInstances.findMany({
+            where: {
+                productState: 1,
+                owner: {
+                    role: role
+                }
+            },
+            include: {
+                product: true,
+            },
+        })
+    }
 }
 export default SmartSupplyRepository

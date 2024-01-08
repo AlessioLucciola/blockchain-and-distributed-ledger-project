@@ -24,6 +24,7 @@ const SmartSupplyAPI = (app: Express) => {
 	app.patch("/api/update-verification-payment", SmartSupplyController.updateVerificationPayment)
 	app.patch("/api/update-verification-granted", SmartSupplyController.updateVerificationGranted)
 	app.patch("/api/product-change-on-sale", SmartSupplyController.productChangeOnSale)
+	app.get("/api/get-products-on-sale", SmartSupplyController.getProductsOnSale)
 }
 
 export default SmartSupplyAPI

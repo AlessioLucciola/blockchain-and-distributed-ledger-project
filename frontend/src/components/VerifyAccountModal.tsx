@@ -17,7 +17,6 @@ export default function VerifyAccountModal({ showModal, setShowModal }: VerifyAc
 		const userID = sessionContext.entityInfo?.id!.toString()
 		if (userID !== undefined) {
 			const res = await getVerificationInfoById({ userID: userID })
-			console.log(res)
 			if (res.status === 200) {
 				setVerificationsDetails(res.data.data)
 			}

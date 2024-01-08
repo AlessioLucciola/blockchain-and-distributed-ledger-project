@@ -83,6 +83,9 @@ class SmartSupplyService {
 	async productChangeOnSale({ productInstanceId  }: { productInstanceId: number }): Promise<ProductInstances> {
 		return this.repository.productChangeOnSale({ productInstanceId })
 	}
+	async getProductsOnSale({ role }: { role: Roles }): Promise<ProductInstances[]> {
+		return this.repository.getProductsOnSale({ role })
+	}
 }
 
 export default SmartSupplyService
