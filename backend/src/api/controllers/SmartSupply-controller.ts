@@ -583,6 +583,31 @@ const SmartSupplyController = {
 		} catch (err) {
 			next(err)
 		}
+	},
+	getOrders: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				id: number,
+				role: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { id, role } = req.query
+			const fetchedRole = role as Roles
+			const data = await service.getOrders({ id: id, role: fetchedRole })
+			res.json({
+				message: `Orders for entity ${id} fetched successfully`,
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
 	}
 }
 

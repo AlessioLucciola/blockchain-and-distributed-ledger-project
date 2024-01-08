@@ -384,4 +384,9 @@ export const purchaseProductByEntity = async ({ productInstanceId, buyerId, oldO
 		throw error
 	}
 }
+export const getOrders = async ({ entityId }: { entityId: number }): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
+	const currentRole = await getEntityRole()
+	const res = await api.get("/get-orders", { params: { entityId: entityId, role: currentRole }})
+	return res
+}
 
