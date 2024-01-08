@@ -556,6 +556,33 @@ const SmartSupplyController = {
 		} catch (err) {
 			next(err)
 		}
+	},
+	purchaseProduct: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				productInstanceId: string,
+				buyerId: string,
+				oldOwnerId: string,
+				currentRole: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { productInstanceId, buyerId, oldOwnerId, currentRole } = req.query
+			const fetchedRole = currentRole as Roles
+			const data = await service.purchaseProduct({ productInstanceId: parseInt(productInstanceId), buyerId: parseInt(buyerId), oldOwnerId: parseInt(oldOwnerId), currentRole: fetchedRole })
+			res.json({
+				message: `Products with id ${productInstanceId} purchased successfully`,
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
 	}
 }
 

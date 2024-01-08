@@ -325,5 +325,36 @@ class SmartSupplyRepository {
             },
         })
     }
+    async purchaseProduct({ productInstanceId, buyerId, oldOwnerId, currentRole }: { productInstanceId: number; buyerId: number, oldOwnerId: number, currentRole: Roles }): Promise<ProductInstances> {
+        let updateData: Record<string, any> = {
+            productState: 2,
+            currentOwner: buyerId,
+            previousOwner: oldOwnerId,
+        }
+
+        switch (currentRole) {
+            case Roles.manufacturer:
+                updateData = { ...updateData, manufacturerId: buyerId }
+                break
+            case Roles.distributor:
+                updateData = { ...updateData, distributorId: buyerId }
+                break
+            case Roles.retailer:
+                updateData = { ...updateData, retailerId: buyerId }
+                break
+            case Roles.customer:
+                updateData = { ...updateData, customerId: buyerId }
+                break
+            default:
+                break
+        }
+        
+        return prisma.productInstances.update({
+            where: {
+                id: productInstanceId,
+            },
+            data: updateData,
+        })
+    }
 }
 export default SmartSupplyRepository

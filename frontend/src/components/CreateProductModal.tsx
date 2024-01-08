@@ -212,8 +212,8 @@ const ProductList = ({ name, uid, setUid, setName }: ProductListProps) => {
 									<GradientText text="Sold By" className="text-md" />
 									<GradientText text="Price" className="text-md" />
 								</div>
-								{details.productInstances.map(({ soldById, price, id }) => (
-									<DetailsCard instanceId={parseInt(id!)} soldById={soldById} price={price} />
+								{details.productInstances.map(({ currentOwner, price, id }) => (
+									<DetailsCard instanceId={parseInt(id!)} soldById={currentOwner} price={price} />
 								))}
 							</div>
 						)}

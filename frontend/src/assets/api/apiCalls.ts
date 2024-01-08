@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
 import { getProductStageFromId, getProductLocationFromId, formatUnixTimestampToDatetime } from "../../utils/typeUtils"
-import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, verifyEntity } from "../api/contractCalls"
+import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, verifyEntity } from "../api/contractCalls"
 import { Roles } from "../../shared/constants"
 
 export const api = axios.create({
@@ -353,7 +353,7 @@ export const changeProductOnSale = async ({ productInstanceId }: { productInstan
         throw error
     }
 }
-export const getProductOnSale = async (): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
+export const getProductsOnSale = async (): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
 	const currentRole = await getEntityRole()
 	let previousRole
 	if (currentRole === Roles.DISTRIBUTOR) {
@@ -367,5 +367,21 @@ export const getProductOnSale = async (): Promise<AxiosResponse<{ data: ProductI
 	}
 	const res = await api.get("/get-products-on-sale", { params: { previousRole	 } })
 	return res
+}
+export const purchaseProductByEntity = async ({ productInstanceId, buyerId, oldOwnerId }: { productInstanceId: number, buyerId: number, oldOwnerId: number }): Promise<AxiosResponse<{ data: { message: string } }>> => {
+	try {
+		const currentRole = await getEntityRole()
+		const contract_res = await purchaseProduct(productInstanceId)
+		if (parseInt(contract_res.productId) === productInstanceId) {
+			const res = await api.patch(`/purchase-product?productInstanceId=${productInstanceId}&buyerId=${buyerId}&oldOwnerId=${oldOwnerId}&currentRole=${currentRole}`)
+			return res	
+		} else {
+			const error = console.error("Error creating entity. Can't catch the contract event.")
+			throw error
+		}
+	} catch (error) {
+		console.error('Error purchasing product:', error)
+		throw error
+	}
 }
 

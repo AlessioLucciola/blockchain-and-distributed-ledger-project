@@ -13,28 +13,29 @@ export const getProductStageFromId = (id: string) => {
 		case "4":
 			return ProductStage.RECEIVED
 		default:
-			console.error(`Unknown ProductStage ID: ${id}`);
+			console.error(`Unknown ProductStage ID: ${id}`)
 			return ProductStage.UNKNOWN
 	}
 }
 
-export const getProductStageStringFromId = (id: string) => {
-	switch (id) {
-		case "0":
-			return "Produced"
-		case "1":
-			return "On Sale"
-		case "2":
-			return "Purchased by"
-		case "3":
-			return "Shipped to"
-		case "4":
-			return "Received by"
-		default:
-			console.error(`Unknown ProductStage ID: ${id}`);
-			return "Unknown"
+export const getStageNameString = (updatedProductStage: ProductStage) => {
+	switch (updatedProductStage) {
+	  case ProductStage.PRODUCED:
+		return "produced"
+	  case ProductStage.ON_SALE:
+		return "on sale"
+	  case ProductStage.PURCHASED:
+		return "purchased"
+	  case ProductStage.SHIPPED:
+		return "shipped"
+	  case ProductStage.RECEIVED:
+		return "received"
+	  case ProductStage.UNKNOWN:
+		return "undefined"
+	  default:
+		return "unknown"
 	}
-}
+  };
 
 export const getProductLocationFromId = (id: string) => {
 	switch (id) {
@@ -49,7 +50,7 @@ export const getProductLocationFromId = (id: string) => {
 		case "4":
 			return ProductLocation.SHIPPING
 		default:
-			console.error(`Unknown ProductLocation ID: ${id}`);
+			console.error(`Unknown ProductLocation ID: ${id}`)
 			return ProductLocation.UNKNOWN
 	}
 }

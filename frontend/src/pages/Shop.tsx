@@ -7,11 +7,11 @@ import CreateProductModal from "../components/CreateProductModal"
 import { useSessionContext } from "../context/exportContext"
 import MessagePage from "./MessagePage"
 import { useNavigate } from "react-router-dom"
-import { Product, ProductInstance } from "../shared/types"
+import { ProductInstance } from "../shared/types"
 import { changeProductOnSale, getProductInstancesFromSeller } from "../assets/api/apiCalls"
 import Button from "../components/Button"
 import InputField from "../components/InputField"
-import { getProductStageFromId, getProductStageStringFromId } from "../utils/typeUtils"
+import { getProductStageFromId, getStageNameString } from "../utils/typeUtils"
 
 export default function Shop() {
 	const [showCreateProductModal, setShowCreateProductModal] = useState(false)
@@ -54,7 +54,7 @@ export default function Shop() {
 		if (sessionContext.entityInfo?.id) {
 			getMyProducts()
 		}
-	}, [sessionContext])
+	}, [sessionContext, showCreateProductModal===false])
 
 	if (isAuthorized === false) {
 		return (
@@ -144,7 +144,6 @@ interface OwnedProductCardProps {
 function OwnedProductCard({ name, id, uid, productStage, owner, price, image }: OwnedProductCardProps) {
     const navigate = useNavigate()
 	const [updatedProductStage, setUpdatedProductStage] = useState<ProductStage>()
-	const [updatedProductStageName, setUpdatedProductStageName] = useState<string>()
 
 	const changeOnSale = async (productInstanceId: string | undefined) => {
 		if (productInstanceId === undefined) return
@@ -155,7 +154,6 @@ function OwnedProductCard({ name, id, uid, productStage, owner, price, image }: 
 		} else {
 			alert("Product is now on sale")
 			setUpdatedProductStage(ProductStage.ON_SALE)
-			setUpdatedProductStageName(getProductStageStringFromId(ProductStage.ON_SALE))
 			return
 		}
 	}
@@ -163,7 +161,6 @@ function OwnedProductCard({ name, id, uid, productStage, owner, price, image }: 
 	useEffect(() => {
 		if (productStage === undefined) return
         setUpdatedProductStage(getProductStageFromId(productStage))
-		setUpdatedProductStageName(getProductStageStringFromId(productStage))
     }, [])
 
 	return (
@@ -174,7 +171,7 @@ function OwnedProductCard({ name, id, uid, productStage, owner, price, image }: 
 					<p className="font-semibold text-text text-xl drop-shadow-lg">{name}</p>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Status:</p>
-						<GradientText text={productStage !== undefined ? updatedProductStageName : "Unknown"} className="text-xl" />
+						<GradientText text={getStageNameString(updatedProductStage!) ?? "Unknown"} className="text-xl" />
 					</span>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
@@ -194,3 +191,4 @@ function OwnedProductCard({ name, id, uid, productStage, owner, price, image }: 
 		</div>
 	)
 }
+

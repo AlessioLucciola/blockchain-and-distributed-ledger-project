@@ -2,11 +2,10 @@ import React, { useEffect, useRef, useState } from "react"
 import Button from "../components/Button"
 import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
-import { Roles } from "../shared/constants"
 import { useNavigate } from "react-router-dom"
 import { useSessionContext } from "../context/exportContext"
 import { ProductInstance } from "../shared/types"
-import { getProductOnSale, getSellerById, searchProduct } from "../assets/api/apiCalls"
+import { getProductsOnSale, getSellerById, purchaseProductByEntity } from "../assets/api/apiCalls"
 import InputField from "../components/InputField"
 
 export default function MyOrders() {
@@ -27,7 +26,7 @@ export default function MyOrders() {
     }, [])
     
 	const getProductList = async () => {
-        const res = await getProductOnSale()
+        const res = await getProductsOnSale()
         console.log(res)
 
         if (res.status === 200) {
@@ -48,7 +47,7 @@ export default function MyOrders() {
                         <div className="flex flex-col gap-2 pt-10">
                             {productList.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
                                 <div key={instance.id}>
-                                    <PurchaseCard name={instance.product?.name} uid={instance.product?.uid} price={instance.price.toString()} owner={instance.previousOwner} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+                                    <PurchaseCard product={instance} buyer={sessionContext.entityInfo?.id!} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
                                 </div>
                             ))}
                         </div>
@@ -60,47 +59,57 @@ export default function MyOrders() {
 }
 
 interface PurchaseCardProps {
-	name: string | undefined
-    uid?: string | undefined
-    owner: string | undefined
-	price: string | undefined
-	image: string | undefined
+	product: ProductInstance
+    buyer?: string
+    image: string
 }
-function PurchaseCard({ name, uid, owner, price, image }: PurchaseCardProps) {
+function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
     const navigate = useNavigate()
     const [entityName, setEntityName] = useState<string | undefined>("")
     
     const getSellerByIdWrapper = async () => {
-		if (owner === undefined) return
-		const res = await getSellerById({ sellerId: owner })
+		const res = await getSellerById({ sellerId: product.currentOwner })
         if (res.status === 200) {
             setEntityName(res.data.data.companyName)
             return
         }
 	}
 
+    const purchaseProduct = async (instance: ProductInstance) => {
+        if (buyer === undefined || instance.id === undefined) return
+        const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), buyerId: parseInt(buyer), oldOwnerId: parseInt(instance.currentOwner!) })
+        if (res.status === 200) {
+            alert(`Product ${instance.product?.name} purchased successfully from ${entityName}!`)
+            navigate('/orders')
+            return
+        } else {
+            alert(`Something went wrong while purchasing product ${instance.product?.name} from ${entityName}!`)
+            return
+        }
+    }
+
     useEffect(() => {
         getSellerByIdWrapper()
-    }, [owner])
+    }, [product])
 
 	return (
 		<div className="flex gap-5">
 			<img src={image} alt="product image" className="h-fit w-[200px]" />
 			<div className="flex flex-row gap-10 justify-between">
 				<div className="flex flex-col h-full justify-around">
-					<p className="font-semibold text-text text-xl drop-shadow-lg">{name}</p>
+					<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-text text-xl drop-shadow-lg">Sold by</p>
                         <GradientText text={entityName !== undefined ? entityName : "Unknown"} className="text-xl" />
                     </span>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
-						<GradientText text={"€"+price} className="text-xl" />
+						<GradientText text={"€"+product.price} className="text-xl" />
 					</span>
 				</div>
 				<div className="flex flex-col gap-3 flex-end h-full justify-around">
-                    <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${uid}`)}/>
-					<Button text="Buy Product" className={`p-2 font-semibold`} />
+                    <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
+					<Button text="Buy Product" className={`p-2 font-semibold`} onClick={() => purchaseProduct(product)} />
 				</div>
 			</div>
 		</div>
