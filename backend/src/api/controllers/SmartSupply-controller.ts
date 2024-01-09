@@ -608,7 +608,55 @@ const SmartSupplyController = {
 		} catch (err) {
 			next(err)
 		}
-	}
+	},
+	shipProduct: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				productInstanceId: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { productInstanceId } = req.query
+			const data = await service.shipProduct({ productInstanceId: parseInt(productInstanceId) })
+			res.json({
+				message: `Product with id ${productInstanceId} shipped successfully`,
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	getSoldProducts: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				id: string,
+				role: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { id, role } = req.query
+			const fetchedRole = role as Roles
+			const data = await service.getSoldProducts({ id: parseInt(id), role: fetchedRole })
+			res.json({
+				message: `Products sold by entity ${id} fetched successfully`,
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
 }
 
 export default SmartSupplyController

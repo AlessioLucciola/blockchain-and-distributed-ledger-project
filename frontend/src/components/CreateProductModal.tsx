@@ -185,9 +185,9 @@ const ProductList = ({ name, uid, setUid, setName }: ProductListProps) => {
 				<p className="font-semibold text-text text-md">Name</p>
 				<p className="font-semibold text-text text-md invisible">Name</p>
 			</div>
-			{productList.map(({ name, uid }) => {
+			{productList.map(({ name, uid }, index) => {
 				return (
-					<div className="bg-background rounded-xl flex flex-col shadow-lg gap-2">
+					<div key={index} className="bg-background rounded-xl flex flex-col shadow-lg gap-2">
 						<div className="grid p-3 gap-2 grid-cols-[1fr_3fr_3fr_3fr] place-items-center">
 							<GradientText text={uid?.toString()!} className="text-md" />
 							<p className="font-semibold text-text text-md text-nowrap">{name}</p>

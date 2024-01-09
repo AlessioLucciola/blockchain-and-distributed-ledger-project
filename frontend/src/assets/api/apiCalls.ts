@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
 import { getProductStageFromId, getProductLocationFromId, formatUnixTimestampToDatetime } from "../../utils/typeUtils"
-import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, verifyEntity } from "../api/contractCalls"
+import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, shipProduct, verifyEntity } from "../api/contractCalls"
 import { Roles } from "../../shared/constants"
 
 export const api = axios.create({
@@ -387,6 +387,26 @@ export const purchaseProductByEntity = async ({ productInstanceId, buyerId, oldO
 export const getOrders = async ({ entityId }: { entityId: number }): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
 	const currentRole = await getEntityRole()
 	const res = await api.get("/get-orders", { params: { entityId: entityId, role: currentRole }})
+	return res
+}
+export const shipProductToEntity = async ({ productInstanceId, newOwnerAddress }: { productInstanceId: number, newOwnerAddress: string }): Promise<AxiosResponse<{ data: { message: string } }>> => {
+	try {
+		const contract_res = await shipProduct(productInstanceId, newOwnerAddress)
+		if (parseInt(contract_res.productId) === productInstanceId) {
+			const res = await api.patch(`/ship-product?productInstanceId=${productInstanceId}`)
+			return res	
+		} else {
+			const error = console.error("Error shipping product. Can't catch the contract event.")
+			throw error
+		}
+	} catch (error) {
+		console.error('Error shipping product:', error)
+		throw error
+	}
+}
+export const getSoldProducts = async ({ entityId }: { entityId: number }): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
+	const currentRole = await getEntityRole()
+	const res = await api.get("/get-sold-products", { params: { entityId: entityId, role: currentRole }})
 	return res
 }
 

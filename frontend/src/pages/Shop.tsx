@@ -7,8 +7,8 @@ import CreateProductModal from "../components/CreateProductModal"
 import { useSessionContext } from "../context/exportContext"
 import MessagePage from "./MessagePage"
 import { useNavigate } from "react-router-dom"
-import { ProductInstance } from "../shared/types"
-import { changeProductOnSale, getProductInstancesFromSeller } from "../assets/api/apiCalls"
+import { Entity, ProductInstance } from "../shared/types"
+import { changeProductOnSale, getProductInstancesFromSeller, getSellerById, shipProductToEntity } from "../assets/api/apiCalls"
 import Button from "../components/Button"
 import InputField from "../components/InputField"
 import { getProductStageFromId, getStageNameString } from "../utils/typeUtils"
@@ -121,7 +121,7 @@ export default function Shop() {
                         <div className="flex flex-col gap-2 pt-10">
                             {myProducts.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
                                 <div key={instance.id}>
-                                	<OwnedProductCard name={instance.product?.name} id={instance.id} uid={instance.product?.uid} price={instance.price.toString()} productStage={instance.productState.toString()} owner={instance.previousOwner} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+                                	<OwnedProductCard product={instance} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 								</div>
 							))}
                         </div>
@@ -133,23 +133,18 @@ export default function Shop() {
 }
 
 interface OwnedProductCardProps {
-	name: string | undefined
-	uid: string | undefined
-    id: string | undefined
-    owner: string | undefined
-	productStage: string | undefined
-	price: string | undefined
+	product: ProductInstance
 	image: string
 }
-function OwnedProductCard({ name, id, uid, productStage, owner, price, image }: OwnedProductCardProps) {
+function OwnedProductCard({ product, image }: OwnedProductCardProps) {
     const navigate = useNavigate()
 	const [updatedProductStage, setUpdatedProductStage] = useState<ProductStage>()
+	const [newOwnerInfo, setNewOwnerInfo] = useState<Entity>()
 
-	const changeOnSale = async (productInstanceId: string | undefined) => {
-		if (productInstanceId === undefined) return
-		const res = await changeProductOnSale({ productInstanceId: Number(productInstanceId) })
+	const changeOnSale = async (productInstanceId: string) => {
+		const res = await changeProductOnSale({ productInstanceId: parseInt(productInstanceId) })
 		if (res === undefined || res.status !== 200) {
-			alert("Error fetching products")
+			alert("Error changing product state")
 			return
 		} else {
 			alert("Product is now on sale")
@@ -158,9 +153,30 @@ function OwnedProductCard({ name, id, uid, productStage, owner, price, image }: 
 		}
 	}
 
+	const getBuyerByIdWrapper = async (currentOwner: string) => {
+		const res = await getSellerById({ sellerId: currentOwner })
+        if (res.status === 200) {
+            setNewOwnerInfo(res.data.data)
+            return
+        }
+	}
+
+	const shipProduct = async (productInstanceId: string, newOwner: Entity ) => {
+		const res = await shipProductToEntity({ productInstanceId: parseInt(productInstanceId), newOwnerAddress: newOwner.metamaskAddress })
+		if (res === undefined || res.status !== 200) {
+			alert("Error changing product state")
+			return
+		} else {
+			alert(`Product is now shipped to ${newOwner.role === Roles.CUSTOMER ? newOwner.name + ' ' + newOwner.surname : newOwner.companyName}`)
+			setUpdatedProductStage(ProductStage.ON_SALE)
+			return
+		}
+	}
+
 	useEffect(() => {
-		if (productStage === undefined) return
-        setUpdatedProductStage(getProductStageFromId(productStage))
+		if (product.productState === undefined) return
+        setUpdatedProductStage(getProductStageFromId(product.productState.toString()))
+		getBuyerByIdWrapper(product.currentOwner)
     }, [])
 
 	return (
@@ -168,23 +184,23 @@ function OwnedProductCard({ name, id, uid, productStage, owner, price, image }: 
 			<img src={image} alt="product image" className="h-fit w-[200px]" />
 			<div className="flex flex-row gap-10 justify-between">
 				<div className="flex flex-col h-full justify-around">
-					<p className="font-semibold text-text text-xl drop-shadow-lg">{name}</p>
+					<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Status:</p>
-						<GradientText text={getStageNameString(updatedProductStage!) ?? "Unknown"} className="text-xl" />
+						<GradientText text={getStageNameString(updatedProductStage!)} className="text-xl" />
 					</span>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
-						<GradientText text={"€"+price} className="text-xl" />
+						<GradientText text={"€"+product.price} className="text-xl" />
 					</span>
 				</div>
 				<div className="flex flex-col gap-3 flex-end h-full justify-around">
-                    <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${uid}`)}/>
-					{productStage !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED) ? (
-						<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(id)}/>
+                    <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
+					{product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED) ? (
+						<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!)}/>
 					) : ""}
-					{productStage !== undefined && updatedProductStage === ProductStage.PURCHASED ? (
-						<Button text="Ship product" className={`p-2 font-semibold`} />
+					{product !== undefined && updatedProductStage === ProductStage.PURCHASED ? (
+						<Button text="Ship product" className={`p-2 font-semibold`} onClick={() => shipProduct(product.id!, newOwnerInfo!)}/>
 					) : ""}
 				</div>
 			</div>

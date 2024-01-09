@@ -390,7 +390,61 @@ class SmartSupplyRepository {
                 product: true,
             },
         })
+    }
+    async shipProduct({ productInstanceId }: { productInstanceId: number }): Promise<ProductInstances> {
+        return prisma.productInstances.update({
+            where: {
+                id: productInstanceId,
+            },
+            data: {
+                productState: 3,
+                productLocation: 4
+            }
+        })
+    }
+    async getSoldProducts({ id, role }: { id: number, role: Roles }): Promise<ProductInstances[]> {
+        let whereClause: any = {}
 
+        if (role === Roles.manufacturer) {
+            whereClause = {
+                manufacturerId: {
+                    equals: id,
+                    not: null,
+                },
+                distributorId: {
+                    not: null,
+                },
+            }
+        } else if (role === Roles.distributor) {
+            whereClause = {
+                distributorId: {
+                    equals: id,
+                    not: null,
+                },
+                retailerId: {
+                    not: null,
+                },
+            }
+        } else if (role === Roles.retailer) {
+            whereClause = {
+                retailerId: {
+                    equals: id,
+                    not: null,
+                },
+                customerId: {
+                    not: null,
+                },
+            }
+        }
+
+        return prisma.productInstances.findMany({
+            where: {
+                ...whereClause,
+            },
+            include: {
+                product: true,
+            },
+        })
     }
 }
 export default SmartSupplyRepository
