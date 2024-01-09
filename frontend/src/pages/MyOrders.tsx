@@ -134,7 +134,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 					return `Purchased from ${oldOwnerName}. Waiting for shipping..`
 				} else if (product.productState.toString() === "3") {
 					return `Shipped from ${oldOwnerName}. Your product is on the way..`
-				} else if (product.productState.toString() === "4") {
+				} else {
 					return `Received from ${oldOwnerName}.`
 				}
 			}
