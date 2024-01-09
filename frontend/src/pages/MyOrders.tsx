@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Button from "../components/Button"
 import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
@@ -8,7 +8,6 @@ import { ProductInstance } from "../shared/types"
 import { getOrders, getSellerById } from "../assets/api/apiCalls"
 import InputField from "../components/InputField"
 import { getEntityRole } from "../assets/api/contractCalls"
-import { SessionContext } from "../context/SessionProvider"
 
 export default function MyOrders() {
 	const navigate = useNavigate()

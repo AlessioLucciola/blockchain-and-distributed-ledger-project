@@ -404,9 +404,9 @@ export const shipProductToEntity = async ({ productInstanceId, newOwnerAddress }
 		throw error
 	}
 }
-export const getSoldProducts = async ({ entityId }: { entityId: number }): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
+export const getSoldProducts = async ({ id }: { id: number }): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
 	const currentRole = await getEntityRole()
-	const res = await api.get("/get-sold-products", { params: { entityId: entityId, role: currentRole }})
+	const res = await api.get("/get-sold-products", { params: { id: id, role: currentRole }})
 	return res
 }
 

@@ -407,33 +407,48 @@ class SmartSupplyRepository {
 
         if (role === Roles.manufacturer) {
             whereClause = {
-                manufacturerId: {
-                    equals: id,
-                    not: null,
-                },
-                distributorId: {
-                    not: null,
-                },
+                AND: [
+                    {
+                        manufacturerId: {
+                            equals: id,
+                        },
+                    },
+                    {
+                        distributorId: {
+                            not: null,
+                        },
+                    },
+                ],
             }
         } else if (role === Roles.distributor) {
             whereClause = {
-                distributorId: {
-                    equals: id,
-                    not: null,
-                },
-                retailerId: {
-                    not: null,
-                },
+                AND: [
+                    {
+                        distributorId: {
+                            equals: id,
+                        },
+                    },
+                    {
+                        retailerId: {
+                            not: null,
+                        },
+                    },
+                ],
             }
         } else if (role === Roles.retailer) {
             whereClause = {
-                retailerId: {
-                    equals: id,
-                    not: null,
-                },
-                customerId: {
-                    not: null,
-                },
+                AND: [
+                    {
+                        retailerId: {
+                            equals: id,
+                        },
+                    },
+                    {
+                        customerId: {
+                            not: null,
+                        },
+                    },
+                ],
             }
         }
 
