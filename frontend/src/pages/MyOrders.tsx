@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom"
 import { ProductInstance } from "../shared/types"
 import { getOrders, getSellerById, receiveProductFromEntity } from "../assets/api/apiCalls"
 import InputField from "../components/InputField"
-import { getEntityRole, receiveProduct } from "../assets/api/contractCalls"
+import { getEntityRole } from "../assets/api/contractCalls"
 
 export default function MyOrders() {
 	const navigate = useNavigate()
@@ -28,7 +28,8 @@ export default function MyOrders() {
     
 	const getProductList = async () => {
 		if (!sessionContext.entityInfo?.id === undefined) return
-        const res = await getOrders( { entityId: parseInt(sessionContext.entityInfo?.id!)} )
+		console.log(sessionContext.entityInfo?.id)
+        const res = await getOrders( { id: parseInt(sessionContext.entityInfo?.id!)} )
         console.log(res)
 
         if (res.status === 200) {

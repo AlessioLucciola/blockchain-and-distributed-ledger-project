@@ -590,7 +590,7 @@ const SmartSupplyController = {
 			{},
 			{},
 			{
-				id: number,
+				id: string,
 				role: string
 			}
 		>,
@@ -600,7 +600,7 @@ const SmartSupplyController = {
 		try {
 			const { id, role } = req.query
 			const fetchedRole = role as Roles
-			const data = await service.getOrders({ id: id, role: fetchedRole })
+			const data = await service.getOrders({ id: parseInt(id), role: fetchedRole })
 			res.json({
 				message: `Orders for entity ${id} fetched successfully`,
 				data: data,

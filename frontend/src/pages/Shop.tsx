@@ -176,7 +176,6 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 	}
 
 	useEffect(() => {
-		if (product.productState === undefined) return
         setUpdatedProductStage(getProductStageFromId(product.productState.toString()))
 		getBuyerByIdWrapper(product.currentOwner)
     }, [])

@@ -4,10 +4,9 @@ import GradientText from "../components/GradientText"
 import InputField from "../components/InputField"
 import Navbar from "../components/Navbar"
 import { ProductStage, Roles } from "../shared/constants"
-import { RightCaretIcon } from "../shared/icons"
 import { Entity, ProductInstance } from "../shared/types"
 import { useNavigate } from "react-router-dom"
-import { getSellerById, getSoldProducts } from "../assets/api/apiCalls"
+import { getSellerById, getSoldProducts, shipProductToEntity } from "../assets/api/apiCalls"
 import { useSessionContext } from "../context/exportContext"
 import { getEntityRole } from "../assets/api/contractCalls"
 import { getProductStageFromId } from "../utils/typeUtils"
@@ -32,7 +31,6 @@ export default function MySales() {
 	const getProductList = async () => {
 		if (!sessionContext.entityInfo?.id === undefined) return
         const res = await getSoldProducts( { id: parseInt(sessionContext.entityInfo?.id!)} )
-        console.log(res)
 
         if (res.status === 200) {
             const products = res.data.data
@@ -68,10 +66,11 @@ function OrderCard({ product, image }: OrderCardProps) {
     const navigate = useNavigate()
 	const sessionContext = useSessionContext()
 	const [productStatus, setProductStatus] = useState<string>("")
+	const [productShipped, setproductShipped] = useState<boolean>(false)
 	const [newOwnerInfo, setNewOwnerInfo] = useState<Entity | undefined>()
 
 	const productToShip = (product: ProductInstance): boolean => {
-		if (product.previousOwner === sessionContext.entityInfo?.id! && getProductStageFromId(product.productState.toString()) === ProductStage.PURCHASED) {
+		if (product.previousOwner === sessionContext.entityInfo?.id! && getProductStageFromId(product.productState.toString()) === ProductStage.PURCHASED && !productShipped) {
 			return true
 		}
 		return false
@@ -106,13 +105,25 @@ function OrderCard({ product, image }: OrderCardProps) {
 		}
 	}
 
+	const shipProduct = async (productInstanceId: string, newOwner: Entity ) => {
+		const res = await shipProductToEntity({ productInstanceId: parseInt(productInstanceId), newOwnerAddress: newOwner.metamaskAddress })
+		if (res === undefined || res.status !== 200) {
+			alert("Error changing product state")
+			return
+		} else {
+			alert(`Product is now shipped to ${newOwner.role === Roles.CUSTOMER ? newOwner.name + ' ' + newOwner.surname : newOwner.companyName}`)
+			setproductShipped(true)
+			return
+		}
+	}
+
     useEffect(() => {
         getNewOwnerById(product)
     }, [])
 
 	useEffect(() => {
 		getProductStatus(product)
-    }, [newOwnerInfo])
+    }, [newOwnerInfo, productShipped])
 
 	return (
 		<div className="flex gap-5">
@@ -136,7 +147,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 				<div className="flex flex-col gap-3 flex-end h-full justify-around">
                     <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
 					{productToShip(product) ? (
-						<Button text="Ship Product" className={`p-2 font-semibold`} onClick={() => true} />
+						<Button text="Ship Product" className={`p-2 font-semibold`} onClick={() => shipProduct(product.id!, newOwnerInfo!)} />
 					) : ""}
 				</div>
 			</div>
