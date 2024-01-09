@@ -461,5 +461,31 @@ class SmartSupplyRepository {
             },
         })
     }
+    async receiveProduct({ productInstanceId, role }: { productInstanceId: number, role: Roles }): Promise<ProductInstances> {
+        let updateData: Record<string, any> = {
+            productState: 4,
+        }
+
+        switch (role) {
+            case Roles.distributor:
+                updateData = { ...updateData, productLocation: 1 }
+                break
+            case Roles.retailer:
+                updateData = { ...updateData, productLocation: 2 }
+                break
+            case Roles.customer:
+                updateData = { ...updateData, productLocation: 3 }
+                break
+            default:
+                break
+        }
+        
+        return prisma.productInstances.update({
+            where: {
+                id: productInstanceId,
+            },
+            data: updateData,
+        })
+    }
 }
 export default SmartSupplyRepository

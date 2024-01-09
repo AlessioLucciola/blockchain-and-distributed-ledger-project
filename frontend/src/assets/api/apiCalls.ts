@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
-import { getProductStageFromId, getProductLocationFromId, formatUnixTimestampToDatetime } from "../../utils/typeUtils"
-import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, shipProduct, verifyEntity } from "../api/contractCalls"
+import { formatUnixTimestampToDatetime } from "../../utils/typeUtils"
+import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, receiveProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, shipProduct, verifyEntity } from "../api/contractCalls"
 import { Roles } from "../../shared/constants"
 
 export const api = axios.create({
@@ -408,5 +408,21 @@ export const getSoldProducts = async ({ id }: { id: number }): Promise<AxiosResp
 	const currentRole = await getEntityRole()
 	const res = await api.get("/get-sold-products", { params: { id: id, role: currentRole }})
 	return res
+}
+export const receiveProductFromEntity = async ({ productInstanceId }: { productInstanceId: number }): Promise<AxiosResponse<{ data: { message: string } }>> => {
+	try {
+		const currentRole = await getEntityRole()
+		const contract_res = await receiveProduct(productInstanceId)
+		if (parseInt(contract_res.productId) === productInstanceId) {
+			const res = await api.patch(`/receive-product?productInstanceId=${productInstanceId}&currentRole=${currentRole}`)
+			return res	
+		} else {
+			const error = console.error("Error receiving product. Can't catch the contract event.")
+			throw error
+		}
+	} catch (error) {
+		console.error('Error receiving product:', error)
+		throw error
+	}
 }
 

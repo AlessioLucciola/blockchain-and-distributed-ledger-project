@@ -5,9 +5,9 @@ import Navbar from "../components/Navbar"
 import { useSessionContext } from "../context/exportContext"
 import { useNavigate } from "react-router-dom"
 import { ProductInstance } from "../shared/types"
-import { getOrders, getSellerById } from "../assets/api/apiCalls"
+import { getOrders, getSellerById, receiveProductFromEntity } from "../assets/api/apiCalls"
 import InputField from "../components/InputField"
-import { getEntityRole } from "../assets/api/contractCalls"
+import { getEntityRole, receiveProduct } from "../assets/api/contractCalls"
 
 export default function MyOrders() {
 	const navigate = useNavigate()
@@ -133,7 +133,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 				if (product.productState.toString() === "2") {
 					return `Purchased from ${oldOwnerName}. Waiting for shipping..`
 				} else if (product.productState.toString() === "3") {
-					return `Shipped from ${oldOwnerName}. You product is on the way..`
+					return `Shipped from ${oldOwnerName}. Your product is on the way..`
 				} else if (product.productState.toString() === "4") {
 					return `Received from ${oldOwnerName}.`
 				}
@@ -147,6 +147,18 @@ function OrderCard({ product, image }: OrderCardProps) {
 				return `Sold to ${newOwnerName}`
 			}
 			return "Unknown"
+		}
+	}
+
+	const receiveProduct = async (productInstanceId: string) => {
+		const res = await receiveProductFromEntity({ productInstanceId: parseInt(productInstanceId) })
+		if (res.status === 200) {
+			alert(`Product received`)
+			getProductStatus(product).then((status) => setProductStatus(status))
+			return
+		} else {
+			alert("Error changing product state")
+			return
 		}
 	}
 
@@ -177,7 +189,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 				<div className="flex flex-col gap-3 flex-end h-full justify-around">
                     <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
 					{waitingForProduct(product) ? (
-						<Button text="Product Received" className={`p-2 font-semibold`} onClick={() => true} />
+						<Button text="Product Received" className={`p-2 font-semibold`} onClick={() => receiveProduct(product?.id!)} />
 					) : ""}
 				</div>
 			</div>

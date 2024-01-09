@@ -83,37 +83,39 @@ export default function Shop() {
 			<CreateProductModal showModal={showCreateProductModal} setShowModal={setShowCreateProductModal} />
 			<div className="mt-36 px-10">
 				<GradientText text="Your Products" className="text-4xl " />
-				<span className="flex w-full justify-between items-center">
-					<p className="font-semibold  text-text pt-5 text-3xl">Recently Added Products</p>
-					<span className="flex gap-5 items-center">
-						<p className="cursor-pointer text-text text-3xl select-none" onClick={() => scroll(recentlyAddedProductRef, "left")}>
-							{"<"}
-						</p>
-						<p className="cursor-pointer text-text text-3xl select-none" onClick={() => scroll(recentlyAddedProductRef, "right")}>
-							{">"}
-						</p>
-					</span>
-				</span>
-				<div className="flex py-10 pt-5 gap-10 overflow-x-scroll scrollbar-none scroll-smooth  " ref={recentlyAddedProductRef}>
-					{sessionContext.entityInfo?.role === Roles.MANUFACTURER ? (
-						<div className={`bg-accent rounded-3xl flex flex-col p-10 items-center justify-center max-w-[300px] shadow-lg hover:shadow-black cursor-pointer`}>
-							<p className="font-semibold text-text text-4xl drop-shadow-lg" onClick={() => setShowCreateProductModal(true)}>
-								Add a new product
-							</p>
-						</div>
-					) : ""}
+				{sessionContext.entityInfo?.role === Roles.MANUFACTURER ? (
+					<>
+						<span className="flex w-full justify-between items-center">
+							<p className="font-semibold  text-text pt-5 text-3xl">Recently Added Products</p>
+							<span className="flex gap-5 items-center">
+								<p className="cursor-pointer text-text text-3xl select-none" onClick={() => scroll(recentlyAddedProductRef, "left")}>
+									{"<"}
+								</p>
+								<p className="cursor-pointer text-text text-3xl select-none" onClick={() => scroll(recentlyAddedProductRef, "right")}>
+									{">"}
+								</p>
+							</span>
+						</span>
+						<div className="flex py-10 pt-5 gap-10 overflow-x-scroll scrollbar-none scroll-smooth  " ref={recentlyAddedProductRef}>
+							<div className={`bg-accent rounded-3xl flex flex-col p-10 items-center justify-center max-w-[300px] shadow-lg hover:shadow-black cursor-pointer`}>
+								<p className="font-semibold text-text text-4xl drop-shadow-lg" onClick={() => setShowCreateProductModal(true)}>
+									Add a new product
+								</p>
+							</div>
 
-					{myProducts.map(({ product, price }) => (
-						<ProductCard
-							name={product!.name}
-							id={product!.uid!}
-							price={price.toFixed(2)}
-							image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"}
-							key={product!.uid!}
-							onClick={() => navigate(`/product/${product!.uid!}`)}
-						/>
-					))}
-				</div>
+							{myProducts.map(({ product, price }) => (
+								<ProductCard
+									name={product!.name}
+									id={product!.uid!}
+									price={price.toFixed(2)}
+									image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"}
+									key={product!.uid!}
+									onClick={() => navigate(`/product/${product!.uid!}`)}
+								/>
+							))}
+						</div>
+					</>
+				) : ""}
 				<span className="flex flex-col w-full justify-between">
 					<p className="font-semibold  text-text pt-5 text-3xl">Owned Products</p>
 					<div className="pt-5">

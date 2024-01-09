@@ -657,6 +657,31 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
+	receiveProduct: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				productInstanceId: string
+				role: string
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { productInstanceId, role } = req.query
+			const fetchedRole = role as Roles
+			const data = await service.receiveProduct({ productInstanceId: parseInt(productInstanceId), role: fetchedRole })
+			res.json({
+				message: `Product with id ${productInstanceId} received successfully`,
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	}
 }
 
 export default SmartSupplyController

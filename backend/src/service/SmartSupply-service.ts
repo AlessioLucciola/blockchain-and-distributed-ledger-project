@@ -98,6 +98,9 @@ class SmartSupplyService {
 	async getSoldProducts({ id, role }: { id: number, role: Roles }): Promise<ProductInstances[]> {
 		return this.repository.getSoldProducts({ id, role })
 	}
+	async receiveProduct({ productInstanceId, role }: { productInstanceId: number, role: Roles }): Promise<ProductInstances> {
+		return this.repository.receiveProduct({ productInstanceId, role })
+	}
 }
 
 export default SmartSupplyService
