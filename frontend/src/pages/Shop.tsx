@@ -35,7 +35,6 @@ export default function Shop() {
 
 	const getMyProducts = async () => {
 		const res = await getProductInstancesFromSeller({ sellerId: sessionContext.entityInfo?.id! })
-		console.log(res)
 		if (res.status !== 200) {
 			alert("Error fetching products")
 			return

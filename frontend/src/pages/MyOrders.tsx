@@ -4,27 +4,48 @@ import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
 import { useSessionContext } from "../context/exportContext"
 import { useNavigate } from "react-router-dom"
-import { ProductInstance } from "../shared/types"
+import { Entity, ProductInstance } from "../shared/types"
 import { getOrders, getSellerById, receiveProductFromEntity } from "../assets/api/apiCalls"
 import InputField from "../components/InputField"
 import { getEntityRole } from "../assets/api/contractCalls"
+import { ProductStage, Roles } from "../shared/constants"
+import { getProductStageFromId } from "../utils/typeUtils"
+import MessagePage from "./MessagePage"
 
 export default function MyOrders() {
 	const navigate = useNavigate()
 	const sessionContext = useSessionContext()
+	const [isAuthorized, setIsAuthorized] = useState<boolean>(true)
 	const [ordersList, setOrdersList] = useState<ProductInstance[]>([])
 	const searchRef = useRef<HTMLInputElement | null>(null)
     const [search, setSearch] = useState<string>("")
 
 	useEffect(() => {
-		if (!sessionContext.entityInfo) {
-			navigate("/")
+		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
+			navigate("/login")
+		}
+		if (sessionContext.entityInfo?.role === Roles.MANUFACTURER) {
+			setIsAuthorized(false)
 		}
 	}, [sessionContext])
 
 	useEffect(() => {
         getProductList()
     }, [])
+
+	if (isAuthorized === false) {
+		return (
+			<MessagePage
+				message="You are not authorized to view this page"
+				buttons={[
+					{
+						text: "Go to Home",
+						onClick: () => navigate("/"),
+					},
+				]}
+			/>
+		)
+	}
     
 	const getProductList = async () => {
 		if (!sessionContext.entityInfo?.id === undefined) return
@@ -68,17 +89,30 @@ interface OrderCardProps {
 function OrderCard({ product, image }: OrderCardProps) {
     const navigate = useNavigate()
 	const sessionContext = useSessionContext()
-    const [oldOwnerName, setOldOwnerName] = useState<string | undefined>("")
-	const [productStatus, setProductStatus] = useState<string | undefined>("")
+    const [oldOwnerInfo, setOldOwnerInfo] = useState<Entity>()
+	const [newOwnerInfo, setNewOwnerInfo] = useState<Entity>()
+	const [productStatus, setProductStatus] = useState<ProductStage>()
+	const [productStatusString, setProductStatusString] = useState<string>("")
+
+    useEffect(() => {
+        getOldOwnerByIdWrapper()
+		if (product.currentOwner !== sessionContext.entityInfo?.id!) {
+			getNewOwnerByIdWrapper()
+		}
+    }, [product])
+
+	useEffect(() => {
+		getProductStatus()
+	}, [productStatus])
     
     const getOldOwnerByIdWrapper = async () => {
 		const currentRole = await getEntityRole()
 		let oldOwnerId
-		if (currentRole === "distributor") {
+		if (currentRole === Roles.DISTRIBUTOR) {
 			oldOwnerId = product.manufacturerId
-		} else if (currentRole === "retailer") {
+		} else if (currentRole === Roles.RETAILER) {
 			oldOwnerId = product.distributorId
-		} else if (currentRole === "customer") {
+		} else if (currentRole === Roles.CUSTOMER) {
 			oldOwnerId = product.retailerId
 		} else {
 			return
@@ -86,7 +120,27 @@ function OrderCard({ product, image }: OrderCardProps) {
 
 		const res = await getSellerById({ sellerId: oldOwnerId })
         if (res.status === 200) {
-            setOldOwnerName(res.data.data.companyName)
+            setOldOwnerInfo(res.data.data)
+            return
+        }
+	}
+
+	const getNewOwnerByIdWrapper = async () => {
+		const currentRole = await getEntityRole()
+		let newOwnerId
+		if (currentRole === Roles.MANUFACTURER) {
+			newOwnerId = product.distributorId
+		} else if (currentRole === Roles.DISTRIBUTOR) {
+			newOwnerId = product.retailerId
+		} else if (currentRole === Roles.RETAILER) {
+			newOwnerId = product.customerId
+		} else {
+			return
+		}
+
+		const res = await getSellerById({ sellerId: newOwnerId })
+        if (res.status === 200) {
+            setNewOwnerInfo(res.data.data)
             return
         }
 	}
@@ -98,75 +152,36 @@ function OrderCard({ product, image }: OrderCardProps) {
 		return false
 	}
 
-	const getOldOwner = async (product: ProductInstance): Promise<string> => {
-		const currentRole = await getEntityRole()
-		let oldOwnerId
-		if (currentRole === "distributor") {
-			oldOwnerId = product.manufacturerId
-		} else if (currentRole === "retailer") {
-			oldOwnerId = product.distributorId
-		} else if (currentRole === "customer") {
-			oldOwnerId = product.retailerId
-		}
-		return oldOwnerId!
-	}
-
-	const getNewOwner = async (product: ProductInstance): Promise<string> => {
-		const currentRole = await getEntityRole()
-		let newOwnerId
-		if (currentRole === "manufacturer") {
-			newOwnerId = product.distributorId
-		} else if (currentRole === "distributor") {
-			newOwnerId = product.retailerId
-		} else if (currentRole === "retailer") {
-			newOwnerId = product.customerId
-		}
-		return newOwnerId!
-	}
-
-
-	const getProductStatus = async (product: ProductInstance): Promise<string> => {
+	const getProductStatus = async () => {
+		let productStatusString = ""
 		if (product.currentOwner === sessionContext.entityInfo?.id!) {
-			const oldOwnerId = await getOldOwner(product)
-			const res = await getSellerById({ sellerId: oldOwnerId! })
-			if (res.status === 200) {
-				const oldOwnerName = res.data.data.companyName
-				if (product.productState.toString() === "2") {
-					return `Purchased from ${oldOwnerName}. Waiting for shipping..`
-				} else if (product.productState.toString() === "3") {
-					return `Shipped from ${oldOwnerName}. Your product is on the way..`
-				} else {
-					return `Received from ${oldOwnerName}.`
-				}
+			const oldOwnerCompanyName = oldOwnerInfo?.companyName
+			const currentProductState = getProductStageFromId(product.productState.toString())
+			if (currentProductState === ProductStage.PURCHASED) {
+				productStatusString = `Purchased from ${oldOwnerCompanyName}. Waiting for shipping..`
+			} else if (currentProductState === ProductStage.SHIPPED) {
+				productStatusString = `Shipped from ${oldOwnerCompanyName}. Your product is on the way..`
+			} else {
+				productStatusString = `Received from ${oldOwnerCompanyName}.`
 			}
-			return "Unknown"
 		} else {
-			const newOwnerId = await getNewOwner(product)
-			const res = await getSellerById({ sellerId: newOwnerId! })
-			if (res.status === 200) {
-				const newOwnerName = res.data.data.companyName
-				return `Sold to ${newOwnerName}`
-			}
-			return "Unknown"
+			const newOwnerCompanyName = newOwnerInfo?.companyName
+			productStatusString = `Sold to ${newOwnerCompanyName}`
 		}
+		setProductStatusString(productStatusString)
 	}
 
 	const receiveProduct = async (productInstanceId: string) => {
 		const res = await receiveProductFromEntity({ productInstanceId: parseInt(productInstanceId) })
 		if (res.status === 200) {
 			alert(`Product received`)
-			getProductStatus(product).then((status) => setProductStatus(status))
+			setProductStatus(ProductStage.RECEIVED)
 			return
 		} else {
 			alert("Error changing product state")
 			return
 		}
 	}
-
-    useEffect(() => {
-        getOldOwnerByIdWrapper()
-		getProductStatus(product).then((status) => setProductStatus(status))
-    }, [product])
 
 	return (
 		<div className="flex gap-5">
@@ -176,11 +191,11 @@ function OrderCard({ product, image }: OrderCardProps) {
 					<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-text text-xl drop-shadow-lg">Purchased from</p>
-                        <GradientText text={oldOwnerName !== undefined ? oldOwnerName : "Unknown"} className="text-xl" />
+                        <GradientText text={oldOwnerInfo?.companyName!} className="text-xl" />
                     </span>
 					<span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Status</p>
-						<GradientText text={productStatus!} className="text-xl" />
+						<GradientText text={productStatusString} className="text-xl" />
 					</span>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>

@@ -7,17 +7,23 @@ import { useSessionContext } from "../context/exportContext"
 import { ProductInstance } from "../shared/types"
 import { getProductsOnSale, getSellerById, purchaseProductByEntity } from "../assets/api/apiCalls"
 import InputField from "../components/InputField"
+import { Roles } from "../shared/constants"
+import MessagePage from "./MessagePage"
 
 export default function MyOrders() {
     const navigate = useNavigate()
 	const sessionContext = useSessionContext()
+    const [isAuthorized, setIsAuthorized] = useState<boolean>(true)
     const nameRef = useRef<HTMLInputElement | null>(null)
     const [search, setSearch] = useState<string>("")
     const [productList, setProductList] = useState<ProductInstance[]>([])
 
 	useEffect(() => {
-		if (!sessionContext.entityInfo) {
-			navigate("/")
+		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
+			navigate("/login")
+		}
+		if (sessionContext.entityInfo?.role === Roles.MANUFACTURER) {
+			setIsAuthorized(false)
 		}
 	}, [sessionContext])
 
@@ -34,6 +40,20 @@ export default function MyOrders() {
             setProductList(products)
         }
     }
+
+    if (isAuthorized === false) {
+		return (
+			<MessagePage
+				message="You are not authorized to view this page"
+				buttons={[
+					{
+						text: "Go to Home",
+						onClick: () => navigate("/"),
+					},
+				]}
+			/>
+		)
+	}
     
 	return (
 		<div className="bg-background h-screen w-screen overflow-y-scroll">
@@ -93,25 +113,29 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
     }, [product])
 
 	return (
-		<div className="flex gap-5">
-			<img src={image} alt="product image" className="h-fit w-[200px]" />
-			<div className="flex flex-row gap-10 justify-between">
-				<div className="flex flex-col h-full justify-around">
-					<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
+		<div className="flex flex-row justify-between items-center">
+            <div className="flex gap-10">
+                <img src={image} alt="product image" className="h-fit w-[200px]" />
+                <div className="flex flex-col justify-around">
+                    <p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-text text-xl drop-shadow-lg">Sold by</p>
                         <GradientText text={entityName !== undefined ? entityName : "Unknown"} className="text-xl" />
                     </span>
                     <span className="flex gap-2 items-center">
-						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
-						<GradientText text={"€"+product.price} className="text-xl" />
-					</span>
-				</div>
-				<div className="flex flex-col gap-3 flex-end h-full justify-around">
-                    <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
-					<Button text="Buy Product" className={`p-2 font-semibold`} onClick={() => purchaseProduct(product)} />
-				</div>
-			</div>
-		</div>
+                        <p className="font-semibold text-color-black text-text text-xl drop-shadow-lg">Price</p>
+                        <GradientText text={"€"+product.price} className="text-xl" />
+                    </span>
+                    <span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
+                        <GradientText text={"Details >"} className="text-xl" />
+                    </span>
+                </div>
+            </div>
+            <div>
+                <div className="flex flex-col gap-3 justify-around">
+                    <Button text="Buy Product" className={`p-2 font-semibold`} onClick={() => purchaseProduct(product)} />
+                </div>
+            </div>
+        </div>
 	)
 }
