@@ -92,7 +92,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 	const [newOwnerInfo, setNewOwnerInfo] = useState<Entity>()
 	const [productStatus, setProductStatus] = useState<ProductStage>()
 	const [productStatusString, setProductStatusString] = useState<string>("")
-	const [transactionIdToChange, setTransactionidToChange] = useState<boolean>(false)
+	const [transactionIdToChange, setTransactionIdToChange] = useState<boolean>(false)
 	const [showChangeTransactionIdModal, setShowChangeTransactionIdModal] = useState(false)
 
     useEffect(() => {
@@ -108,7 +108,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 
 	useEffect(() => {
 		checkTransactionIdToChange()
-	}, [showChangeTransactionIdModal===false])
+	}, [showChangeTransactionIdModal])
 
 	useEffect(() => {
 		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
@@ -187,7 +187,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 		} else if (sessionContext?.entityInfo!.role === Roles.RETAILER && product.bankTransaction.retailerBankTransactionID !== undefined) {
 			check = true
 		}
-		setTransactionidToChange(check)
+		setTransactionIdToChange(check)
 	}
 
 	const allowTransactionIdChange = (): boolean => {
