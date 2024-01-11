@@ -25,7 +25,7 @@ export default function ProductInfo() {
 	const getProductInfoWrapper = async () => {
 		if (!productId) return
 
-		const res = await getProductInfo({ productId: "1" })
+		const res = await getProductInfo({ productId: productId })
 		setProductInstances((_prev) => [...res.productInstances.filter((instance) => instance.id!.toString() !== instanceId?.toString())])
 		if (!instanceId) {
 			const firstInstanceId = res.productInstances[0].id
@@ -38,26 +38,28 @@ export default function ProductInfo() {
 
 	useEffect(() => {
 		getProductInfoWrapper()
-		getSellerByIdWrapper()
 	}, [productId, instanceId])
+
+	useEffect(() => {
+		getSellerByIdWrapper()
+	}, [currentInstance])
 
 	return (
 		<div className="bg-background h-screen w-screen overflow-scroll">
 			<Navbar showLinks={false} />
 			<div className="flex flex-col px-10 pt-36">
 				<p className="font-bold text-text text-4xl">Product Info</p>
-				<div className="flex gap-10 justify-between">
-					<div className="flex w-full justify-evenly">
+				<div className="flex gap-10">
+					<div className="flex w-full">
 						<img src="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" alt="product image" className="h-fit w-fit" />
 						<div className="flex flex-col mx-3 gap-10">
 							<span className="flex flex-col gap-2">
 								<p className="font-semibold text-text text-4xl">{product?.name}</p>
-								<GradientText text={`Sold by ${seller?.companyName}`} className="text-xl" />
 							</span>
 							<p className="text-text text-xl">{product?.description}</p>
 							<div className="flex w-full gap-3 items-center justify-between">
-								<GradientText text={`$${currentInstance?.price.toFixed(2)}`} className="text-5xl" />
-								<Button text="Buy" className="w-fit" />
+								<GradientText text={`$${currentInstance?.price.toFixed(2)}`} className="text-4xl" />
+								{/*<Button text="Buy" className="w-fit" />*/}
 							</div>
 						</div>
 					</div>
@@ -104,6 +106,7 @@ const OtherProductTab = ({ id, price, soldById }: OtherProductTabProps) => {
 		const res = await getSellerById({ sellerId: soldById })
 		setSeller(res.data.data)
 	}
+
 	useEffect(() => {
 		getSellerByIdWrapper()
 	}, [soldById])
@@ -174,7 +177,7 @@ const HistoryChain = ({ manufacturer, distributor, retailer } : HistoryChainProp
 		  }
 		}
 		fetchData()
-	}, [])
+	}, [manufacturer, distributor, retailer])
 
 	return (
 		<div className="flex gap-3 items-center">

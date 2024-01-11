@@ -245,29 +245,31 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 	const res = await api.get("/get-product-info", { params: { productId } })
 
 	const product: Product = res.data.data
-	for (const productInstances of product.productInstances) {
-		if (productInstances.id !== undefined) {
-			const proxyResult = await getContractProductInfo(parseInt(productInstances.id))
+	console.log(product)
+	if (product.productInstances !== undefined) {
+		for (const productInstances of product.productInstances) {
+			if (productInstances.id !== undefined) {
+				const proxyResult = await getContractProductInfo(parseInt(productInstances.id))
 
-			// Assign the values from ProxyResult to ProductInstance
-			productInstances.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
-			const distributorBankTransactionProxy = proxyResult[8]
-			productInstances.bankTransaction = {
-				distributorBankTransactionID: distributorBankTransactionProxy[0].toString(),
-				retailerBankTransactionID: distributorBankTransactionProxy[1].toString(),
-			}
+				// Assign the values from ProxyResult to ProductInstance
+				productInstances.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
+				const distributorBankTransactionProxy = proxyResult[8]
+				productInstances.bankTransaction = {
+					distributorBankTransactionID: distributorBankTransactionProxy[0].toString(),
+					retailerBankTransactionID: distributorBankTransactionProxy[1].toString(),
+				}
 
-			const rewardsProxy = proxyResult[9];
-			productInstances.rewards = {
-				manufacturerRewarded: rewardsProxy[0].toString(),
-				distributorRewarded: rewardsProxy[1].toString(),
-				retailerRewarded: rewardsProxy[2].toString(),
+				const rewardsProxy = proxyResult[9];
+				productInstances.rewards = {
+					manufacturerRewarded: rewardsProxy[0].toString(),
+					distributorRewarded: rewardsProxy[1].toString(),
+					retailerRewarded: rewardsProxy[2].toString(),
+				}
+			} else {
+				console.error("Product instance has undefined id:", productInstances)
 			}
-		} else {
-			console.error("Product instance has undefined id:", productInstances)
 		}
 	}
-	console.log(product)
 	return product
 }
 
