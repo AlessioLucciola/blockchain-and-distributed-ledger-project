@@ -180,10 +180,10 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
     }, [])
 
 	return (
-		<div className="flex gap-5">
-			<img src={image} alt="product image" className="h-fit w-[200px]" />
-			<div className="flex flex-row gap-10 justify-between">
-				<div className="flex flex-col h-full justify-around">
+		<div className="flex flex-row justify-between items-center">
+			<div className="flex gap-10">
+				<img src={image} alt="product image" className="h-fit w-[200px]" />
+				<div className="flex flex-col justify-around">
 					<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Status:</p>
@@ -194,7 +194,8 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 						<GradientText text={"€"+product.price} className="text-xl" />
 					</span>
 				</div>
-				<div className="flex flex-col gap-3 flex-end h-full justify-around">
+			</div>
+			<div className="flex flex-col justify-around">
                     <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
 					{product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED) ? (
 						<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!)}/>
@@ -203,7 +204,6 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 						<Button text="Ship product" className={`p-2 font-semibold`} onClick={() => shipProduct(product.id!, newOwnerInfo!)}/>
 					) : ""}
 				</div>
-			</div>
 		</div>
 	)
 }

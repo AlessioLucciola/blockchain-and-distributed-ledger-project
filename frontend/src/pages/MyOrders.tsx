@@ -11,6 +11,7 @@ import { getEntityRole } from "../assets/api/contractCalls"
 import { ProductStage, Roles } from "../shared/constants"
 import { getProductStageFromId } from "../utils/typeUtils"
 import MessagePage from "./MessagePage"
+import ChangeTransactionIdModal from "../components/ChangeTransactionIdModal"
 
 export default function MyOrders() {
 	const navigate = useNavigate()
@@ -48,9 +49,7 @@ export default function MyOrders() {
     
 	const getProductList = async () => {
 		if (!sessionContext.entityInfo?.id === undefined) return
-		console.log(sessionContext.entityInfo?.id)
         const res = await getOrders( { id: parseInt(sessionContext.entityInfo?.id!)} )
-        console.log(res)
 
         if (res.status === 200) {
             const products = res.data.data
@@ -88,10 +87,13 @@ interface OrderCardProps {
 function OrderCard({ product, image }: OrderCardProps) {
     const navigate = useNavigate()
 	const sessionContext = useSessionContext()
+	const [isAuthorized, setIsAuthorized] = useState<boolean>(true)
     const [oldOwnerInfo, setOldOwnerInfo] = useState<Entity>()
 	const [newOwnerInfo, setNewOwnerInfo] = useState<Entity>()
 	const [productStatus, setProductStatus] = useState<ProductStage>()
 	const [productStatusString, setProductStatusString] = useState<string>("")
+	const [transactionIdToChange, setTransactionidToChange] = useState<boolean>(false)
+	const [showChangeTransactionIdModal, setShowChangeTransactionIdModal] = useState(false)
 
     useEffect(() => {
         getOldOwnerByIdWrapper()
@@ -103,6 +105,33 @@ function OrderCard({ product, image }: OrderCardProps) {
 	useEffect(() => {
 		getProductStatus()
 	}, [productStatus, oldOwnerInfo, newOwnerInfo])
+
+	useEffect(() => {
+		checkTransactionIdToChange()
+	}, [showChangeTransactionIdModal===false])
+
+	useEffect(() => {
+		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
+			navigate("/login")
+		}
+		if (sessionContext.entityInfo?.role === Roles.MANUFACTURER) {
+			setIsAuthorized(false)
+		}
+	}, [sessionContext])
+
+	if (isAuthorized === false) {
+		return (
+			<MessagePage
+				message="You are not authorized to view this page"
+				buttons={[
+					{
+						text: "Go to Home",
+						onClick: () => navigate("/"),
+					},
+				]}
+			/>
+		)
+	}
     
     const getOldOwnerByIdWrapper = async () => {
 		const currentRole = await getEntityRole()
@@ -144,8 +173,27 @@ function OrderCard({ product, image }: OrderCardProps) {
         }
 	}
 
-	const waitingForProduct = (product: ProductInstance): boolean => {
-		if (product.currentOwner === sessionContext.entityInfo?.id! && product.productState.toString() === "3") {
+	const waitingForProduct = (): boolean => {
+		if (product.currentOwner === sessionContext.entityInfo?.id! && getProductStageFromId(product.productState.toString()) === ProductStage.SHIPPED) {
+			return true
+		}
+		return false
+	}
+
+	const checkTransactionIdToChange = () => {
+		let check = false
+		if (sessionContext?.entityInfo!.role === Roles.DISTRIBUTOR && product.bankTransaction.distributorBankTransactionID !== undefined) {
+			check = true
+		} else if (sessionContext?.entityInfo!.role === Roles.RETAILER && product.bankTransaction.retailerBankTransactionID !== undefined) {
+			check = true
+		}
+		setTransactionidToChange(check)
+	}
+
+	const allowTransactionIdChange = (): boolean => {
+		if (sessionContext?.entityInfo!.role === Roles.DISTRIBUTOR && product.distributorId !== undefined) {
+			return true
+		} else if (sessionContext?.entityInfo!.role === Roles.RETAILER && product.retailerId !== undefined) {
 			return true
 		}
 		return false
@@ -183,33 +231,39 @@ function OrderCard({ product, image }: OrderCardProps) {
 	}
 
 	return (
-		<div className="flex flex-row justify-between items-center">
-            <div className="flex gap-10">
-                <img src={image} alt="product image" className="h-fit w-[200px]" />
+		<>
+			<div className="flex flex-row justify-between items-center">
+				<div className="flex gap-10">
+					<img src={image} alt="product image" className="h-fit w-[200px]" />
+					<div className="flex flex-col justify-around">
+						<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
+						<span className="flex gap-2 items-center">
+							<p className="font-semibold text-text text-xl drop-shadow-lg">Purchased from</p>
+							<GradientText text={oldOwnerInfo?.companyName!} className="text-xl" />
+						</span>
+						<span className="flex gap-2 items-center">
+							<p className="font-semibold text-text text-xl drop-shadow-lg">Status</p>
+							<GradientText text={productStatusString} className="text-xl" />
+						</span>
+						<span className="flex gap-2 items-center">
+							<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
+							<GradientText text={"€"+product.price} className="text-xl" />
+						</span>
+						<span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
+							<GradientText text={"Details >"} className="text-xl" />
+						</span>
+					</div>
+				</div>
 				<div className="flex flex-col justify-around">
-					<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
-                    <span className="flex gap-2 items-center">
-                        <p className="font-semibold text-text text-xl drop-shadow-lg">Purchased from</p>
-                        <GradientText text={oldOwnerInfo?.companyName!} className="text-xl" />
-                    </span>
-					<span className="flex gap-2 items-center">
-						<p className="font-semibold text-text text-xl drop-shadow-lg">Status</p>
-						<GradientText text={productStatusString} className="text-xl" />
-					</span>
-                    <span className="flex gap-2 items-center">
-						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
-						<GradientText text={"€"+product.price} className="text-xl" />
-					</span>
-					<span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
-                        <GradientText text={"Details >"} className="text-xl" />
-                    </span>
+					{allowTransactionIdChange() ? (
+							<Button text={transactionIdToChange ? "Change Bank Transaction ID" : "Confirm Payment"} className={`p-2 font-semibold`} onClick={() => setShowChangeTransactionIdModal(true)} />
+						) : ""}
+					{waitingForProduct() ? (
+						<Button text="Product Received" className={`p-2 font-semibold`} onClick={() => receiveProduct(product?.id!)} />
+					) : ""}
 				</div>
 			</div>
-			<div className="flex flex-col justify-around">
-				{waitingForProduct(product) ? (
-					<Button text="Product Received" className={`p-2 font-semibold`} onClick={() => receiveProduct(product?.id!)} />
-				) : ""}
-			</div>
-		</div>
+			<ChangeTransactionIdModal productInstanceId={parseInt(product?.id!)} transactionInfo={sessionContext?.entityInfo!.role === Roles.DISTRIBUTOR ? product.bankTransaction.distributorBankTransactionID : product.bankTransaction.retailerBankTransactionID} showModal={showChangeTransactionIdModal} setShowModal={() => setShowChangeTransactionIdModal(!showChangeTransactionIdModal)} />
+		</>
 	)
 }

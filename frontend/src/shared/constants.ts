@@ -29,3 +29,4 @@ export enum ProductLocation {
 }
 
 export const empty_account = "0x0000000000000000000000000000000000000000"
+export const empty_transaction_ID = "0"

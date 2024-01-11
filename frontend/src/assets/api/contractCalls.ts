@@ -714,12 +714,11 @@ export const getContractProductInfo = async (_productID: number) => {
 
 export const changeBankTransactionID = async (
     _productID: number,
-    _transactionID: string
+    _transactionID: number
 ): Promise<any | null> => {
     try {
         // Get the contract instance by awaiting the promise
         const contract = await getContractInstance()
-
         if (contract) {
             // Create a promise to resolve when the event is emitted
             return new Promise((resolve, reject) => {

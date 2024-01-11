@@ -170,24 +170,29 @@ contract SmartSupply is Entities, Utils {
     function changeBankTransactionID(uint _productID, uint256 _newTransactionID) external {
         //require(products[_productID].productStage == ProductStage.Purchased, "Product must be purchased to change bank transaction ID");
 
-        if (customers[msg.sender] && msg.sender == products[_productID].ownerships.customer) {
+        address customerAddress = products[_productID].ownerships.customer;
+        address distributorAddress = products[_productID].ownerships.distributor;
+        address retailerAddress = products[_productID].ownerships.retailer;
+
+        if (customers[msg.sender] && msg.sender == customerAddress) {
             // Only the customer that bought the product can change customerBankTransactionID
-            //products[_productID].transactionIDs.customerBankTransactionID = _newTransactionID;
-        } else if (distributors[msg.sender] && msg.sender == products[_productID].ownerships.distributor) {
+            // products[_productID].transactionIDs.customerBankTransactionID = _newTransactionID;
+        } else if (distributors[msg.sender] && msg.sender == distributorAddress) {
             // Only the distributor that bought the product can change distributorBankTransactionID
             products[_productID].transactionIDs.distributorBankTransactionID = _newTransactionID;
-        } else if (retailers[msg.sender] && msg.sender == products[_productID].ownerships.retailer) {
+        } else if (retailers[msg.sender] && msg.sender == retailerAddress) {
             // Only the retailer that bought the product can change retailerBankTransactionID
             products[_productID].transactionIDs.retailerBankTransactionID = _newTransactionID;
         } else {
             revert("Caller does not have the right to change bank transaction ID");
         }
 
-        if (distributors[msg.sender] && msg.sender == products[_productID].ownerships.distributor && !products[_productID].rewards.distributorRewarded) {
+        // Check if distributor or retailer rewards need to be distributed
+        if (distributors[msg.sender] && msg.sender == distributorAddress && !products[_productID].rewards.distributorRewarded && (customerAddress != address(0) && (products[_productID].productStage == ProductStage.Shipped || products[_productID].productStage == ProductStage.Received))) {
             // Send the reward to the distributor
             distributeReward(payable(msg.sender), _productID, 25 wei);
             products[_productID].rewards.distributorRewarded = true;
-        } else if (retailers[msg.sender] && msg.sender == products[_productID].ownerships.retailer && !products[_productID].rewards.retailerRewarded) {
+        } else if (retailers[msg.sender] && msg.sender == retailerAddress && !products[_productID].rewards.retailerRewarded && (customerAddress != address(0) && (products[_productID].productStage == ProductStage.Shipped || products[_productID].productStage == ProductStage.Received))) {
             // Send the reward to the retailer
             distributeReward(payable(msg.sender), _productID, 25 wei);
             products[_productID].rewards.retailerRewarded = true;
