@@ -196,14 +196,14 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 				</div>
 			</div>
 			<div className="flex flex-col justify-around">
-                    <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
-					{product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED) ? (
-						<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!)}/>
-					) : ""}
-					{product !== undefined && updatedProductStage === ProductStage.PURCHASED ? (
-						<Button text="Ship product" className={`p-2 font-semibold`} onClick={() => shipProduct(product.id!, newOwnerInfo!)}/>
-					) : ""}
-				</div>
+				<Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
+				{product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED) ? (
+					<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!)}/>
+				) : ""}
+				{product !== undefined && updatedProductStage === ProductStage.PURCHASED ? (
+					<Button text="Ship product" className={`p-2 font-semibold`} onClick={() => shipProduct(product.id!, newOwnerInfo!)}/>
+				) : ""}
+			</div>
 		</div>
 	)
 }
