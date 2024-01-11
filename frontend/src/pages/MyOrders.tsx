@@ -27,11 +27,10 @@ export default function MyOrders() {
 		if (sessionContext.entityInfo?.role === Roles.MANUFACTURER) {
 			setIsAuthorized(false)
 		}
+		if (sessionContext.entityInfo?.id) {
+			getProductList()
+		}
 	}, [sessionContext])
-
-	useEffect(() => {
-        getProductList()
-    }, [])
 
 	if (isAuthorized === false) {
 		return (
@@ -103,7 +102,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 
 	useEffect(() => {
 		getProductStatus()
-	}, [productStatus])
+	}, [productStatus, oldOwnerInfo, newOwnerInfo])
     
     const getOldOwnerByIdWrapper = async () => {
 		const currentRole = await getEntityRole()
@@ -184,10 +183,10 @@ function OrderCard({ product, image }: OrderCardProps) {
 	}
 
 	return (
-		<div className="flex gap-5">
-			<img src={image} alt="product image" className="h-fit w-[200px]" />
-			<div className="flex flex-row gap-10 justify-between">
-				<div className="flex flex-col h-full justify-around">
+		<div className="flex flex-row justify-between items-center">
+            <div className="flex gap-10">
+                <img src={image} alt="product image" className="h-fit w-[200px]" />
+				<div className="flex flex-col justify-around">
 					<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-text text-xl drop-shadow-lg">Purchased from</p>
@@ -201,13 +200,15 @@ function OrderCard({ product, image }: OrderCardProps) {
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
 						<GradientText text={"€"+product.price} className="text-xl" />
 					</span>
+					<span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
+                        <GradientText text={"Details >"} className="text-xl" />
+                    </span>
 				</div>
-				<div className="flex flex-col gap-3 flex-end h-full justify-around">
-                    <Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
-					{waitingForProduct(product) ? (
-						<Button text="Product Received" className={`p-2 font-semibold`} onClick={() => receiveProduct(product?.id!)} />
-					) : ""}
-				</div>
+			</div>
+			<div className="flex flex-col justify-around">
+				{waitingForProduct(product) ? (
+					<Button text="Product Received" className={`p-2 font-semibold`} onClick={() => receiveProduct(product?.id!)} />
+				) : ""}
 			</div>
 		</div>
 	)
