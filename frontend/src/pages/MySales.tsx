@@ -10,17 +10,22 @@ import { getSellerById, getSoldProducts, shipProductToEntity } from "../assets/a
 import { useSessionContext } from "../context/exportContext"
 import { getEntityRole } from "../assets/api/contractCalls"
 import { getProductStageFromId } from "../utils/typeUtils"
+import MessagePage from "./MessagePage"
 
 export default function MySales() {
 	const navigate = useNavigate()
 	const sessionContext = useSessionContext()
+	const [isAuthorized, setIsAuthorized] = useState<boolean | undefined>(undefined)
 	const searchRef = useRef<HTMLInputElement | null>(null)
     const [search, setSearch] = useState<string>("")
 	const [salesList, setSalesList] = useState<ProductInstance[]>([])
 
 	useEffect(() => {
-		if (!sessionContext.entityInfo) {
-			navigate("/")
+		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
+			navigate("/login")
+		}
+		if (sessionContext.entityInfo?.role === Roles.CUSTOMER) {
+			setIsAuthorized(false)
 		}
 	}, [sessionContext])
 
@@ -37,6 +42,20 @@ export default function MySales() {
             setSalesList(products)
         }
     }
+
+	if (isAuthorized === false) {
+		return (
+			<MessagePage
+				message="You are not authorized to view this page"
+				buttons={[
+					{
+						text: "Go to Home",
+						onClick: () => navigate("/"),
+					},
+				]}
+			/>
+		)
+	}
 	
 	return (
 		<div className="bg-background h-screen w-screen pb-20 overflow-y-scroll">

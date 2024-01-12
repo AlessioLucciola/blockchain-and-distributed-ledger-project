@@ -27,7 +27,10 @@ export default function Navbar({ showLinks = true, overrideLinks }: NavbarProps)
 	}
 	const getEntityName = () => {
 		if (sessionContext.entityInfo?.role === Roles.CUSTOMER) {
-			return `${entity?.name} ${entity?.surname}`
+			if (entity?.surname !== null) {
+				return `${entity?.name} ${entity?.surname}`
+			}
+			return `${entity?.name}`
 		}
 		return entity?.companyName
 	}

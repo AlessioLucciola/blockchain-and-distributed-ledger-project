@@ -320,6 +320,7 @@ const SmartSupplyController = {
 			{
 				email: string
 				password: string
+				metamaskAddress: string
 			},
 			{}
 		>,
@@ -327,8 +328,8 @@ const SmartSupplyController = {
 		next: NextFunction
 	) {
 		try {
-			const { email, password } = req.body
-			const data = await service.login({ email, password })
+			const { email, password, metamaskAddress } = req.body
+			const data = await service.login({ email, password, metamaskAddress })
 			if (!data) throw new Error("Login failed")
 			const { entity, token } = data
 
@@ -341,7 +342,7 @@ const SmartSupplyController = {
 				entity,
 				token,
 			})
-		} catch (err) {
+		} catch (err: any) {
 			next(err)
 		}
 	},
