@@ -123,6 +123,8 @@ function RegisterForm({ role }: RegisterFormProps) {
 				password: values["Password"],
 				metamaskAddress: walletAddress || '',
 				role: roleState,
+				verificationID: '',
+				accountVerified: false
 			}
 		} else {
 			entity = {
@@ -135,6 +137,8 @@ function RegisterForm({ role }: RegisterFormProps) {
 				shopName: values["Shop Name"],
 				metamaskAddress: walletAddress || '',
 				role: roleState!,
+				verificationID: '',
+				accountVerified: false
 			}
 		}
 		
@@ -236,7 +240,7 @@ function RegisterForm({ role }: RegisterFormProps) {
 											setWalletAddress(walletAddress);
 										});
 									}}
-									text="Connect Metamask"
+									text={walletAddress ? "Metamask connected" : "Connect Metamask"}
 									className="w-fit"
 								/>		
 							) : (
@@ -249,12 +253,12 @@ function RegisterForm({ role }: RegisterFormProps) {
 								/>							
 							)}
 							{walletAddress && (
-								<p className="text-white">Wallet Address: {walletAddress}</p>
-							)}
-							{walletAddress && (
 								<Button text="Register" className="w-fit" onClick={registerEntity} />
 							)}
 						</div>
+						{walletAddress && (
+							<p className="text-white ">Wallet Address: {walletAddress}</p>
+						)}
 					</div>
 				</div>
 			</div>
