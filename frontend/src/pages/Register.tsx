@@ -88,7 +88,7 @@ interface RegisterFormProps {
 function RegisterForm({ role }: RegisterFormProps) {
 	const navigate = useNavigate()
 	const [roleState, setRoleState] = useState<Roles | undefined>(role)
-	const [walletAddress, setWalletAddress] = useState<string | null>(null); // Added state for wallet address
+	const [walletAddress, setWalletAddress] = useState<string | null>(null) // Added state for wallet address
 
 	const inputRefs = useRef<{ [key: string]: React.RefObject<HTMLInputElement> }>({})
 	const getQueryParams = () => {
@@ -121,7 +121,7 @@ function RegisterForm({ role }: RegisterFormProps) {
 				address_1: values["Address"],
 				email: values["Email"],
 				password: values["Password"],
-				metamaskAddress: walletAddress || '',
+				metamaskAddress: walletAddress!,
 				role: roleState,
 				verificationID: '',
 				accountVerified: false
@@ -135,7 +135,7 @@ function RegisterForm({ role }: RegisterFormProps) {
 				password: values["Password"],
 				companyName: values["Company Name"],
 				shopName: values["Shop Name"],
-				metamaskAddress: walletAddress || '',
+				metamaskAddress: walletAddress!,
 				role: roleState!,
 				verificationID: '',
 				accountVerified: false
@@ -159,6 +159,11 @@ function RegisterForm({ role }: RegisterFormProps) {
 		const sanitizedEmail = inputRefs.current["Email"].current?.value?.trim().toLowerCase()
 		const sanitizedRepeatEmail = inputRefs.current["Repeat Email"].current?.value?.trim().toLowerCase()
 
+		if (sanitizedEmail === "") {
+			alert("Please, enter an email address")
+			return false
+		}
+
 		if (sanitizedEmail !== sanitizedRepeatEmail) {
 			alert("Emails don't match!")
 			return false
@@ -166,6 +171,11 @@ function RegisterForm({ role }: RegisterFormProps) {
 
 		const password = inputRefs.current["Password"].current?.value
 		const repeatPassword = inputRefs.current["Repeat Password"].current?.value
+
+		if (password === "") {
+			alert("Please, enter a password")
+			return false
+		}
 
 		if (password !== repeatPassword) {
 			alert("Passwords don't match!")
@@ -237,8 +247,8 @@ function RegisterForm({ role }: RegisterFormProps) {
 								<Button
 									onClick={() => {
 										getMetamaskAddress().then((walletAddress) => {
-											setWalletAddress(walletAddress);
-										});
+											setWalletAddress(walletAddress)
+										})
 									}}
 									text={walletAddress ? "Metamask connected" : "Connect Metamask"}
 									className="w-fit"

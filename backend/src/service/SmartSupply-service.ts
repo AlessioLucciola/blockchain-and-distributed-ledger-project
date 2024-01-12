@@ -37,10 +37,11 @@ class SmartSupplyService {
 	async getProductInfo({ productId }: { productId: number }): Promise<Products | null> {
 		return this.repository.getProductInfo({ productId })
 	}
-	async login({ email, password }: { email: string; password: string }): Promise<{ entity: Entity; token: string } | null> {
+	async login({ email, password, metamaskAddress }: { email: string; password: string, metamaskAddress: string }): Promise<{ entity: Entity; token: string } | null> {
 		const entity = await this.repository.getEntityByEmail({ email })
 		if (!entity) throw new Error(`Entity with email ${email} not found`)
 		if (entity.password !== password) throw new Error("Inserted password doesn't match the one in the database")
+		if (entity.metamaskAddress.toString() !== metamaskAddress.toString()) throw new Error("Inserted metamask address doesn't match the one in the database")
 		const token = generateToken({
 			payload: {
 				...entity,

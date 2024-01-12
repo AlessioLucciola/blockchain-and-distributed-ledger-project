@@ -26,7 +26,7 @@ export default function Login() {
 
 	const performLogin = async () => {
 		try {
-			const res = await login({ email: emailRef.current!.value, password: passwordRef.current!.value })
+			const res = await login({ email: emailRef.current!.value, password: passwordRef.current!.value, metamaskAddress: walletAddress!.toString() })
 			if (res.status === 200) {
 				navigate("/home")
 			}

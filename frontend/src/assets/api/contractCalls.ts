@@ -1,5 +1,6 @@
 import { Roles } from "../../shared/constants"
 import { getContractInstance } from "../../utils/contractUtils"
+import { getMetamaskAddress } from "../../utils/metamaskUtils"
 
 export const addManufacturer = async (): Promise<string | null> => {
     try {
@@ -160,12 +161,10 @@ export const isManufacturer = async () => {
 
         if (contract) {
             // Get the role from the smart contract
-            const accounts = await window.ethereum.request({
-                method: "eth_accounts",
-            })
+            const account = getMetamaskAddress()
 
             // Check if the account is a manufacturer
-            const isManufacturer = await contract.isManufacturer(accounts[0])
+            const isManufacturer = await contract.isManufacturer(account)
             console.log("Entity is a manufacturer: ", isManufacturer)
 
             return isManufacturer
@@ -185,12 +184,10 @@ export const isCustomer = async () => {
 
         if (contract) {
             // Get the role from the smart contract
-            const accounts = await window.ethereum.request({
-                method: "eth_accounts",
-            })
+            const account = getMetamaskAddress()
 
             // Check if the account is a customer
-            const isCustomer = await contract.isCustomer(accounts[0])
+            const isCustomer = await contract.isCustomer(account)
             console.log("Entity is a customer: ", isCustomer)
 
             return isCustomer
@@ -210,12 +207,10 @@ export const isRetailer = async () => {
 
         if (contract) {
             // Get the role from the smart contract
-            const accounts = await window.ethereum.request({
-                method: "eth_accounts",
-            })
+            const account = getMetamaskAddress()
 
             // Check if the account is a retailer
-            const isRetailer = await contract.isRetailer(accounts[0])
+            const isRetailer = await contract.isRetailer(account)
             console.log("Entity is a retailer: ", isRetailer)
 
             return isRetailer
@@ -235,12 +230,10 @@ export const isDistributor = async () => {
 
         if (contract) {
             // Get the role from the smart contract
-            const accounts = await window.ethereum.request({
-                method: "eth_accounts",
-            })
+            const account = getMetamaskAddress()
 
             // Check if the account is a distributor
-            const isDistributor = await contract.isDistributor(accounts[0])
+            const isDistributor = await contract.isDistributor(account)
             console.log("Entity is a distributor: ", isDistributor)
 
             return isDistributor
@@ -518,13 +511,11 @@ export const isVerificationPermitted = async () => {
 
         if (contract) {
             // Get the role from the smart contract
-            const accounts = await window.ethereum.request({
-                method: "eth_accounts",
-            })
+            const account = getMetamaskAddress()
 
             // Check if the account is sent a proof of their identity and was accepted by the admin
             const isVerificationPermitted =
-                await contract.isVerificationPermitted(accounts[0])
+                await contract.isVerificationPermitted(account)
             console.log("Entity proof is accepted: ", isVerificationPermitted)
 
             return isVerificationPermitted
@@ -628,12 +619,10 @@ export const isVerified = async () => {
 
         if (contract) {
             // Get the role from the smart contract
-            const accounts = await window.ethereum.request({
-                method: "eth_accounts",
-            })
+            const account = getMetamaskAddress()
 
             // Check if the account paid to get verified
-            const isVerified = await contract.isVerified(accounts[0])
+            const isVerified = await contract.isVerified(account)
             console.log("Entity is verified ", isVerified)
 
             return isVerified

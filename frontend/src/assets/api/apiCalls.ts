@@ -81,7 +81,6 @@ export const createEntity = async ({
 				throw error
         }
 
-		console.log(metamaskAddress)
 		if (metamaskAddress !== null) {
 			const dbResponse = await api.post("/create-entity", {
 				name,
@@ -284,8 +283,8 @@ export const getEntityInfoFromToken = async (): Promise<AxiosResponse<{ data: En
 	const res = await api.get("/get-entity-info-from-token", { withCredentials: true })
 	return res
 }
-export const login = async ({ email, password }: { email: string; password: string }): Promise<AxiosResponse<{ data: { entity: Entity; token: string } }>> => {
-	const res = await api.post("/login", { email, password }, { withCredentials: true })
+export const login = async ({ email, password, metamaskAddress }: { email: string; password: string, metamaskAddress: string }): Promise<AxiosResponse<{ data: { entity: Entity; token: string } }>> => {
+	const res = await api.post("/login", { email, password, metamaskAddress }, { withCredentials: true })
 	return res
 }
 export const addVerificationID = async ({ userID, verificationID }: { userID: string; verificationID: string }): Promise<AxiosResponse<{ data: { message: string } }>> => {

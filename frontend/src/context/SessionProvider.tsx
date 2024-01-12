@@ -46,6 +46,7 @@ export function SessionProvider({ children }: Props) {
 
 	function logout() {
 		removeCookie("entityToken")
+		setEntityInfo(undefined)
 		window.location.reload()
 	}
 
