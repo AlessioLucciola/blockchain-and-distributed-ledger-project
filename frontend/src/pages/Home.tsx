@@ -9,6 +9,8 @@ import { useSessionContext } from "../context/exportContext"
 import Button from "../components/Button"
 import DeleteAccountModal from "../components/DeleteAccountModal"
 import VerifyAccountModal from "../components/VerifyAccountModal"
+import ChangeVerificationAmountModal from "../components/ChangeVerificationAmountModal"
+import ChangeCertificationAmountModal from "../components/ChangeCertificationAmountModal"
 import { getPendingVerifications, deleteVerification, updateVerificationGranted } from "../assets/api/apiCalls"
 import { VerificationWithEntity } from "../shared/types"
 export default function Home() {
@@ -16,6 +18,8 @@ export default function Home() {
 	const sessionContext = useSessionContext()
 	const [showDeleteModal, setShowDeleteModal] = React.useState(false)
 	const [showVerifyAccountModal, setShowVerifyAccountModal] = React.useState(false)
+	const [showChangeVerificationAmountModal, setShowChangeVerificationAmountModal] = React.useState(false)
+	const [showChangeCertificationAmountModal, setShowChangeCertificationAmountModal] = React.useState(false)
 	const [verifications, setVerifications] = React.useState<VerificationWithEntity[]>([])
 
 	useEffect(() => {
@@ -97,6 +101,19 @@ export default function Home() {
 							<p className="text-white p-1 px-2 pl-5">There are no pending verification requests.</p>
 						)}
 					</div>
+					<>
+						<div className="flex flex-col pt-40 gap-5 items-center justify-center">
+							<GradientText text="Admin settings:" className="text-3xl" />
+							<span className="flex pt-2 gap-2 items-center justify-center">
+								<Button text="Change Verification Amount" onClick={() => setShowChangeVerificationAmountModal(true)} /> 
+								<Button text="Change Certification Amount" onClick={() => setShowChangeCertificationAmountModal(true)} />
+							</span>
+						</div>
+							<ChangeCertificationAmountModal showModal={showChangeCertificationAmountModal} setShowModal={() => setShowChangeCertificationAmountModal(!showChangeCertificationAmountModal)} />
+							<ChangeVerificationAmountModal showModal={showChangeVerificationAmountModal} setShowModal={() => setShowChangeVerificationAmountModal(!showChangeVerificationAmountModal)} />
+							<DeleteAccountModal showModal={showDeleteModal} setShowModal={() => setShowDeleteModal(!showDeleteModal)} />
+							<VerifyAccountModal showModal={showVerifyAccountModal} setShowModal={() => setShowVerifyAccountModal(!showVerifyAccountModal)} />
+					</>
 				</>
 			) : (
 				<>

@@ -178,10 +178,15 @@ contract Entities is BalanceManager {
     // Define a function to make the payment and receive the verified badge (only for entities that sent a proof and it was accepted by the admin)
     function verifyEntity() external payable onlyVerificationPermittedEntity {
         // Ensure a certain amount of Ether is sent for verification
-        require(msg.value >= 20 wei, "Insufficient payment for verification");
+        BalanceManager balanceManager = new BalanceManager();
+        uint256 verificationAmount = balanceManager.getVerificationAmount();
 
-        smartSupplyBalance += msg.value;
-        emit FundsAdded(msg.sender, msg.value);
+        require(msg.value >= verificationAmount, "Insufficient payment for verification");
+
+        uint256 amountSent = msg.value;
+
+        smartSupplyBalance += amountSent;
+        emit FundsAdded(msg.sender, amountSent);
 
         // Mark the entity as verified
         verificationStatus[msg.sender] = true;

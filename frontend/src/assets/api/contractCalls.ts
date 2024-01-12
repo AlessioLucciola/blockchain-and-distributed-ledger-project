@@ -579,19 +579,23 @@ export const verifyEntity = async (): Promise<string | null> => {
         const contract = await getContractInstance()
 
         if (contract) {
-            // Convert the amount to send (20 Wei)
-            const amountToSend = "20"
+            // Get the amount of coins that the entity has to send to get verified
+            let verificationAmount = await getVerificationAmount()
+
+            verificationAmount = ethers.parseUnits(verificationAmount!, "gwei").toString();
 
             // Create a promise to resolve when the event is emitted
             return new Promise((resolve, reject) => {
                 // Call the verifyEntity function on the contract with the specified value
                 contract
-                    .verifyEntity({ value: BigInt(amountToSend) })
+                    .verifyEntity({ value: BigInt(verificationAmount) })
                     .then((verifyEntityTransaction) => {
                         return verifyEntityTransaction.wait()
                     })
                     .then(() => {
                         console.log("verifyEntity function called successfully")
+
+                        return verificationAmount
                     })
                     .catch((error) => {
                         console.error("Error calling VerifyEntity:", error)
@@ -633,6 +637,136 @@ export const isVerified = async () => {
     } catch (error) {
         console.error("Failed to get role information:", error)
         return error
+    }
+}
+
+export const getVerificationAmount = async () => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            const verificationAmount = await contract.getVerificationAmount()
+            console.log("Verification amount: ", verificationAmount.toString())
+
+            return verificationAmount.toString()
+        } else {
+            console.error("Contract instance is null")
+        }
+    } catch (error) {
+        console.error("Failed to get verification amount:", error)
+        return error
+    }
+}
+
+export const changeVerificationAmount = async (
+    _verificationAmount: number
+): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                // Call the productProduct function on the contract by sending the id and uid of a product
+                contract
+                    .setVerificationAmount(_verificationAmount)
+                    .then((verificationAmountTransaction) => {
+                        return verificationAmountTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log(
+                            "setVerificationAmount function called successfully"
+                        )
+                        return _verificationAmount 
+                    })
+                    .catch((error) => {
+                        console.error("Error calling setVerificationAmount:", error)
+                        reject(error)
+                    })
+
+                contract.on("VerificationAmountChanged", (admin, verificationAmount) => {
+                    const event_ret = {
+                        admin: admin,
+                        verificationAmount: verificationAmount,
+                    }
+                    console.log("Event Captured:", event_ret)
+                    resolve(event_ret)
+                })
+            })
+        } else {
+            console.error("Contract instance is null")
+            return null
+        }
+    } catch (error) {
+        console.error("Failed to produce a product:", error)
+        return null
+    }
+}
+
+export const getCertificationPercentage = async () => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            const certificationPercentage = await contract.getCertificationPercentage()
+            console.log("Certification percentage: ", certificationPercentage.toString())
+
+            return certificationPercentage.toString()
+        } else {
+            console.error("Contract instance is null")
+        }
+    } catch (error) {
+        console.error("Failed to get certification percentage:", error)
+        return error
+    }
+}
+
+export const changeCertificationPercentage = async (
+    _certificationPercentage: number
+): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                // Call the productProduct function on the contract by sending the id and uid of a product
+                contract
+                    .setCertificationPercentage(_certificationPercentage)
+                    .then((certificationPercentageTransaction) => {
+                        return certificationPercentageTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log(
+                            "setCertificationPercentage function called successfully"
+                        )
+                        return _certificationPercentage 
+                    })
+                    .catch((error) => {
+                        console.error("Error calling setCertificationPercentage:", error)
+                        reject(error)
+                    })
+
+                contract.on("CertificationPercentageChanged", (admin, certificationPercentage) => {
+                    const event_ret = {
+                        admin: admin,
+                        certificationPercentage: certificationPercentage,
+                    }
+                    console.log("Event Captured:", event_ret)
+                    resolve(event_ret)
+                })
+            })
+        } else {
+            console.error("Contract instance is null")
+            return null
+        }
+    } catch (error) {
+        console.error("Failed to produce a product:", error)
+        return null
     }
 }
 

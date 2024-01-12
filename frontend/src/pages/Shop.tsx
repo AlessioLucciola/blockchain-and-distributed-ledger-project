@@ -122,7 +122,7 @@ export default function Shop() {
                         <div className="flex flex-col gap-2 pt-10">
                             {myProducts.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
                                 <div key={instance.id}>
-                                	<OwnedProductCard product={instance} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+									<OwnedProductCard product={instance} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 								</div>
 							))}
                         </div>
