@@ -70,8 +70,8 @@ contract SmartSupply is Entities, Utils {
         bool isCustomer = customers[msg.sender];
 
         if (isCustomer) {
-            uint256 certificationPrice = 100 wei;
-            require(msg.value >= certificationPrice, "Customers must send the correct amount of coins to buy the product certification");
+            // TODO: Check if the customer has enough funds to purchase the product
+            // require(msg.value >= products[_productID].retailerPrice, "Insufficient funds to purchase the product");
             smartSupplyBalance += msg.value; //Transfer the amount of coins to SmartSupply balance
             emit FundsAdded(msg.sender, msg.value);
         }

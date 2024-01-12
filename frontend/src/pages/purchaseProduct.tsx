@@ -6,8 +6,10 @@ import { useNavigate } from "react-router-dom"
 import { useSessionContext } from "../context/exportContext"
 import { ProductInstance } from "../shared/types"
 import { getProductsOnSale, getSellerById, purchaseProductByEntity } from "../assets/api/apiCalls"
+import { getCertificationPercentage } from "../assets/api/contractCalls"
 import InputField from "../components/InputField"
 import { Roles } from "../shared/constants"
+import { fetchETHPrice } from "../utils/fetchETHPrice"
 import MessagePage from "./MessagePage"
 
 export default function MyOrders() {
@@ -86,6 +88,25 @@ interface PurchaseCardProps {
 function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
     const navigate = useNavigate()
     const [entityName, setEntityName] = useState<string | undefined>("")
+    const [certificationAmount, setCertificationAmount] = React.useState(0);
+    const sessionContext = useSessionContext()
+
+    const getCertificationAmount = async () => {
+		let certificationPercentage = await getCertificationPercentage();
+        let certificationAmount = (product.price * certificationPercentage) / 100
+        
+        // Get current eth price
+        let ethPrice = await fetchETHPrice()
+        
+        // Convert to eth
+        certificationAmount = (certificationAmount / ethPrice.USD)
+        
+        setCertificationAmount(certificationAmount.toFixed(5));
+	};
+
+	useEffect(() => {
+		getCertificationAmount();
+	}, []);
     
     const getSellerByIdWrapper = async () => {
 		const res = await getSellerById({ sellerId: product.currentOwner })
@@ -97,7 +118,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
 
     const purchaseProduct = async (instance: ProductInstance) => {
         if (buyer === undefined || instance.id === undefined) return
-        const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), buyerId: parseInt(buyer), oldOwnerId: parseInt(instance.currentOwner!) })
+        const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), certificationAmount: certificationAmount, buyerId: parseInt(buyer), oldOwnerId: parseInt(instance.currentOwner!) })
         if (res.status === 200) {
             alert(`Product ${instance.product?.name} purchased successfully from ${entityName}!`)
             navigate('/orders')
@@ -124,8 +145,15 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
                     </span>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-color-black text-text text-xl drop-shadow-lg">Price</p>
-                        <GradientText text={"€"+product.price} className="text-xl" />
+                        <GradientText text={"$"+product.price} className="text-xl" />
                     </span>
+                    {sessionContext.entityInfo?.role as Roles === Roles.CUSTOMER && (
+                            <span className="flex gap-2 items-center">
+                                <p className="font-semibold text-color-black text-text text-xl drop-shadow-lg">Certification price</p>
+                                <GradientText text={"ETH"+certificationAmount} className="text-xl" />
+                            </span>
+
+                    )}
                     <span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
                         <GradientText text={"Details >"} className="text-xl" />
                     </span>

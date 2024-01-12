@@ -368,10 +368,10 @@ export const getProductsOnSale = async (): Promise<AxiosResponse<{ data: Product
 	const res = await api.get("/get-products-on-sale", { params: { previousRole	 } })
 	return res
 }
-export const purchaseProductByEntity = async ({ productInstanceId, buyerId, oldOwnerId }: { productInstanceId: number, buyerId: number, oldOwnerId: number }): Promise<AxiosResponse<{ data: { message: string } }>> => {
+export const purchaseProductByEntity = async ({ productInstanceId, certificationAmount, buyerId, oldOwnerId }: { productInstanceId: number, certificationAmount: number, buyerId: number, oldOwnerId: number }): Promise<AxiosResponse<{ data: { message: string } }>> => {
 	try {
 		const currentRole = await getEntityRole()
-		const contract_res = await purchaseProduct(productInstanceId)
+		const contract_res = await purchaseProduct(productInstanceId, certificationAmount)
 		if (parseInt(contract_res.productId) === productInstanceId) {
 			const res = await api.patch(`/purchase-product?productInstanceId=${productInstanceId}&buyerId=${buyerId}&oldOwnerId=${oldOwnerId}&currentRole=${currentRole}`)
 			return res	
