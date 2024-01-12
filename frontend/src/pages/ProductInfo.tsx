@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import { GRADIENTS } from "../shared/constants"
 import Button from "../components/Button"
-import { DistributorIcon, ManufacturerIcon, RetailerIcon, RightCaretIcon } from "../shared/icons"
+import { CustomerIcon, DistributorIcon, ManufacturerIcon, RetailerIcon, RightCaretIcon } from "../shared/icons"
 import GradientText from "../components/GradientText"
 import { Entity, Product, ProductInstance } from "../shared/types"
 import { useEffect, useState } from "react"
@@ -87,7 +87,7 @@ export default function ProductInfo() {
 					<GradientText text="Model ID" className="text-xl" />
 					<p className="text-text text-xl">{currentInstance?.id}</p>
 				</div>
-				<HistoryChain manufacturer={currentInstance?.manufacturerId} distributor={currentInstance?.distributorId} retailer={currentInstance?.retailerId}/>
+				<HistoryChain manufacturer={currentInstance?.manufacturerId!} distributor={currentInstance?.distributorId!} retailer={currentInstance?.retailerId!} customer={currentInstance?.customerId!}/>
 				<div className="pb-20"></div>
 			</div>
 		</div>
@@ -127,14 +127,16 @@ const OtherProductTab = ({ id, price, soldById }: OtherProductTabProps) => {
 }
 
 interface HistoryChainProps {
-	manufacturer: string | undefined
-	distributor: string | undefined
-	retailer: string | undefined
+	manufacturer: string
+	distributor: string
+	retailer: string
+	customer: string
 }
-const HistoryChain = ({ manufacturer, distributor, retailer } : HistoryChainProps) => {
+const HistoryChain = ({ manufacturer, distributor, retailer, customer } : HistoryChainProps) => {
 	const [manufacturerName, setManufacturerName] = useState<string>()
 	const [retailerName, setRetailerName] = useState<string>()
 	const [distributorName, setDistributorName] = useState<string>()
+	const [customerName, setCustomerName] = useState<string>()
 	const [manufacturerVerificationInfo, setManufacturerVerificationInfo] = useState<boolean>()
 	const [distributorVerificationInfo, setDistributorVerificationInfo] = useState<boolean>()
 	const [retailerVerificationInfo, setRetailerVerificationInfo] = useState<boolean>()
@@ -150,44 +152,51 @@ const HistoryChain = ({ manufacturer, distributor, retailer } : HistoryChainProp
 
 	useEffect(() => {
 		const fetchData = async () => {
-		  if (manufacturer !== undefined && manufacturer !== null) {
-			const entity_res = await getSellerById({sellerId: manufacturer})
-			if (entity_res.status === 200) {
-				setManufacturerName(entity_res.data.data.companyName)
-				const ver_res = await getVerificationDetails(entity_res.data.data.id!.toString())
-				setManufacturerVerificationInfo(ver_res?.verificationPaid)
+			if (manufacturer !== undefined && manufacturer !== null) {
+				const entity_res = await getSellerById({sellerId: manufacturer})
+				if (entity_res.status === 200) {
+					setManufacturerName(entity_res.data.data.companyName)
+					const ver_res = await getVerificationDetails(entity_res.data.data.id!.toString())
+					setManufacturerVerificationInfo(ver_res?.verificationPaid)
+				}
 			}
-		  }
-		  if (retailer !== undefined && retailer !== null) {
-			const entity_res = await getSellerById({sellerId: retailer})
-			setRetailerName(entity_res.data.data.companyName)
-			if (entity_res.status === 200) {
+			if (retailer !== undefined && retailer !== null) {
+				const entity_res = await getSellerById({sellerId: retailer})
 				setRetailerName(entity_res.data.data.companyName)
-				const ver_res = await getVerificationDetails(entity_res.data.data.id!.toString())
-				setRetailerVerificationInfo(ver_res?.verificationPaid)
+				if (entity_res.status === 200) {
+					setRetailerName(entity_res.data.data.companyName)
+					const ver_res = await getVerificationDetails(entity_res.data.data.id!.toString())
+					setRetailerVerificationInfo(ver_res?.verificationPaid)
+				}
 			}
-		  }
-		  if (distributor !== undefined && distributor !== null) {
-			const entity_res = await getSellerById({sellerId: distributor})
-			if (entity_res.status === 200) {
-				setDistributorName(entity_res.data.data.companyName)
-				const ver_res = await getVerificationDetails(entity_res.data.data.id!.toString())
-				setDistributorVerificationInfo(ver_res?.verificationPaid)
+			if (distributor !== undefined && distributor !== null) {
+				const entity_res = await getSellerById({sellerId: distributor})
+				if (entity_res.status === 200) {
+					setDistributorName(entity_res.data.data.companyName)
+					const ver_res = await getVerificationDetails(entity_res.data.data.id!.toString())
+					setDistributorVerificationInfo(ver_res?.verificationPaid)
+				}
 			}
-		  }
+			if (customer !== undefined && customer !== null) {
+				const entity_res = await getSellerById({sellerId: customer})
+				if (entity_res.status === 200) {
+					setCustomerName(entity_res.data.data.name + ' ' + entity_res.data.data.surname)
+				}
+			}
+
 		}
 		fetchData()
-	}, [manufacturer, distributor, retailer])
+	}, [manufacturer, distributor, retailer, customer])
 
 	return (
 		<div className="flex gap-3 items-center">
 			{manufacturer !== undefined && manufacturer !== null ? (
 				<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
-				<ManufacturerIcon className="h-fit fill-primary w-20" />
-				<p className="font-semibold text-text text-2xl">{manufacturerName}</p>
-				{manufacturerVerificationInfo && (
-					<div className="badge bg-green text-white">Verified</div>
-				)}
+					<ManufacturerIcon className="h-fit fill-primary w-20" />
+					<p className="font-semibold text-text text-2xl">{manufacturerName}</p>
+					{manufacturerVerificationInfo && (
+						<div className="badge bg-green text-white">Verified</div>
+					)}
 				</div>
 			) : (
 				""
@@ -215,6 +224,17 @@ const HistoryChain = ({ manufacturer, distributor, retailer } : HistoryChainProp
 						{retailerVerificationInfo && (
 							<div className="badge bg-green text-white">Verified</div>
 						)}
+					</div>
+				</>
+			) : (
+				""
+			)}
+			{customer !== undefined && customer !== null ? (
+				<>
+					<span className="bg-secondary rounded-lg h-1 w-20"></span>
+					<div className="bg-secondary flex flex-col rounded-3xl shadow-lg py-5 px-10 gap-3 items-center">
+						<CustomerIcon className="h-fit fill-primary w-20" />
+						<p className="font-semibold text-text text-2xl">{customerName}</p>
 					</div>
 				</>
 			) : (

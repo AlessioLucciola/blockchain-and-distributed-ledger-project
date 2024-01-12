@@ -30,7 +30,7 @@ export default function Login() {
 			if (res.status === 200) {
 				navigate("/home")
 			}
-		} catch (error) {
+		} catch (error: any) {
 			alert(error)
 		}
 	}

@@ -12,6 +12,7 @@ import { ProductStage, Roles } from "../shared/constants"
 import { getProductStageFromId } from "../utils/typeUtils"
 import MessagePage from "./MessagePage"
 import ChangeTransactionIdModal from "../components/ChangeTransactionIdModal"
+import { generateProductCertification } from "../utils/customerUtils"
 
 export default function MyOrders() {
 	const navigate = useNavigate()
@@ -94,6 +95,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 	const [productStatusString, setProductStatusString] = useState<string>("")
 	const [transactionIdToChange, setTransactionidToChange] = useState<boolean>(false)
 	const [showChangeTransactionIdModal, setShowChangeTransactionIdModal] = useState(false)
+	const [productReceived, setProductReceived] = useState<boolean>(false)
 
     useEffect(() => {
         getOldOwnerByIdWrapper()
@@ -104,7 +106,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 
 	useEffect(() => {
 		getProductStatus()
-	}, [productStatus, oldOwnerInfo, newOwnerInfo])
+	}, [productStatus, productReceived, oldOwnerInfo, newOwnerInfo])
 
 	useEffect(() => {
 		checkTransactionIdToChange()
@@ -174,7 +176,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 	}
 
 	const waitingForProduct = (): boolean => {
-		if (product.currentOwner === sessionContext.entityInfo?.id! && getProductStageFromId(product.productState.toString()) === ProductStage.SHIPPED) {
+		if (product.currentOwner === sessionContext.entityInfo?.id! && getProductStageFromId(product.productState.toString()) === ProductStage.SHIPPED && !productReceived) {
 			return true
 		}
 		return false
@@ -223,11 +225,22 @@ function OrderCard({ product, image }: OrderCardProps) {
 		if (res.status === 200) {
 			alert(`Product received`)
 			setProductStatus(ProductStage.RECEIVED)
+			setProductReceived(true)
 			return
 		} else {
 			alert("Error changing product state")
 			return
 		}
+	}
+
+	const getProductCertification = async (product: ProductInstance) => {
+		const manuFacturerInfo = await getSellerById({ sellerId: product.manufacturerId })
+		const manufacturerName = manuFacturerInfo.data.data.companyName
+		const distributorInfo = await getSellerById({ sellerId: product.distributorId })
+		const distributorName = distributorInfo.data.data.companyName
+		const retailerName = oldOwnerInfo?.companyName
+		const ownerInfo = sessionContext.entityInfo?.name + ' ' + sessionContext.entityInfo?.surname
+		generateProductCertification(product, ownerInfo, manufacturerName!, distributorName!, retailerName!);
 	}
 
 	return (
@@ -256,10 +269,13 @@ function OrderCard({ product, image }: OrderCardProps) {
 				</div>
 				<div className="flex flex-col justify-around">
 					{allowTransactionIdChange() ? (
-							<Button text={transactionIdToChange ? "Change Bank Transaction ID" : "Confirm Payment"} className={`p-2 font-semibold`} onClick={() => setShowChangeTransactionIdModal(true)} />
-						) : ""}
+						<Button text={transactionIdToChange ? "Change Bank Transaction ID" : "Confirm Payment"} className={`p-2 font-semibold`} onClick={() => setShowChangeTransactionIdModal(true)} />
+					) : ""}
 					{waitingForProduct() ? (
 						<Button text="Product Received" className={`p-2 font-semibold`} onClick={() => receiveProduct(product?.id!)} />
+					) : ""}
+					{getProductStageFromId(product.productState.toString()) === ProductStage.RECEIVED && sessionContext.entityInfo?.role === Roles.CUSTOMER ? (
+						<Button text="Get Product Certification" className={`p-2 font-semibold`} onClick={() => getProductCertification(product)} />
 					) : ""}
 				</div>
 			</div>

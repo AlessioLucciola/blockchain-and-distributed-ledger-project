@@ -342,7 +342,7 @@ const SmartSupplyController = {
 				entity,
 				token,
 			})
-		} catch (err) {
+		} catch (err: any) {
 			next(err)
 		}
 	},
