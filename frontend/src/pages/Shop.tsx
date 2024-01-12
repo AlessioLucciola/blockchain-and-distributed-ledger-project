@@ -8,7 +8,8 @@ import { useSessionContext } from "../context/exportContext"
 import MessagePage from "./MessagePage"
 import { useNavigate } from "react-router-dom"
 import { Entity, ProductInstance } from "../shared/types"
-import { changeProductOnSale, changeProductNotOnSale, getProductInstancesFromSeller, getSellerById, shipProductToEntity } from "../assets/api/apiCalls"
+import ChangeProductPriceModal from "../components/ChangeProductPriceModal"
+import { changeProductNotOnSale, getProductInstancesFromSeller, getSellerById, shipProductToEntity } from "../assets/api/apiCalls"
 import Button from "../components/Button"
 import InputField from "../components/InputField"
 import { getProductStageFromId, getStageNameString } from "../utils/typeUtils"
@@ -141,17 +142,37 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
     const navigate = useNavigate()
 	const [updatedProductStage, setUpdatedProductStage] = useState<ProductStage>()
 	const [newOwnerInfo, setNewOwnerInfo] = useState<Entity>()
+	const [showChangeProductPriceModal, setShowChangeProductPriceModal] = React.useState(false)
+	const priceRef = useRef<HTMLInputElement | null>(null)
+
+	// const changeOnSale = async (productInstanceId: string, onSale: boolean) => {
+	// 	if (onSale === true) {
+	// 		const res = await changeProductOnSale({ productInstanceId: parseInt(productInstanceId) })
+	// 		if (res === undefined || res.status !== 200) {
+	// 			alert("Error changing product state")
+	// 			return
+	// 		} else {
+	// 			alert("Product is now on sale")
+	// 			setUpdatedProductStage(ProductStage.ON_SALE)
+	// 			return
+	// 		}
+	// 	} else {
+	// 		const res = await changeProductNotOnSale({ productInstanceId: parseInt(productInstanceId) })
+	// 		if (res === undefined || res.status !== 200) {
+	// 			alert("Error changing product state")
+	// 			return
+	// 		} else {
+	// 			alert("Product is now NOT on sale")
+	// 			setUpdatedProductStage(ProductStage.NOT_ON_SALE)
+	// 			return
+	// 		}
+	// 	}
+	// }
 
 	const changeOnSale = async (productInstanceId: string, onSale: boolean) => {
 		if (onSale === true) {
-			const res = await changeProductOnSale({ productInstanceId: parseInt(productInstanceId) })
-			if (res === undefined || res.status !== 200) {
-				alert("Error changing product state")
-				return
-			} else {
-				alert("Product is now on sale")
-				setUpdatedProductStage(ProductStage.ON_SALE)
-				return
+			if (product.productState !== undefined && (updatedProductStage !== ProductStage.PRODUCED)) {
+				setShowChangeProductPriceModal(true)
 			}
 		} else {
 			const res = await changeProductNotOnSale({ productInstanceId: parseInt(productInstanceId) })
@@ -209,8 +230,14 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 			</div>
 			<div className="flex flex-col justify-around">
 				<Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
-				{product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED || updatedProductStage === ProductStage.NOT_ON_SALE) ? (
+				{/* {product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED || updatedProductStage === ProductStage.NOT_ON_SALE) ? (
 					<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!, true)}/>
+				) : ""}
+				{product.productState !== undefined && (updatedProductStage === ProductStage.ON_SALE) ? (
+					<Button text="Remove from sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!, false)}/>
+				) : ""} */}
+				{product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED || updatedProductStage === ProductStage.NOT_ON_SALE) ? (
+					<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!, true)					}/>
 				) : ""}
 				{product.productState !== undefined && (updatedProductStage === ProductStage.ON_SALE) ? (
 					<Button text="Remove from sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!, false)}/>
@@ -219,6 +246,12 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 					<Button text="Ship product" className={`p-2 font-semibold`} onClick={() => shipProduct(product.id!, newOwnerInfo!)}/>
 				) : ""}
 			</div>
+			{showChangeProductPriceModal && (
+				<ChangeProductPriceModal showModal={showChangeProductPriceModal} setShowModal={() => setShowChangeProductPriceModal(!showChangeProductPriceModal)} productId={product.id!} currentPrice={product.price} onPriceChange={() => {
+					setUpdatedProductStage(ProductStage.ON_SALE)
+				}}/>
+			)}
+			{/* <ChangeProductPriceModal showModal={showChangeProductPriceModal} setShowModal={() => setShowChangeProductPriceModal(!showChangeProductPriceModal)} productId={product.id!} currentPrice={product.price}/> */}
 		</div>
 	)
 }
