@@ -16,6 +16,7 @@ contract SmartSupply is Entities, Utils {
         newProduct.productUID = _productUID; // Define the UID of the product
         newProduct.currentOwner = msg.sender; // Define the initial owner as the manufacturer who produced the product
         newProduct.previousOwner = msg.sender; // Define the previous owner as the first one (default when the product is first produced)
+        newProduct.certificationPrice = 0 gwei; // Assign the certification price to the product
         newProduct.creationDate = block.timestamp; // Assign the date of creation of the product
         newProduct.productStage = defaultProductStage; // Assign the initial default stage to the product
         newProduct.productLocation = defaultProductLocation; // Assign the initial default stage to the product
@@ -50,6 +51,14 @@ contract SmartSupply is Entities, Utils {
         );
     }
 
+    // Function to change the certificationPrice of a product
+    function changeCertificationPrice(uint256 _productID, uint256 _newCertificationPrice) external onlyBusinessActivities {
+        require(retailers[msg.sender], "Only retailers can change the certification price");
+        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the certification price");
+        products[_productID].certificationPrice = _newCertificationPrice; // Update the certification price of the product
+        emit CertificationPriceChanged(_productID, msg.sender, _newCertificationPrice);
+    }
+
     function changeOnSale(uint _productID) external onlyBusinessActivities {
         require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to OnSale");
         require(
@@ -62,6 +71,18 @@ contract SmartSupply is Entities, Utils {
         emit ChangedOnSale(_productID, msg.sender);
     }
 
+    function changeNotOnSale(uint _productID) external onlyBusinessActivities {
+        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to NotOnSale");
+        require(
+            products[_productID].productStage != ProductStage.Purchased && 
+            products[_productID].productStage != ProductStage.Shipped,
+            "Product must not be in Purchased or Shipped stage to change to NotOnSale"
+        );
+        products[_productID].productStage = ProductStage.NotOnSale; // Flag the item NotonSale
+
+        emit ChangedNotOnSale(_productID, msg.sender);
+    }
+
     function purchaseProduct(uint _productID) external payable onlyReceivers {
         require(products[_productID].currentOwner != msg.sender, "Current owners can't buy their own products");
         require(products[_productID].productStage == ProductStage.OnSale, "Product must be On Sale to be purchased");
@@ -71,7 +92,7 @@ contract SmartSupply is Entities, Utils {
 
         if (isCustomer) {
             // TODO: Check if the customer has enough funds to purchase the product
-            // require(msg.value >= products[_productID].retailerPrice, "Insufficient funds to purchase the product");
+            // require(msg.value >= products[_productID].certificationPrice, "Insufficient funds to purchase the product");
             smartSupplyBalance += msg.value; //Transfer the amount of coins to SmartSupply balance
             emit FundsAdded(msg.sender, msg.value);
         }
@@ -98,6 +119,10 @@ contract SmartSupply is Entities, Utils {
         emit ProductPurchased(_productID, products[_productID].previousOwner, msg.sender);
     }
 
+    function divisionRoundUp(uint256 x, uint256 y) internal pure returns (uint256 z) {
+        z = (x + (y / 2) / y);
+    }
+
     function shipProduct(uint _productID, address receiver) external onlyBusinessActivities {
         require(products[_productID].productStage == ProductStage.Purchased, "Product must be purchased by some entity to be shipped");
         require(msg.sender == products[_productID].previousOwner, "Product can only be shipped by the old owner"); // Ensure that the product is not shipped by another identity
@@ -107,10 +132,12 @@ contract SmartSupply is Entities, Utils {
 
         // If the receiver is a customer, distribute payments to the manufacturer, distributor, and retailer
         if (customers[receiver]) {
+            uint256 reward = divisionRoundUp(products[_productID].certificationPrice, 4); // 25% of the certification price
+
             // Distribute payments only if TransactionIDs are not null
-            distributeReward(payable(products[_productID].ownerships.manufacturer), 0, 25 wei); //0 because manufacturer don't have to make any external payments
-            distributeReward(payable(products[_productID].ownerships.distributor), products[_productID].transactionIDs.distributorBankTransactionID, 25 wei);
-            distributeReward(payable(products[_productID].ownerships.retailer), products[_productID].transactionIDs.retailerBankTransactionID, 25 wei);
+            distributeReward(payable(products[_productID].ownerships.manufacturer), 0, reward); //0 because manufacturer don't have to make any external payments
+            distributeReward(payable(products[_productID].ownerships.distributor), products[_productID].transactionIDs.distributorBankTransactionID, reward);
+            distributeReward(payable(products[_productID].ownerships.retailer), products[_productID].transactionIDs.retailerBankTransactionID, reward);
         }
 
         emit ProductShipped(_productID, msg.sender, receiver);

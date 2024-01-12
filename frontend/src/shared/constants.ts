@@ -13,6 +13,7 @@ export enum Roles {
 export enum ProductStage {
 	PRODUCED = "produced",
 	ON_SALE = "on sale",
+	NOT_ON_SALE = "not on sale",
 	PURCHASED = "purchased",
 	SHIPPED = "shipped",
 	RECEIVED = "received",

@@ -24,6 +24,7 @@ const SmartSupplyAPI = (app: Express) => {
 	app.patch("/api/update-verification-payment", SmartSupplyController.updateVerificationPayment)
 	app.patch("/api/update-verification-granted", SmartSupplyController.updateVerificationGranted)
 	app.patch("/api/product-change-on-sale", SmartSupplyController.productChangeOnSale)
+	app.patch("/api/product-change-not-on-sale", SmartSupplyController.productChangeNotOnSale)
 	app.get("/api/get-products-on-sale", SmartSupplyController.getProductsOnSale)
 	app.patch("/api/purchase-product", SmartSupplyController.purchaseProduct)
 	app.get("/api/get-orders", SmartSupplyController.getOrders)

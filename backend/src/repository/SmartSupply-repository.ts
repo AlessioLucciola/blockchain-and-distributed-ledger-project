@@ -148,7 +148,7 @@ class SmartSupplyRepository {
                     {
                         currentOwner: sellerId,
                         productState: {
-                            in: [0, 1, 4],
+                            in: [-1, 0, 1, 4],
                         },
                     },
                     {
@@ -309,6 +309,20 @@ class SmartSupplyRepository {
             },
             data: {
                 productState: 1,
+            }
+        })
+    }
+    async productChangeNotOnSale({
+        productInstanceId,
+    }: {
+        productInstanceId: number
+    }): Promise<ProductInstances> {
+        return prisma.productInstances.update({
+            where: {
+                id: productInstanceId,
+            },
+            data: {
+                productState: -1,
             }
         })
     }

@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
 import { formatUnixTimestampToDatetime } from "../../utils/typeUtils"
-import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, receiveProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, shipProduct, verifyEntity } from "../api/contractCalls"
+import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, changeNotOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, receiveProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, shipProduct, verifyEntity } from "../api/contractCalls"
 import { Roles, empty_transaction_ID } from "../../shared/constants"
 
 export const api = axios.create({
@@ -346,6 +346,18 @@ export const changeProductOnSale = async ({ productInstanceId }: { productInstan
         const contract_res = await changeOnSale(productInstanceId)
 		if (contract_res) {
 			const res = await api.patch(`product-change-on-sale?productInstanceId=${productInstanceId}`)
+			return res
+		}
+	} catch (error) {
+        console.error('Error deleting entity:', error)
+        throw error
+    }
+}
+export const changeProductNotOnSale = async ({ productInstanceId }: { productInstanceId: number }): Promise<AxiosResponse<{data: {message: string}}, any> | undefined> => {
+	try {
+        const contract_res = await changeNotOnSale(productInstanceId)
+		if (contract_res) {
+			const res = await api.patch(`product-change-not-on-sale?productInstanceId=${productInstanceId}`)
 			return res
 		}
 	} catch (error) {

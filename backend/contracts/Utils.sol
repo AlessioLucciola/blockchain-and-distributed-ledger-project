@@ -13,6 +13,7 @@ contract Utils {
         address previousOwner; // Address of the previous owner of the product
         address currentOwner; // Address of the current owner of the product
         uint creationDate; // Unix timestamps that represents the time of creation of the product
+        uint certificationPrice; // Price of the certification of the product
         ProductStage productStage; // Stage of the product within the Supply Chain
         ProductLocation productLocation; // Enum to track the location of the product
         Ownerships ownerships; // Struct to store the ownerships in the supply chain
@@ -24,6 +25,7 @@ contract Utils {
     enum ProductStage {
         Produced,
         OnSale,
+        NotOnSale,
         Purchased,
         Shipped,
         Received
@@ -62,7 +64,9 @@ contract Utils {
 
     // Define some events
     event ProductProduced(uint256 productID, address manufacturer);
+    event CertificationPriceChanged(uint256 productID, address retailer, uint256 newCertificationPrice);   
     event ChangedOnSale(uint256 productID, address owner);
+    event ChangedNotOnSale(uint256 productID, address owner);
     event ProductPurchased(uint256 productID, address oldOwner, address newOwner);
     event ProductShipped(uint256 productID, address sender, address receiver);
     event ProductReceived(uint256 productID, address receiver);

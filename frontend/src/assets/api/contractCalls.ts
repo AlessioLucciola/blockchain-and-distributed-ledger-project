@@ -928,6 +928,50 @@ export const changeOnSale = async (_productID: number): Promise<any | null> => {
     }
 }
 
+export const changeNotOnSale = async (_productID: number): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                // Call the changeNotOnSale function to flag an owned product as "on sale"
+                contract
+                    .changeNotOnSale(_productID)
+                    .then((changeNotOnSaleTransaction) => {
+                        return changeNotOnSaleTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log("changeNotOnSale function called successfully")
+                    })
+                    .catch((error) => {
+                        console.error("Error calling changeNOtOnSale:", error)
+                        reject(error)
+                    })
+
+                contract.on("ChangedNotOnSale", (productID, owner) => {
+                    const event_ret = {
+                        productId: productID,
+                        owner: owner,
+                    }
+                    console.log("Event Captured:", event_ret)
+                    resolve(event_ret)
+                })
+            })
+        } else {
+            console.error("Contract instance is null")
+            return null
+        }
+    } catch (error) {
+        console.error(
+            'Failed to change the state of a product to "onSale":',
+            error
+        )
+        return null
+    }
+}
+
 export const purchaseProduct = async (
     _productID: number,
     _certificationAmount: number

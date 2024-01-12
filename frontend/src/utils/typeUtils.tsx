@@ -2,6 +2,8 @@ import { ProductStage, ProductLocation } from "../shared/constants"
 
 export const getProductStageFromId = (id: string) => {
 	switch (id) {
+		case "-1":
+			return ProductStage.NOT_ON_SALE
 		case "0":
 			return ProductStage.PRODUCED
 		case "1":
@@ -20,19 +22,21 @@ export const getProductStageFromId = (id: string) => {
 
 export const getStageNameString = (updatedProductStage: ProductStage) => {
 	switch (updatedProductStage) {
-	  case ProductStage.PRODUCED:
+		case ProductStage.PRODUCED:
 		return "produced"
-	  case ProductStage.ON_SALE:
+		case ProductStage.ON_SALE:
 		return "on sale"
-	  case ProductStage.PURCHASED:
+		case ProductStage.NOT_ON_SALE:
+			return "not on sale"
+		case ProductStage.PURCHASED:
 		return "purchased"
-	  case ProductStage.SHIPPED:
+		case ProductStage.SHIPPED:
 		return "shipped"
-	  case ProductStage.RECEIVED:
+		case ProductStage.RECEIVED:
 		return "received"
-	  case ProductStage.UNKNOWN:
+		case ProductStage.UNKNOWN:
 		return "undefined"
-	  default:
+		default:
 		return "unknown"
 	}
   };
