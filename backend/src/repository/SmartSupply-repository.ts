@@ -82,11 +82,11 @@ class SmartSupplyRepository {
     async addProductInstance({
         productId,
         soldBy,
-        price,
+        manufacturerPrice,
     }: {
         productId: number
         soldBy: number
-        price: number
+        manufacturerPrice: number
     }): Promise<{
         productInstance: ProductInstances
         updatedProduct: Products
@@ -97,7 +97,7 @@ class SmartSupplyRepository {
                 currentOwner: soldBy,
                 previousOwner: soldBy,
                 manufacturerId: soldBy,
-                price,
+                manufacturerPrice,
             },
         })
         const updatedProduct = await prisma.products.update({
@@ -298,10 +298,12 @@ class SmartSupplyRepository {
             },
         })
     }
-    async productChangeOnSale({
+    async productChangeOnSaleManufacturer({
         productInstanceId,
+        manufacturerPrice,
     }: {
         productInstanceId: number
+        manufacturerPrice: number
     }): Promise<ProductInstances> {
         return prisma.productInstances.update({
             where: {
@@ -309,6 +311,41 @@ class SmartSupplyRepository {
             },
             data: {
                 productState: 1,
+                manufacturerPrice: manufacturerPrice,
+            }
+        })
+    }
+    async productChangeOnSaleDistributor({
+        productInstanceId,
+        distributorPrice,
+    }: {
+        productInstanceId: number
+        distributorPrice: number
+    }): Promise<ProductInstances> {
+        return prisma.productInstances.update({
+            where: {
+                id: productInstanceId,
+            },
+            data: {
+                productState: 1,
+                distributorPrice: distributorPrice,
+            }
+        })
+    }
+    async productChangeOnSaleRetailer({
+        productInstanceId,
+        retailerPrice,
+    }: {
+        productInstanceId: number
+        retailerPrice: number
+    }): Promise<ProductInstances> {
+        return prisma.productInstances.update({
+            where: {
+                id: productInstanceId,
+            },
+            data: {
+                productState: 1,
+                retailerPrice: retailerPrice,
             }
         })
     }

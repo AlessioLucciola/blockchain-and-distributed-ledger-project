@@ -24,8 +24,8 @@ class SmartSupplyService {
 	async addProduct({ name, description }: { name: string; description: string }): Promise<Products> {
 		return this.repository.addProduct({ name, description })
 	}
-	async addProductInstance({ productId, soldBy, price }: { productId: number; soldBy: number; price: number }) {
-		return this.repository.addProductInstance({ productId, soldBy, price })
+	async addProductInstance({ productId, soldBy, manufacturerPrice }: { productId: number; soldBy: number; manufacturerPrice: number }) {
+		return this.repository.addProductInstance({ productId, soldBy, manufacturerPrice })
 	}
 	async searchProduct({ name, productId, includeInstances }: { name?: string; productId?: number; includeInstances?: boolean }): Promise<Products[]> {
 		if (includeInstances === undefined || includeInstances === null) includeInstances = false
@@ -81,8 +81,14 @@ class SmartSupplyService {
 	async updateVerificationGranted({ id, accountVerified }: { id: number; accountVerified: boolean }): Promise<Verifications> {
 		return this.repository.updateVerificationGranted({ id, accountVerified })
 	}
-	async productChangeOnSale({ productInstanceId  }: { productInstanceId: number }): Promise<ProductInstances> {
-		return this.repository.productChangeOnSale({ productInstanceId })
+	async productChangeOnSaleManufacturer({ productInstanceId, manufacturerPrice }: { productInstanceId: number, manufacturerPrice: number }): Promise<ProductInstances> {
+		return this.repository.productChangeOnSaleManufacturer({ productInstanceId, manufacturerPrice })
+	}
+	async productChangeOnSaleDistributor({ productInstanceId, distributorPrice }: { productInstanceId: number, distributorPrice: number }): Promise<ProductInstances> {
+		return this.repository.productChangeOnSaleDistributor({ productInstanceId, distributorPrice })
+	}
+	async productChangeOnSaleRetailer({ productInstanceId, retailerPrice }: { productInstanceId: number, retailerPrice: number }): Promise<ProductInstances> {
+		return this.repository.productChangeOnSaleRetailer({ productInstanceId, retailerPrice })
 	}
 	async productChangeNotOnSale({ productInstanceId  }: { productInstanceId: number }): Promise<ProductInstances> {
 		return this.repository.productChangeNotOnSale({ productInstanceId })

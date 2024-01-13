@@ -64,7 +64,7 @@ contract Utils {
 
     // Define some events
     event ProductProduced(uint256 productID, address manufacturer);
-    event CertificationPriceChanged(uint256 productID, address retailer, uint256 newCertificationPrice);   
+    event ChangedOnSaleRetailer(uint256 productID, address retailer, uint256 newCertificationPrice);   
     event ChangedOnSale(uint256 productID, address owner);
     event ChangedNotOnSale(uint256 productID, address owner);
     event ProductPurchased(uint256 productID, address oldOwner, address newOwner);

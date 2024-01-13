@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import { Entity, Product, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
 import { formatUnixTimestampToDatetime } from "../../utils/typeUtils"
-import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, changeNotOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, receiveProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, shipProduct, verifyEntity } from "../api/contractCalls"
+import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, changeOnSaleRetailer, changeNotOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, receiveProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, shipProduct, verifyEntity, isDistributor, isRetailer } from "../api/contractCalls"
 import { Roles, empty_transaction_ID } from "../../shared/constants"
 
 export const api = axios.create({
@@ -180,11 +180,11 @@ export const addProduct = async ({ name, description }: { name: string; descript
 	return res
 }
 
-export const addProductInstance = async ({ productId, soldBy, price }: { productId: string; soldBy: number; price: number }): Promise<AxiosResponse<{ message: string; data: any }>> => {
+export const addProductInstance = async ({ productId, soldBy, manufacturerPrice }: { productId: string; soldBy: number; manufacturerPrice: number }): Promise<AxiosResponse<{ message: string; data: any }>> => {
 	//TODO: change any to correct type
 	try {
 		if (await isManufacturer()) {
-			const res: AxiosResponse = await api.post("/add-product-instance", { productId, soldBy, price })
+			const res: AxiosResponse = await api.post("/add-product-instance", { productId, soldBy, manufacturerPrice })
 			const id: number = res.data['data']['productInstance']['id']
 			const uid: number = res.data['data']['productInstance']['productId']
 
@@ -341,15 +341,31 @@ export const deleteVerification = async ({ id }: { id: string }): Promise<AxiosR
 	const res = await api.delete("/delete-verification", { params: { id } })
 	return res
 }
-export const changeProductOnSale = async ({ productInstanceId }: { productInstanceId: number }): Promise<AxiosResponse<{data: {message: string}}, any> | undefined> => {
+export const changeProductOnSale = async ({ productInstanceId, price}: { productInstanceId: number, price: number }): Promise<AxiosResponse<{data: {message: string}}, any> | undefined> => {
 	try {
-        const contract_res = await changeOnSale(productInstanceId)
-		if (contract_res) {
-			const res = await api.patch(`product-change-on-sale?productInstanceId=${productInstanceId}`)
-			return res
+		if (await isManufacturer()) {
+			const contract_res = await changeOnSale(productInstanceId)
+			if (contract_res) {
+				const res = await api.patch(`product-change-on-sale-manufacturer?productInstanceId=${productInstanceId}&manufacturerPrice=${price}`)
+				return res
+			}
+		}
+		if (await isDistributor()) {
+			const contract_res = await changeOnSale(productInstanceId)
+			if (contract_res) {
+				const res = await api.patch(`product-change-on-sale-distributor?productInstanceId=${productInstanceId}&distributorPrice=${price}`)
+				return res
+			}
+		}
+		if (await isRetailer()) {
+			const contract_res = await changeOnSaleRetailer(productInstanceId, price)
+			if (contract_res) {
+				const res = await api.patch(`product-change-on-sale-retailer?productInstanceId=${productInstanceId}&retailerPrice=${price}`)
+				return res
+			}
 		}
 	} catch (error) {
-        console.error('Error deleting entity:', error)
+        console.error('Error changing product price:', error)
         throw error
     }
 }
@@ -361,7 +377,7 @@ export const changeProductNotOnSale = async ({ productInstanceId }: { productIns
 			return res
 		}
 	} catch (error) {
-        console.error('Error deleting entity:', error)
+        console.error('Error changing product price:', error)
         throw error
     }
 }

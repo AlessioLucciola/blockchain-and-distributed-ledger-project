@@ -9,7 +9,7 @@ import { getOrders, getSellerById, receiveProductFromEntity } from "../assets/ap
 import InputField from "../components/InputField"
 import { getEntityRole } from "../assets/api/contractCalls"
 import { ProductStage, Roles } from "../shared/constants"
-import { getProductStageFromId } from "../utils/typeUtils"
+import { getProductStageFromId, getProductPriceByIdentity } from "../utils/typeUtils"
 import MessagePage from "./MessagePage"
 import ChangeTransactionIdModal from "../components/ChangeTransactionIdModal"
 import { generateProductCertification } from "../utils/customerUtils"
@@ -260,7 +260,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 						</span>
 						<span className="flex gap-2 items-center">
 							<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
-							<GradientText text={"€"+product.price} className="text-xl" />
+							<GradientText text={"$"+getProductPriceByIdentity(product, sessionContext?.entityInfo!.role)} className="text-xl" />
 						</span>
 						<span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
 							<GradientText text={"Details >"} className="text-xl" />

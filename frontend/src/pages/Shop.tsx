@@ -8,11 +8,11 @@ import { useSessionContext } from "../context/exportContext"
 import MessagePage from "./MessagePage"
 import { useNavigate } from "react-router-dom"
 import { Entity, ProductInstance } from "../shared/types"
-import ChangeProductPriceModal from "../components/ChangeProductPriceModal"
-import { changeProductNotOnSale, getProductInstancesFromSeller, getSellerById, shipProductToEntity } from "../assets/api/apiCalls"
+// import ChangeProductPriceModal from "../components/ChangeProductPriceModal"
+import { changeProductOnSale, changeProductNotOnSale, getProductInstancesFromSeller, getSellerById, shipProductToEntity } from "../assets/api/apiCalls"
 import Button from "../components/Button"
 import InputField from "../components/InputField"
-import { getProductStageFromId, getStageNameString } from "../utils/typeUtils"
+import { getProductStageFromId, getStageNameString, getProductPriceByIdentity } from "../utils/typeUtils"
 
 export default function Shop() {
 	const [showCreateProductModal, setShowCreateProductModal] = useState(false)
@@ -102,12 +102,11 @@ export default function Shop() {
 									Add a new product
 								</p>
 							</div>
-
-							{myProducts.map(({ product, price }) => (
+							{myProducts.map(({ product, manufacturerPrice }) => (
 								<ProductCard
 									name={product!.name}
 									id={product!.uid!}
-									price={price.toFixed(2)}
+									price={manufacturerPrice.toFixed(2)}
 									image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"}
 									key={product!.uid!}
 									onClick={() => navigate(`/product/${product!.uid!}`)}
@@ -143,36 +142,32 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 	const [updatedProductStage, setUpdatedProductStage] = useState<ProductStage>()
 	const [newOwnerInfo, setNewOwnerInfo] = useState<Entity>()
 	const [showChangeProductPriceModal, setShowChangeProductPriceModal] = React.useState(false)
-	const priceRef = useRef<HTMLInputElement | null>(null)
+	const [productPrice, setProductPrice] = useState<string>()
+	const sessionContext = useSessionContext()
 
-	// const changeOnSale = async (productInstanceId: string, onSale: boolean) => {
-	// 	if (onSale === true) {
-	// 		const res = await changeProductOnSale({ productInstanceId: parseInt(productInstanceId) })
-	// 		if (res === undefined || res.status !== 200) {
-	// 			alert("Error changing product state")
-	// 			return
-	// 		} else {
-	// 			alert("Product is now on sale")
-	// 			setUpdatedProductStage(ProductStage.ON_SALE)
-	// 			return
-	// 		}
-	// 	} else {
-	// 		const res = await changeProductNotOnSale({ productInstanceId: parseInt(productInstanceId) })
-	// 		if (res === undefined || res.status !== 200) {
-	// 			alert("Error changing product state")
-	// 			return
-	// 		} else {
-	// 			alert("Product is now NOT on sale")
-	// 			setUpdatedProductStage(ProductStage.NOT_ON_SALE)
-	// 			return
-	// 		}
-	// 	}
-	// }
+	useEffect(() => {
+		setProductPrice(getProductPriceByIdentity(product, sessionContext?.entityInfo!.role))
+	}, [])
 
 	const changeOnSale = async (productInstanceId: string, onSale: boolean) => {
 		if (onSale === true) {
 			if (product.productState !== undefined && (updatedProductStage !== ProductStage.PRODUCED)) {
 				setShowChangeProductPriceModal(true)
+				return
+			}
+			if (product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED)) {
+				const price = product?.manufacturerPrice;
+
+				const res = await changeProductOnSale({ productInstanceId: parseInt(productInstanceId), price: price})
+				if (res === undefined || res.status !== 200) {
+					alert("Error changing product state")
+					return
+				} else {
+					alert("Product is now on sale")
+					setUpdatedProductStage(ProductStage.ON_SALE)
+					setProductPrice(price?.toString())
+					return
+				}
 			}
 		} else {
 			const res = await changeProductNotOnSale({ productInstanceId: parseInt(productInstanceId) })
@@ -224,18 +219,12 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 					</span>
                     <span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
-						<GradientText text={"€"+product.price} className="text-xl" />
+						<GradientText text={"$"+productPrice} className="text-xl" />
 					</span>
 				</div>
 			</div>
 			<div className="flex flex-col justify-around">
 				<Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
-				{/* {product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED || updatedProductStage === ProductStage.NOT_ON_SALE) ? (
-					<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!, true)}/>
-				) : ""}
-				{product.productState !== undefined && (updatedProductStage === ProductStage.ON_SALE) ? (
-					<Button text="Remove from sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!, false)}/>
-				) : ""} */}
 				{product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED || updatedProductStage === ProductStage.NOT_ON_SALE) ? (
 					<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!, true)					}/>
 				) : ""}
@@ -247,12 +236,85 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 				) : ""}
 			</div>
 			{showChangeProductPriceModal && (
-				<ChangeProductPriceModal showModal={showChangeProductPriceModal} setShowModal={() => setShowChangeProductPriceModal(!showChangeProductPriceModal)} productId={product.id!} currentPrice={product.price} onPriceChange={() => {
-					setUpdatedProductStage(ProductStage.ON_SALE)
-				}}/>
+				<ChangeProductPriceModal showModal={showChangeProductPriceModal} setShowModal={() => setShowChangeProductPriceModal(!showChangeProductPriceModal)} productId={product.id!} currentPrice={getProductPriceByIdentity(product, sessionContext?.entityInfo!.role)}/>
 			)}
-			{/* <ChangeProductPriceModal showModal={showChangeProductPriceModal} setShowModal={() => setShowChangeProductPriceModal(!showChangeProductPriceModal)} productId={product.id!} currentPrice={product.price}/> */}
 		</div>
 	)
+
+	interface ChangeProductPriceModalProps {
+		showModal: boolean
+		productId: string
+		currentPrice: number
+		setShowModal: (showModal: boolean) => void
+	}
+	function ChangeProductPriceModal({ showModal, productId, currentPrice, setShowModal }: ChangeProductPriceModalProps) {
+		const priceRef = useRef<HTMLInputElement | null>(null)
+	
+		const validateFields = async () => {
+			const newPrice = priceRef.current?.value
+	
+			if (newPrice === undefined || parseFloat(newPrice) <= 0) {
+				alert("Please enter a valid price")
+				return false
+			}
+	
+			return true
+		}
+	
+		const handleChangeAmount = async () => {
+			if (!(await validateFields())) {
+				return
+			}
+	
+			const newPrice = priceRef.current?.value;
+	
+			try {
+				const res = await changeProductOnSale({ productInstanceId: parseInt(productId), price: parseFloat(newPrice!) })
+				if (res === undefined || res.status !== 200) {
+					alert("Error changing product state")
+					return
+				} else {
+					alert("Product is now on sale")
+					setShowModal(false)
+					setProductPrice(newPrice)
+					setUpdatedProductStage(ProductStage.ON_SALE)
+					return
+				}
+			} catch (error) {
+				alert("Failed to change product price")
+			}
+		}
+		
+		return (
+			<>
+				{showModal ? (
+					<>
+						<div className="flex outline-none inset-0 z-50 justify-center items-center overflow-x-hidden overflow-y-auto fixed focus:outline-none">
+							<div className="mx-auto my-6 w-auto max-w-3xl relative">
+								{/*content*/}
+								<div className="bg-accent flex flex-col rounded-3xl shadow-lg w-full relative focus:outline-none">
+									{/*header*/}
+									<h3 className="font-semibold text-text pt-5 pl-5 text-2xl drop-shadow-lg">Change product price</h3>
+									{/*body*/}
+									<div>
+										<p className="text-white p-1 px-2 pl-5">Current price: {currentPrice} €</p>
+										<div className="flex flex-col items-center mt-5">
+											<InputField name={"New amount"} type={"number"}  ref={priceRef}/>
+										</div>
+									</div>
+									{/*footer*/}
+									<div className="flex gap-2 p-5 justify-end">
+										<Button text="Cancel" onClick={() => setShowModal(false)} />
+										<Button text="Change" onClick={() => handleChangeAmount()} />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div className="bg-black opacity-25 inset-0 z-40 fixed"></div>
+					</>
+				) : null}
+			</>
+		)
+	}
 }
 

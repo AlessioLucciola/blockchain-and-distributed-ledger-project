@@ -64,3 +64,18 @@ export const formatUnixTimestampToDatetime = (timestamp: number) => {
 	const formattedDate = date.toLocaleString()
 	return formattedDate
 }
+
+export const getProductPriceByIdentity = (product: any, entityRole: string) => {
+	switch (entityRole) {
+		case "manufacturer":
+			return product.manufacturerPrice
+		case "distributor":
+			return product.distributorPrice
+		case "retailer":
+			return product.retailerPrice
+		case "customer":
+			return product.customerPrice
+		default:
+			return null
+	}
+}

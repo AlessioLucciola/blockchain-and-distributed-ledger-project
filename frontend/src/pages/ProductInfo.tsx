@@ -1,12 +1,13 @@
 import { useNavigate, useParams } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import { GRADIENTS } from "../shared/constants"
-import Button from "../components/Button"
 import { CustomerIcon, DistributorIcon, ManufacturerIcon, RetailerIcon, RightCaretIcon } from "../shared/icons"
 import GradientText from "../components/GradientText"
 import { Entity, Product, ProductInstance } from "../shared/types"
 import { useEffect, useState } from "react"
 import { getProductInfo, getSellerById, getVerificationInfoById } from "../assets/api/apiCalls"
+import { getProductPriceByIdentity } from "../utils/typeUtils"
+import { useSessionContext } from "../context/exportContext"
 
 export default function ProductInfo() {
 	const { productId, instanceId } = useParams()
@@ -14,6 +15,7 @@ export default function ProductInfo() {
 	const [productInstances, setProductInstances] = useState<ProductInstance[]>([])
 	const [currentInstance, setCurrentInstance] = useState<ProductInstance>()
 	const [seller, setSeller] = useState<Entity | undefined>()
+	const sessionContext = useSessionContext()
 	const navigate = useNavigate()
 
 	const getSellerByIdWrapper = async () => {
@@ -58,7 +60,7 @@ export default function ProductInfo() {
 							</span>
 							<p className="text-text text-xl">{product?.description}</p>
 							<div className="flex w-full gap-3 items-center justify-between">
-								<GradientText text={`$${currentInstance?.price.toFixed(2)}`} className="text-4xl" />
+								<GradientText text={`$${getProductPriceByIdentity(product, sessionContext?.entityInfo!.role).toFixed(2)}`} className="text-4xl" />
 								{/*<Button text="Buy" className="w-fit" />*/}
 							</div>
 						</div>
@@ -73,7 +75,7 @@ export default function ProductInfo() {
 								<RightCaretIcon className="h-4 fill-text text-nowrap w-4 invisible" />
 							</div>
 							{productInstances?.map((productInstance: ProductInstance) => (
-								<OtherProductTab soldById={productInstance.currentOwner!} key={productInstance.id!} id={productInstance.id!} price={productInstance.price.toFixed(2)} />
+								<OtherProductTab soldById={productInstance.currentOwner!} key={productInstance.id!} id={productInstance.id!} price={getProductPriceByIdentity(productInstance, sessionContext?.entityInfo!.role).toFixed(2)} />
 							))}
 						</div>
 					</div>

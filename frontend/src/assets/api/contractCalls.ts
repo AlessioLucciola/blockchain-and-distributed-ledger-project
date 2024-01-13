@@ -928,6 +928,52 @@ export const changeOnSale = async (_productID: number): Promise<any | null> => {
     }
 }
 
+export const changeOnSaleRetailer = async (_productID: number, _retailerPrice: number): Promise<any | null> => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            let newRetailerPrice = ethers.parseUnits(_retailerPrice!.toString(), "gwei").toString();
+
+            return new Promise((resolve, reject) => {
+                // Call the changeOnSale function to flag an owned product as "on sale"
+                contract
+                    .changeOnSaleRetailer(_productID, newRetailerPrice)
+                    .then((changeOnSaleTransaction) => {
+                        return changeOnSaleTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log("changeOnSale function called successfully")
+                    })
+                    .catch((error) => {
+                        console.error("Error calling changeOnSale:", error)
+                        reject(error)
+                    })
+
+                contract.on("ChangedOnSale", (productID, owner) => {
+                    const event_ret = {
+                        productId: productID,
+                        owner: owner,
+                    }
+                    console.log("Event Captured:", event_ret)
+                    resolve(event_ret)
+                })
+            })
+        } else {
+            console.error("Contract instance is null")
+            return null
+        }
+    } catch (error) {
+        console.error(
+            'Failed to change the state of a product to "onSale":',
+            error
+        )
+        return null
+    }
+}
+
 export const changeNotOnSale = async (_productID: number): Promise<any | null> => {
     try {
         // Get the contract instance by awaiting the promise

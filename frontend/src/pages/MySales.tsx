@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom"
 import { getSellerById, getSoldProducts, shipProductToEntity } from "../assets/api/apiCalls"
 import { useSessionContext } from "../context/exportContext"
 import { getEntityRole } from "../assets/api/contractCalls"
-import { getProductStageFromId } from "../utils/typeUtils"
+import { getProductStageFromId, getProductPriceByIdentity } from "../utils/typeUtils"
 import MessagePage from "./MessagePage"
 
 export default function MySales() {
@@ -160,7 +160,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 					</span>
 					<span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Selling price</p>
-						<GradientText text={"€"+product.price} className="text-xl" />
+						<GradientText text={"$"+getProductPriceByIdentity(product, sessionContext?.entityInfo!.role)} className="text-xl" />
 					</span>
 					<span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
 						<GradientText text={"Details >"} className="text-xl" />

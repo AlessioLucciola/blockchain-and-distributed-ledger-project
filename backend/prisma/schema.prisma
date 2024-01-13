@@ -23,7 +23,9 @@ model ProductInstances {
     productId           Int         // Foreign key referencing Products
     currentOwner        Int         // Foreign key referencing Entity
     previousOwner       Int
-    price               Float       @default(0)
+    manufacturerPrice   Float       @default(0)
+    distributorPrice    Float       @default(0)
+    retailerPrice       Float       @default(0)
     manufacturerId      Int
     distributorId       Int?
     retailerId          Int?

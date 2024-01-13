@@ -11,6 +11,7 @@ import InputField from "../components/InputField"
 import { Roles } from "../shared/constants"
 import { fetchETHPrice } from "../utils/fetchETHPrice"
 import MessagePage from "./MessagePage"
+import { getProductPriceByIdentity } from "../utils/typeUtils"
 
 export default function MyOrders() {
     const navigate = useNavigate()
@@ -93,7 +94,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
 
     const getCertificationAmount = async () => {
 		let certificationPercentage = await getCertificationPercentage();
-        let certificationAmount = (product.price * certificationPercentage) / 100
+        let certificationAmount = (getProductPriceByIdentity(product, sessionContext?.entityInfo!.role) * certificationPercentage) / 100
         
         // Get current eth price
         let ethPrice = await fetchETHPrice()
@@ -145,7 +146,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
                     </span>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-color-black text-text text-xl drop-shadow-lg">Price</p>
-                        <GradientText text={"$"+product.price} className="text-xl" />
+                        <GradientText text={"$"+getProductPriceByIdentity(product, sessionContext?.entityInfo!.role)} className="text-xl" />
                     </span>
                     {sessionContext.entityInfo?.role as Roles === Roles.CUSTOMER && (
                             <span className="flex gap-2 items-center">

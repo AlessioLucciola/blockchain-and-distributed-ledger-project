@@ -38,7 +38,7 @@ export default function CreateProductModal({ showModal, setShowModal }: CreatePr
 			console.log(productId)
 		}
 		const sellerId = sessionContext.entityInfo!.id
-		const res = await addProductInstance({ productId: productId!.toString(), soldBy: parseInt(sellerId!), price: parseFloat(price!) })
+		const res = await addProductInstance({ productId: productId!.toString(), soldBy: parseInt(sellerId!), manufacturerPrice: parseFloat(price!) })
 		if (res.status !== 200) {
 			alert("Failed to add product instance")
 			return
@@ -212,8 +212,8 @@ const ProductList = ({ name, uid, setUid, setName }: ProductListProps) => {
 									<GradientText text="Sold By" className="text-md" />
 									<GradientText text="Price" className="text-md" />
 								</div>
-								{details.productInstances.map(({ currentOwner, price, id }) => (
-									<DetailsCard instanceId={parseInt(id!)} soldById={currentOwner} price={price} />
+								{details.productInstances.map(({ currentOwner, manufacturerPrice, id }) => (
+									<DetailsCard instanceId={parseInt(id!)} soldById={currentOwner} price={manufacturerPrice} />
 								))}
 							</div>
 						)}

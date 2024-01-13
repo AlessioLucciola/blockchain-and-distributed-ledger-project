@@ -179,7 +179,7 @@ const SmartSupplyController = {
 			{
 				productId: string
 				soldBy: string
-				price: string
+				manufacturerPrice: string
 			},
 			{}
 		>,
@@ -187,8 +187,8 @@ const SmartSupplyController = {
 		next: NextFunction
 	) {
 		try {
-			const { productId, soldBy, price } = req.body
-			const data = await service.addProductInstance({ productId: parseInt(productId), soldBy: parseInt(soldBy), price: parseFloat(price) })
+			const { productId, soldBy, manufacturerPrice } = req.body
+			const data = await service.addProductInstance({ productId: parseInt(productId), soldBy: parseInt(soldBy), manufacturerPrice: parseFloat(manufacturerPrice) })
 			res.json({
 				message: `Product instance with id ${data.productInstance.id} was added to product with uid ${data.updatedProduct.uid} successfully`,
 				data: data,
@@ -511,21 +511,69 @@ const SmartSupplyController = {
 			next(err)
 		}
 	},
-	productChangeOnSale: async function (
+	productChangeOnSaleManufacturer: async function (
 		req: Request<
 			{},
 			{},
 			{},
 			{
 				productInstanceId: string,
+				manufacturerPrice: string,
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		
+		try {
+			const { productInstanceId, manufacturerPrice } = req.query
+			const data = await service.productChangeOnSaleManufacturer({ productInstanceId: parseInt(productInstanceId), manufacturerPrice: parseFloat(manufacturerPrice)})
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	productChangeOnSaleDistributor: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				productInstanceId: string,
+				distributorPrice: string,
 			}
 		>,
 		res: Response,
 		next: NextFunction
 	) {
 		try {
-			const { productInstanceId } = req.query
-			const data = await service.productChangeOnSale({ productInstanceId: parseInt(productInstanceId) })
+			const { productInstanceId, distributorPrice } = req.query
+			const data = await service.productChangeOnSaleDistributor({ productInstanceId: parseInt(productInstanceId), distributorPrice: parseFloat(distributorPrice)})
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
+	productChangeOnSaleRetailer: async function (
+		req: Request<
+			{},
+			{},
+			{},
+			{
+				productInstanceId: string,
+				retailerPrice: string,
+			}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { productInstanceId, retailerPrice} = req.query
+			const data = await service.productChangeOnSaleRetailer({ productInstanceId: parseInt(productInstanceId), retailerPrice: parseFloat(retailerPrice)})
 			res.json({
 				data: data,
 			})

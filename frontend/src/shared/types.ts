@@ -32,7 +32,9 @@ export type Product = {
 export type ProductInstance = {
     id?: string
     productId: string
-    price: number
+    manufacturerPrice: number
+    distributorPrice: number
+    retailerPrice: number
     product?: Product
     currentOwner: string
     previousOwner: string

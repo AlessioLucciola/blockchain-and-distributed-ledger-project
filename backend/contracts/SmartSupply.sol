@@ -51,13 +51,6 @@ contract SmartSupply is Entities, Utils {
         );
     }
 
-    // Function to change the certificationPrice of a product
-    function changeCertificationPrice(uint256 _productID, uint256 _newCertificationPrice) external onlyBusinessActivities {
-        require(retailers[msg.sender], "Only retailers can change the certification price");
-        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the certification price");
-        products[_productID].certificationPrice = _newCertificationPrice; // Update the certification price of the product
-        emit CertificationPriceChanged(_productID, msg.sender, _newCertificationPrice);
-    }
 
     function changeOnSale(uint _productID) external onlyBusinessActivities {
         require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to OnSale");
@@ -69,6 +62,22 @@ contract SmartSupply is Entities, Utils {
         products[_productID].productStage = ProductStage.OnSale; // Flag the item onSale
 
         emit ChangedOnSale(_productID, msg.sender);
+    }
+
+    // Function to change the certificationPrice of a product
+    function changeOnSaleRetailer(uint256 _productID, uint256 _newCertificationPrice) external onlyBusinessActivities {
+        require(retailers[msg.sender], "Only retailers can change the certification price");
+        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the certification price");
+        require(
+            products[_productID].productStage != ProductStage.Purchased && 
+            products[_productID].productStage != ProductStage.Shipped,
+            "Product must not be in Purchased or Shipped stage to change to OnSale"
+        );
+
+        products[_productID].productStage = ProductStage.OnSale; // Flag the item onSale
+        products[_productID].certificationPrice = _newCertificationPrice; // Update the certification price of the product
+        
+        emit ChangedOnSaleRetailer(_productID, msg.sender, _newCertificationPrice);
     }
 
     function changeNotOnSale(uint _productID) external onlyBusinessActivities {
@@ -91,8 +100,7 @@ contract SmartSupply is Entities, Utils {
         bool isCustomer = customers[msg.sender];
 
         if (isCustomer) {
-            // TODO: Check if the customer has enough funds to purchase the product
-            // require(msg.value >= products[_productID].certificationPrice, "Insufficient funds to purchase the product");
+            require(msg.value >= products[_productID].certificationPrice, "Insufficient funds to purchase the product");
             smartSupplyBalance += msg.value; //Transfer the amount of coins to SmartSupply balance
             emit FundsAdded(msg.sender, msg.value);
         }
