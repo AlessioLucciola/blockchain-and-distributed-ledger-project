@@ -242,7 +242,6 @@ export const getProductInstanceInfo = async ({ productInstanceId, productId }: {
 
 export const getProductInfo = async ({ productId }: { productId: string }): Promise<Product> => {
 	const res = await api.get("/get-product-info", { params: { productId } })
-
 	const product: Product = res.data.data
 	if (product.productInstances !== undefined) {
 		for (const productInstances of product.productInstances) {
@@ -261,7 +260,7 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 				productInstances.rewards = {
 					manufacturerRewarded: rewardsProxy[0].toString(),
 					distributorRewarded: rewardsProxy[1].toString(),
-					retailerRewarded: rewardsProxy[2].toString(),
+					// retailerRewarded: rewardsProxy[2].toString(),
 				}
 			} else {
 				console.error("Product instance has undefined id:", productInstances)

@@ -15,11 +15,11 @@ import { getProductPriceByIdentity } from "../utils/typeUtils"
 
 export default function MyOrders() {
     const navigate = useNavigate()
-	const sessionContext = useSessionContext()
     const [isAuthorized, setIsAuthorized] = useState<boolean>(true)
     const nameRef = useRef<HTMLInputElement | null>(null)
     const [search, setSearch] = useState<string>("")
     const [productList, setProductList] = useState<ProductInstance[]>([])
+    const sessionContext = useSessionContext()
 
 	useEffect(() => {
 		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
@@ -91,10 +91,10 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
     const [entityName, setEntityName] = useState<string | undefined>("")
     const [certificationAmount, setCertificationAmount] = React.useState(0);
     const sessionContext = useSessionContext()
-
+    const [price, setPrice] = useState<number>(0)
     const getCertificationAmount = async () => {
 		let certificationPercentage = await getCertificationPercentage();
-        let certificationAmount = (getProductPriceByIdentity(product, sessionContext?.entityInfo!.role) * certificationPercentage) / 100
+        let certificationAmount = (price * certificationPercentage) / 100
         
         // Get current eth price
         let ethPrice = await fetchETHPrice()
@@ -104,6 +104,20 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
         
         setCertificationAmount(certificationAmount.toFixed(5));
 	};
+
+    // Based on the role, get the product price
+    useEffect(() => {
+        const role = sessionContext?.entityInfo!.role
+        if (role === Roles.DISTRIBUTOR) {
+            setPrice(getProductPriceByIdentity(product, Roles.MANUFACTURER))
+        }
+        if (role === Roles.RETAILER) {
+            setPrice(getProductPriceByIdentity(product, Roles.DISTRIBUTOR))
+        }
+        if (role === Roles.CUSTOMER) {
+            setPrice(getProductPriceByIdentity(product, Roles.RETAILER))
+        }
+    }, [price]);
 
 	useEffect(() => {
 		getCertificationAmount();
@@ -146,7 +160,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
                     </span>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-color-black text-text text-xl drop-shadow-lg">Price</p>
-                        <GradientText text={"$"+getProductPriceByIdentity(product, sessionContext?.entityInfo!.role)} className="text-xl" />
+                        <GradientText text={"$"+price} className="text-xl" />
                     </span>
                     {sessionContext.entityInfo?.role as Roles === Roles.CUSTOMER && (
                             <span className="flex gap-2 items-center">

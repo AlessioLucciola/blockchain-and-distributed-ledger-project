@@ -14,6 +14,7 @@ export default function ProductInfo() {
 	const [product, setProduct] = useState<Product>()
 	const [productInstances, setProductInstances] = useState<ProductInstance[]>([])
 	const [currentInstance, setCurrentInstance] = useState<ProductInstance>()
+	const [productPrice, setProductPrice] = useState<string>()
 	const [seller, setSeller] = useState<Entity | undefined>()
 	const sessionContext = useSessionContext()
 	const navigate = useNavigate()
@@ -26,7 +27,6 @@ export default function ProductInfo() {
 
 	const getProductInfoWrapper = async () => {
 		if (!productId) return
-
 		const res = await getProductInfo({ productId: productId })
 		setProductInstances((_prev) => [...res.productInstances.filter((instance) => instance.id!.toString() !== instanceId?.toString())])
 		if (!instanceId) {
@@ -35,6 +35,7 @@ export default function ProductInfo() {
 			return
 		}
 		setCurrentInstance(res.productInstances.filter((instance) => instance.id!.toString() === instanceId.toString())[0])
+		setProductPrice(getProductPriceByIdentity(currentInstance, sessionContext?.entityInfo!.role).toFixed(2))
 		setProduct(res)
 	}
 
@@ -60,7 +61,7 @@ export default function ProductInfo() {
 							</span>
 							<p className="text-text text-xl">{product?.description}</p>
 							<div className="flex w-full gap-3 items-center justify-between">
-								<GradientText text={`$${getProductPriceByIdentity(product, sessionContext?.entityInfo!.role).toFixed(2)}`} className="text-4xl" />
+								<GradientText text={`$${productPrice}`} className="text-4xl" />
 								{/*<Button text="Buy" className="w-fit" />*/}
 							</div>
 						</div>
