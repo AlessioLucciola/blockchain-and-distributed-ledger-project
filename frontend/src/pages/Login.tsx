@@ -31,7 +31,8 @@ export default function Login() {
 				navigate("/home")
 			}
 		} catch (error: any) {
-			alert(error)
+			alert(`Something went wrong while trying to log in! \nPlease check the data you entered and try again.`)
+            return
 		}
 	}
 	return (
