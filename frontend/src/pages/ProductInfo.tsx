@@ -14,7 +14,7 @@ export default function ProductInfo() {
 	const [product, setProduct] = useState<Product>()
 	const [productInstances, setProductInstances] = useState<ProductInstance[]>([])
 	const [currentInstance, setCurrentInstance] = useState<ProductInstance>()
-	const [productPrice, setProductPrice] = useState<string>()
+	const [productPrice, setProductPrice] = useState<number>(0)
 	const [seller, setSeller] = useState<Entity | undefined>()
 	const sessionContext = useSessionContext()
 	const navigate = useNavigate()

@@ -376,7 +376,7 @@ class SmartSupplyRepository {
             },
         })
     }
-    async purchaseProduct({ productInstanceId, buyerId, oldOwnerId, currentRole }: { productInstanceId: number; buyerId: number, oldOwnerId: number, currentRole: Roles }): Promise<ProductInstances> {
+    async purchaseProduct({ productInstanceId, price, buyerId, oldOwnerId, currentRole }: { productInstanceId: number; price: number, buyerId: number, oldOwnerId: number, currentRole: Roles }): Promise<ProductInstances> {
         let updateData: Record<string, any> = {
             productState: 2,
             currentOwner: buyerId,
@@ -388,10 +388,10 @@ class SmartSupplyRepository {
                 updateData = { ...updateData, manufacturerId: buyerId }
                 break
             case Roles.distributor:
-                updateData = { ...updateData, distributorId: buyerId }
+                updateData = { ...updateData, distributorPrice: price, distributorId: buyerId }
                 break
             case Roles.retailer:
-                updateData = { ...updateData, retailerId: buyerId }
+                updateData = { ...updateData, retailerPrice: price, retailerId: buyerId }
                 break
             case Roles.customer:
                 updateData = { ...updateData, customerId: buyerId }

@@ -96,6 +96,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 	const [transactionIdToChange, setTransactionIdToChange] = useState<boolean>(false)
 	const [showChangeTransactionIdModal, setShowChangeTransactionIdModal] = useState(false)
 	const [productReceived, setProductReceived] = useState<boolean>(false)
+	const [productPrice, setProductPrice] = useState<string>()
 
     useEffect(() => {
         getOldOwnerByIdWrapper()
@@ -120,6 +121,20 @@ function OrderCard({ product, image }: OrderCardProps) {
 			setIsAuthorized(false)
 		}
 	}, [sessionContext])
+
+	// Based on the role, get the product price
+    useEffect(() => {
+        const role = sessionContext?.entityInfo!.role
+        if (role === Roles.DISTRIBUTOR) {
+            setProductPrice(getProductPriceByIdentity(product, Roles.MANUFACTURER))
+        }
+        if (role === Roles.RETAILER) {
+            setProductPrice(getProductPriceByIdentity(product, Roles.DISTRIBUTOR))
+        }
+        if (role === Roles.CUSTOMER) {
+            setProductPrice(getProductPriceByIdentity(product, Roles.RETAILER))
+        }
+    }, []);
 
 	if (isAuthorized === false) {
 		return (
@@ -260,7 +275,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 						</span>
 						<span className="flex gap-2 items-center">
 							<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
-							<GradientText text={"$"+getProductPriceByIdentity(product, sessionContext?.entityInfo!.role)} className="text-xl" />
+							<GradientText text={"$"+productPrice} className="text-xl" />
 						</span>
 						<span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
 							<GradientText text={"Details >"} className="text-xl" />
