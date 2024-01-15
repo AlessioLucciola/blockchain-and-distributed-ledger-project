@@ -97,6 +97,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 	const [showChangeTransactionIdModal, setShowChangeTransactionIdModal] = useState(false)
 	const [productReceived, setProductReceived] = useState<boolean>(false)
 	const [productPrice, setProductPrice] = useState<string>()
+	const [productRewarded, setProductRewarded] = useState<boolean>(false)
 
     useEffect(() => {
         getOldOwnerByIdWrapper()
@@ -232,6 +233,20 @@ function OrderCard({ product, image }: OrderCardProps) {
 		setProductStatusString(productStatusString)
 	}
 
+	const getProductRewarded = () => {
+		const role = sessionContext.entityInfo?.role
+		switch (role) {
+			case Roles.MANUFACTURER:
+				return product.rewards.manufacturerRewarded
+			case Roles.DISTRIBUTOR:
+				return product.rewards.distributorRewarded
+			case Roles.RETAILER:
+				return product.rewards.retailerRewarded
+			default:
+				return false
+			}
+	}
+
 	const receiveProduct = async (productInstanceId: string) => {
 		const res = await receiveProductFromEntity({ productInstanceId: parseInt(productInstanceId) })
 		if (res.status === 200) {
@@ -259,7 +274,10 @@ function OrderCard({ product, image }: OrderCardProps) {
 		<>
 			<div className="flex flex-row justify-between items-center">
 				<div className="flex gap-10">
-					<img src={image} alt="product image" className="h-fit w-[200px]" />
+					<div className="flex flex-col justify-around">
+						<img src={image} alt="product image" className="h-fit w-[200px]" />
+						{getProductRewarded() ? <p className="text-white text-center">Reward obtained</p> : ""}
+					</div>
 					<div className="flex flex-col justify-around">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
 						<span className="flex gap-2 items-center">

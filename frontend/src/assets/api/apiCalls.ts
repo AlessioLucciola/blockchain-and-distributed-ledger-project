@@ -217,9 +217,9 @@ export const searchProduct = async ({ name, productId, includeInstances }: { nam
 
                     const rewardsProxy = proxyResult[10]
                     productInstance.rewards = {
-                        manufacturerRewarded: rewardsProxy[0].toString(),
-                        distributorRewarded: rewardsProxy[1].toString(),
-                        retailerRewarded: rewardsProxy[2].toString(),
+                        manufacturerRewarded: rewardsProxy[0],
+                        distributorRewarded: rewardsProxy[1],
+                        retailerRewarded: rewardsProxy[2],
                     }
                 } else {
                     console.error("Product instance has undefined id:", productInstance)
@@ -257,9 +257,9 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 
 				const rewardsProxy = proxyResult[10];
 				productInstances.rewards = {
-					manufacturerRewarded: rewardsProxy[0].toString(),
-					distributorRewarded: rewardsProxy[1].toString(),
-					retailerRewarded: rewardsProxy[2].toString(),
+					manufacturerRewarded: rewardsProxy[0],
+					distributorRewarded: rewardsProxy[1],
+					retailerRewarded: rewardsProxy[2],
 				}
 			} else {
 				console.error("Product instance has undefined id:", productInstances)
@@ -429,9 +429,9 @@ export const getOrders = async ({ id }: { id: number }): Promise<AxiosResponse<{
 
 				const rewardsProxy = proxyResult[10];
 				productInstance.rewards = {
-					manufacturerRewarded: rewardsProxy[0].toString(),
-					distributorRewarded: rewardsProxy[1].toString(),
-					retailerRewarded: rewardsProxy[2].toString(),
+					manufacturerRewarded: rewardsProxy[0],
+					distributorRewarded: rewardsProxy[1],
+					retailerRewarded: rewardsProxy[2],
 				}
 			} else {
 				console.error("Product instance has undefined id:", productInstances)
