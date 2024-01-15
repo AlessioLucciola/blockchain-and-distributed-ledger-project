@@ -81,7 +81,7 @@ export default function VerifyAccountModal({ showModal, setShowModal }: VerifyAc
 										<h3 className="font-semibold text-text pt-5 pl-5 text-3xl drop-shadow-lg">Verification Status</h3>
 										<div className="p-5">
 											<p className="text-white"> Business ID: {verificationDetails.verificationId} </p>
-											<p className="text-white"> Verification Status: {verificationDetails.accountVerified ? (
+											<div className="text-white"> Verification Status: {verificationDetails.accountVerified ? (
 												<>
 													{verificationDetails.verificationPaid ? (
 														<>
@@ -131,7 +131,7 @@ export default function VerifyAccountModal({ showModal, setShowModal }: VerifyAc
 														</button>
 													</div>
 												</>
-											)} </p>
+											)} </div>
 										</div>
 									</div>
 								) : (
