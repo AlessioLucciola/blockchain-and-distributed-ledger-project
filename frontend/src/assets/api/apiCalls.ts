@@ -247,7 +247,6 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 		for (const productInstances of product.productInstances) {
 			if (productInstances.id !== undefined) {
 				const proxyResult = await getContractProductInfo(parseInt(productInstances.id))
-
 				// Assign the values from ProxyResult to ProductInstance
 				productInstances.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
 				const bankTransactionProxy = proxyResult[8]
@@ -256,11 +255,11 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 					retailerBankTransactionID: bankTransactionProxy[1].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[1].toString(),
 				}
 
-				const rewardsProxy = proxyResult[9];
+				const rewardsProxy = proxyResult[10];
 				productInstances.rewards = {
 					manufacturerRewarded: rewardsProxy[0].toString(),
 					distributorRewarded: rewardsProxy[1].toString(),
-					// retailerRewarded: rewardsProxy[2].toString(),
+					retailerRewarded: rewardsProxy[2].toString(),
 				}
 			} else {
 				console.error("Product instance has undefined id:", productInstances)
