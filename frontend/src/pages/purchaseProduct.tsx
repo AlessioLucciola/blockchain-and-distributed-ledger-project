@@ -36,7 +36,6 @@ export default function MyOrders() {
     
 	const getProductList = async () => {
         const res = await getProductsOnSale()
-        console.log(res)
 
         if (res.status === 200) {
             const products = res.data.data
@@ -70,7 +69,7 @@ export default function MyOrders() {
                         <div className="flex flex-col gap-2 pt-10">
                             {productList.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
                                 <div key={instance.id}>
-                                    <PurchaseCard product={instance} buyer={sessionContext.entityInfo?.id!} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+                                    <PurchaseCard product={instance} buyer={sessionContext?.entityInfo!} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
                                 </div>
                             ))}
                         </div>
@@ -83,18 +82,18 @@ export default function MyOrders() {
 
 interface PurchaseCardProps {
 	product: ProductInstance
-    buyer?: string
+    buyer: Entity
     image: string
 }
 function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
     const navigate = useNavigate()
     const [entityInfo, setEntityInfo] = useState<Entity>()
-    const [certificationAmount, setCertificationAmount] = useState<string>();
-    const sessionContext = useSessionContext()
+    const [certificationAmount, setCertificationAmount] = useState<string>()
     const [productPrice, setProductPrice] = useState<string>()
 
     useEffect(() => {
         getSellerByIdWrapper()
+        getPrice()
     }, [product])
 
     useEffect(() => {
@@ -116,31 +115,36 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
         if (res.status === 200) {
             const entity = res.data.data
             setEntityInfo(entity)
-            const role = entity.role
-            if (role === Roles.DISTRIBUTOR) {
-                const productPrice = getProductPriceByIdentity(product, Roles.MANUFACTURER)
-                setProductPrice(productPrice?.toString())
-            } else if (role === Roles.RETAILER) {
-                const productPrice = getProductPriceByIdentity(product, Roles.DISTRIBUTOR)
-                setProductPrice(productPrice?.toString())
-            } else if (role === Roles.CUSTOMER) {
-                const productPrice = getProductPriceByIdentity(product, Roles.RETAILER)
-                setProductPrice(productPrice?.toString())
-            }
             return
         }
 	}
 
+    const getPrice = async () => {
+        const role = buyer?.role
+        if (role === Roles.DISTRIBUTOR) {
+            const productPrice = getProductPriceByIdentity(product, Roles.MANUFACTURER)
+            setProductPrice(productPrice?.toString())
+        } else if (role === Roles.RETAILER) {
+            const productPrice = getProductPriceByIdentity(product, Roles.DISTRIBUTOR)
+            setProductPrice(productPrice?.toString())
+        } else if (role === Roles.CUSTOMER) {
+            const productPrice = getProductPriceByIdentity(product, Roles.RETAILER)
+            setProductPrice(productPrice?.toString())
+        }
+    }
+
     const purchaseProduct = async (instance: ProductInstance) => {
-        if (buyer === undefined || instance.id === undefined) return
-        const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), price: parseInt(productPrice!), buyerId: parseInt(buyer), oldOwnerId: parseInt(instance.currentOwner!) })
-        if (res.status === 200) {
-            alert(`Product ${instance.product?.name} purchased successfully from ${entityInfo!.companyName}!`)
-            navigate('/orders')
-            return
-        } else {
-            alert(`Something went wrong while purchasing product ${instance.product?.name} from ${entityInfo!.companyName}!`)
-            return
+        if (buyer !== undefined && instance.id !== undefined) {
+            console.log(buyer.id)
+            const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), price: parseInt(productPrice!), buyerId: parseInt(buyer?.id!), oldOwnerId: parseInt(instance.currentOwner!) })
+            if (res.status === 200) {
+                alert(`Product ${instance.product?.name} purchased successfully from ${entityInfo!.companyName}!`)
+                navigate('/orders')
+                return
+            } else {
+                alert(`Something went wrong while purchasing product ${instance.product?.name} from ${entityInfo!.companyName}!`)
+                return
+            }
         }
     }
 
@@ -158,7 +162,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
                         <p className="font-semibold text-color-black text-text text-xl drop-shadow-lg">Price</p>
                         <GradientText text={"$"+productPrice} className="text-xl" />
                     </span>
-                    {sessionContext.entityInfo?.role as Roles === Roles.CUSTOMER && (
+                    {buyer?.role as Roles === Roles.CUSTOMER && (
                             <span className="flex gap-2 items-center">
                                 <p className="font-semibold text-color-black text-text text-xl drop-shadow-lg">Certification price</p>
                                 <GradientText text={"ETH"+certificationAmount} className="text-xl" />

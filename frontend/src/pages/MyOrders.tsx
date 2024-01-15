@@ -97,7 +97,6 @@ function OrderCard({ product, image }: OrderCardProps) {
 	const [showChangeTransactionIdModal, setShowChangeTransactionIdModal] = useState(false)
 	const [productReceived, setProductReceived] = useState<boolean>(false)
 	const [productPrice, setProductPrice] = useState<string>()
-	const [productRewarded, setProductRewarded] = useState<boolean>(false)
 
     useEffect(() => {
         getOldOwnerByIdWrapper()

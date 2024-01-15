@@ -399,7 +399,7 @@ export const purchaseProductByEntity = async ({ productInstanceId, price, buyerI
 		const currentRole = await getEntityRole()
 		const contract_res = await purchaseProduct(productInstanceId, price)
 		if (parseInt(contract_res.productId) === productInstanceId) {
-			const res = await api.patch(`/purchase-product?productInstanceId=${productInstanceId}&price${price}&buyerId=${buyerId}&oldOwnerId=${oldOwnerId}&currentRole=${currentRole}`)
+			const res = await api.patch(`/purchase-product?productInstanceId=${productInstanceId}&price=${price}&buyerId=${buyerId}&oldOwnerId=${oldOwnerId}&currentRole=${currentRole}`)
 			return res	
 		} else {
 			const error = console.error("Error creating entity. Can't catch the contract event.")
