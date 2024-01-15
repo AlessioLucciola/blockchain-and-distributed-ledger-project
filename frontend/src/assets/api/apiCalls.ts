@@ -247,7 +247,6 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 		for (const productInstances of product.productInstances) {
 			if (productInstances.id !== undefined) {
 				const proxyResult = await getContractProductInfo(parseInt(productInstances.id))
-
 				// Assign the values from ProxyResult to ProductInstance
 				productInstances.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
 				const bankTransactionProxy = proxyResult[8]
@@ -256,11 +255,11 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 					retailerBankTransactionID: bankTransactionProxy[1].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[1].toString(),
 				}
 
-				const rewardsProxy = proxyResult[9];
+				const rewardsProxy = proxyResult[10];
 				productInstances.rewards = {
 					manufacturerRewarded: rewardsProxy[0].toString(),
 					distributorRewarded: rewardsProxy[1].toString(),
-					// retailerRewarded: rewardsProxy[2].toString(),
+					retailerRewarded: rewardsProxy[2].toString(),
 				}
 			} else {
 				console.error("Product instance has undefined id:", productInstances)
@@ -395,12 +394,12 @@ export const getProductsOnSale = async (): Promise<AxiosResponse<{ data: Product
 	const res = await api.get("/get-products-on-sale", { params: { previousRole	 } })
 	return res
 }
-export const purchaseProductByEntity = async ({ productInstanceId, certificationAmount, buyerId, oldOwnerId }: { productInstanceId: number, certificationAmount: number, buyerId: number, oldOwnerId: number }): Promise<AxiosResponse<{ data: { message: string } }>> => {
+export const purchaseProductByEntity = async ({ productInstanceId, price, buyerId, oldOwnerId }: { productInstanceId: number, price: number, buyerId: number, oldOwnerId: number }): Promise<AxiosResponse<{ data: { message: string } }>> => {
 	try {
 		const currentRole = await getEntityRole()
-		const contract_res = await purchaseProduct(productInstanceId, certificationAmount)
+		const contract_res = await purchaseProduct(productInstanceId, price)
 		if (parseInt(contract_res.productId) === productInstanceId) {
-			const res = await api.patch(`/purchase-product?productInstanceId=${productInstanceId}&buyerId=${buyerId}&oldOwnerId=${oldOwnerId}&currentRole=${currentRole}`)
+			const res = await api.patch(`/purchase-product?productInstanceId=${productInstanceId}&price${price}&buyerId=${buyerId}&oldOwnerId=${oldOwnerId}&currentRole=${currentRole}`)
 			return res	
 		} else {
 			const error = console.error("Error creating entity. Can't catch the contract event.")

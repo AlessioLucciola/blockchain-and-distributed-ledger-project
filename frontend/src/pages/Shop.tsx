@@ -8,7 +8,6 @@ import { useSessionContext } from "../context/exportContext"
 import MessagePage from "./MessagePage"
 import { useNavigate } from "react-router-dom"
 import { Entity, ProductInstance } from "../shared/types"
-// import ChangeProductPriceModal from "../components/ChangeProductPriceModal"
 import { changeProductOnSale, changeProductNotOnSale, getProductInstancesFromSeller, getSellerById, shipProductToEntity } from "../assets/api/apiCalls"
 import Button from "../components/Button"
 import InputField from "../components/InputField"
@@ -145,9 +144,19 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 	const [productPrice, setProductPrice] = useState<string>()
 	const sessionContext = useSessionContext()
 
+	// Based on the role, get the product price
 	useEffect(() => {
-		setProductPrice(getProductPriceByIdentity(product, sessionContext?.entityInfo!.role))
-	}, [])
+		const role = sessionContext?.entityInfo!.role
+		if (role === Roles.DISTRIBUTOR) {
+			setProductPrice(getProductPriceByIdentity(product, Roles.MANUFACTURER))
+		}
+		if (role === Roles.RETAILER) {
+			setProductPrice(getProductPriceByIdentity(product, Roles.DISTRIBUTOR))
+		}
+		if (role === Roles.CUSTOMER) {
+			setProductPrice(getProductPriceByIdentity(product, Roles.RETAILER))
+		}
+	}, []);
 
 	const changeOnSale = async (productInstanceId: string, onSale: boolean) => {
 		if (onSale === true) {

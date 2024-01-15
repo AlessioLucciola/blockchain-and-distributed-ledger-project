@@ -635,6 +635,7 @@ const SmartSupplyController = {
 			{},
 			{
 				productInstanceId: string,
+				price: string,
 				buyerId: string,
 				oldOwnerId: string,
 				currentRole: string
@@ -644,9 +645,9 @@ const SmartSupplyController = {
 		next: NextFunction
 	) {
 		try {
-			const { productInstanceId, buyerId, oldOwnerId, currentRole } = req.query
+			const { productInstanceId, price, buyerId, oldOwnerId, currentRole } = req.query
 			const fetchedRole = currentRole as Roles
-			const data = await service.purchaseProduct({ productInstanceId: parseInt(productInstanceId), buyerId: parseInt(buyerId), oldOwnerId: parseInt(oldOwnerId), currentRole: fetchedRole })
+			const data = await service.purchaseProduct({ productInstanceId: parseInt(productInstanceId), price: parseFloat(price),buyerId: parseInt(buyerId), oldOwnerId: parseInt(oldOwnerId), currentRole: fetchedRole })
 			res.json({
 				message: `Products with id ${productInstanceId} purchased successfully`,
 				data: data,

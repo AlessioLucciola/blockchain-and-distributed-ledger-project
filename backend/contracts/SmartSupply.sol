@@ -16,8 +16,8 @@ contract SmartSupply is Entities, Utils {
         newProduct.productUID = _productUID; // Define the UID of the product
         newProduct.currentOwner = msg.sender; // Define the initial owner as the manufacturer who produced the product
         newProduct.previousOwner = msg.sender; // Define the previous owner as the first one (default when the product is first produced)
-        newProduct.certificationPrice = 0 gwei; // Assign the certification price to the product
         newProduct.creationDate = block.timestamp; // Assign the date of creation of the product
+        newProduct.certificationPrice = 0 gwei; // Assign the certification price to the product
         newProduct.productStage = defaultProductStage; // Assign the initial default stage to the product
         newProduct.productLocation = defaultProductLocation; // Assign the initial default stage to the product
 
@@ -222,14 +222,16 @@ contract SmartSupply is Entities, Utils {
             revert("Caller does not have the right to change bank transaction ID");
         }
 
+        uint256 reward = divisionRoundUp(products[_productID].certificationPrice, 4); // 25% of the certification price
+
         // Check if distributor or retailer rewards need to be distributed
         if (distributors[msg.sender] && msg.sender == distributorAddress && !products[_productID].rewards.distributorRewarded && (customerAddress != address(0) && (products[_productID].productStage == ProductStage.Shipped || products[_productID].productStage == ProductStage.Received))) {
             // Send the reward to the distributor
-            distributeReward(payable(msg.sender), _productID, 25 wei);
+            distributeReward(payable(msg.sender), _productID, reward);
             products[_productID].rewards.distributorRewarded = true;
         } else if (retailers[msg.sender] && msg.sender == retailerAddress && !products[_productID].rewards.retailerRewarded && (customerAddress != address(0) && (products[_productID].productStage == ProductStage.Shipped || products[_productID].productStage == ProductStage.Received))) {
             // Send the reward to the retailer
-            distributeReward(payable(msg.sender), _productID, 25 wei);
+            distributeReward(payable(msg.sender), _productID, reward);
             products[_productID].rewards.retailerRewarded = true;
         }
 

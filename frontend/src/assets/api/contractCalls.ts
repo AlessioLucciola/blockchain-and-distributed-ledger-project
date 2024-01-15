@@ -2,6 +2,7 @@ import { ethers } from "ethers"
 import { Roles } from "../../shared/constants"
 import { getContractInstance } from "../../utils/contractUtils"
 import { getMetamaskAddress } from "../../utils/metamaskUtils"
+import { fetchETHPrice } from "../../utils/fetchETHPrice"
 
 export const addManufacturer = async (): Promise<string | null> => {
     try {
@@ -1020,20 +1021,28 @@ export const changeNotOnSale = async (_productID: number): Promise<any | null> =
 
 export const purchaseProduct = async (
     _productID: number,
-    _certificationAmount: number
+    _price: number
 ): Promise<any | null> => {
     try {
         // Get the contract instance by awaiting the promise
         const contract = await getContractInstance()
-
-        // Convert _certificationAmount from ether to gwei
-        let newCertificationAmount = ethers.parseUnits(_certificationAmount.toString(), "ether").toString();
 
         if (contract) {
             // Create a promise to resolve when the event is emitted
             return new Promise(async (resolve, reject) => {
                 // Call the purchaseProduct function to purchase a product
                 if (await isCustomer()) {
+                    // Get the percentage of the price that goes to the certification
+                    let certificationPercentage = await getCertificationPercentage();
+                    let certificationAmount = (_price * certificationPercentage) / 100
+
+                    // Get current eth price in dollars
+                    let ethPrice = await fetchETHPrice()
+                    certificationAmount = (certificationAmount / ethPrice.USD)
+
+                    // Convert _certificationAmount from ether to gwei
+                    let newCertificationAmount = ethers.parseUnits(certificationAmount.toString(), "ether").toString();
+
                     // If the entity is a customer, he also has to send a certain amount of coins to the get product certification
                     contract
                         .purchaseProduct(_productID, { value: BigInt(newCertificationAmount), to: contract.address, from: getMetamaskAddress() })

@@ -91,18 +91,15 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
     const [entityName, setEntityName] = useState<string | undefined>("")
     const [certificationAmount, setCertificationAmount] = React.useState(0);
     const sessionContext = useSessionContext()
-    const [price, setPrice] = useState<number>(0)
+    const [productPrice, setPrice] = useState<number>(0)
     const getCertificationAmount = async () => {
 		let certificationPercentage = await getCertificationPercentage();
-        let certificationAmount = (price * certificationPercentage) / 100
-        
-        // Get current eth price
+        let certificationAmount = (productPrice * certificationPercentage) / 100
+
+        // Get current eth price in dollars
         let ethPrice = await fetchETHPrice()
-        
-        // Convert to eth
         certificationAmount = (certificationAmount / ethPrice.USD)
-        
-        setCertificationAmount(certificationAmount.toFixed(5));
+        setCertificationAmount(certificationAmount.toFixed(5))
 	};
 
     // Based on the role, get the product price
@@ -117,7 +114,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
         if (role === Roles.CUSTOMER) {
             setPrice(getProductPriceByIdentity(product, Roles.RETAILER))
         }
-    }, [price]);
+    }, []);
 
 	useEffect(() => {
 		getCertificationAmount();
@@ -133,7 +130,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
 
     const purchaseProduct = async (instance: ProductInstance) => {
         if (buyer === undefined || instance.id === undefined) return
-        const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), certificationAmount: certificationAmount, buyerId: parseInt(buyer), oldOwnerId: parseInt(instance.currentOwner!) })
+        const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), price: productPrice, buyerId: parseInt(buyer), oldOwnerId: parseInt(instance.currentOwner!) })
         if (res.status === 200) {
             alert(`Product ${instance.product?.name} purchased successfully from ${entityName}!`)
             navigate('/orders')
@@ -160,7 +157,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
                     </span>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-color-black text-text text-xl drop-shadow-lg">Price</p>
-                        <GradientText text={"$"+price} className="text-xl" />
+                        <GradientText text={"$"+productPrice} className="text-xl" />
                     </span>
                     {sessionContext.entityInfo?.role as Roles === Roles.CUSTOMER && (
                             <span className="flex gap-2 items-center">
