@@ -15,15 +15,8 @@ export default function ProductInfo() {
 	const [productInstances, setProductInstances] = useState<ProductInstance[]>([])
 	const [currentInstance, setCurrentInstance] = useState<ProductInstance>()
 	const [productPrice, setProductPrice] = useState<string>()
-	const [seller, setSeller] = useState<Entity | undefined>()
 	const sessionContext = useSessionContext()
 	const navigate = useNavigate()
-
-	const getSellerByIdWrapper = async () => {
-		if (!currentInstance) return
-		const res = await getSellerById({ sellerId: currentInstance!.currentOwner })
-		setSeller(res.data.data)
-	}
 
 	const getProductInfoWrapper = async () => {
 		if (!productId) return
@@ -35,7 +28,6 @@ export default function ProductInfo() {
 			return
 		}
 		setCurrentInstance(res.productInstances.filter((instance) => instance.id!.toString() === instanceId.toString())[0])
-		setProductPrice(getProductPriceByIdentity(currentInstance, sessionContext?.entityInfo!.role).toFixed(2))
 		setProduct(res)
 	}
 
@@ -44,8 +36,11 @@ export default function ProductInfo() {
 	}, [productId, instanceId])
 
 	useEffect(() => {
-		getSellerByIdWrapper()
-	}, [currentInstance])
+		if (sessionContext) {
+			console.log(currentInstance?.manufacturerPrice)
+			setProductPrice(getProductPriceByIdentity(currentInstance, sessionContext?.entityInfo!.role).toFixed(2))
+		}
+	}, [sessionContext, currentInstance])
 
 	return (
 		<div className="bg-background h-screen w-screen overflow-scroll">
@@ -76,7 +71,7 @@ export default function ProductInfo() {
 								<RightCaretIcon className="h-4 fill-text text-nowrap w-4 invisible" />
 							</div>
 							{productInstances?.map((productInstance: ProductInstance) => (
-								<OtherProductTab soldById={productInstance.currentOwner!} key={productInstance.id!} id={productInstance.id!} price={getProductPriceByIdentity(productInstance, sessionContext?.entityInfo!.role).toFixed(2)} />
+								<OtherProductTab soldById={productInstance.currentOwner!} key={productInstance.id!} id={productInstance.id!} price={productPrice!} />
 							))}
 						</div>
 					</div>

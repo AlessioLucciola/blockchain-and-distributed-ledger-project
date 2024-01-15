@@ -26,7 +26,7 @@ If you have some dependency problems, simply delete `node_modules` and `package-
     ```
     If you change the schema.prisma, you can update it by executing the command:
     ```
-    npx prisma migrate dev --name init2
+    npx prisma migrate dev --name init
     ```
     ⚠️ If you get any error related to `prisma` do
     ```
