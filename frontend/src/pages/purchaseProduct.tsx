@@ -4,7 +4,7 @@ import GradientText from "../components/GradientText"
 import Navbar from "../components/Navbar"
 import { useNavigate } from "react-router-dom"
 import { useSessionContext } from "../context/exportContext"
-import { ProductInstance } from "../shared/types"
+import { Entity, ProductInstance } from "../shared/types"
 import { getProductsOnSale, getSellerById, purchaseProductByEntity } from "../assets/api/apiCalls"
 import { getCertificationPercentage } from "../assets/api/contractCalls"
 import InputField from "../components/InputField"
@@ -88,62 +88,61 @@ interface PurchaseCardProps {
 }
 function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
     const navigate = useNavigate()
-    const [entityName, setEntityName] = useState<string | undefined>("")
-    const [certificationAmount, setCertificationAmount] = React.useState(0);
+    const [entityInfo, setEntityInfo] = useState<Entity>()
+    const [certificationAmount, setCertificationAmount] = useState<string>();
     const sessionContext = useSessionContext()
-    const [productPrice, setPrice] = useState<number>(0)
+    const [productPrice, setProductPrice] = useState<string>()
+
+    useEffect(() => {
+        getSellerByIdWrapper()
+    }, [product])
+
+    useEffect(() => {
+        getCertificationAmount()
+    }, [productPrice])
+
     const getCertificationAmount = async () => {
-		let certificationPercentage = await getCertificationPercentage();
-        let certificationAmount = (productPrice * certificationPercentage) / 100
+        let certificationPercentage = await getCertificationPercentage()
+        let certificationAmount = (parseInt(productPrice!) * certificationPercentage) / 100
 
         // Get current eth price in dollars
         let ethPrice = await fetchETHPrice()
         certificationAmount = (certificationAmount / ethPrice.USD)
         setCertificationAmount(certificationAmount.toFixed(5))
-	};
-
-    // Based on the role, get the product price
-    useEffect(() => {
-        const role = sessionContext?.entityInfo!.role
-        if (role === Roles.DISTRIBUTOR) {
-            setPrice(getProductPriceByIdentity(product, Roles.MANUFACTURER))
-        }
-        if (role === Roles.RETAILER) {
-            setPrice(getProductPriceByIdentity(product, Roles.DISTRIBUTOR))
-        }
-        if (role === Roles.CUSTOMER) {
-            setPrice(getProductPriceByIdentity(product, Roles.RETAILER))
-        }
-    }, []);
-
-	useEffect(() => {
-		getCertificationAmount();
-	}, []);
+    }
     
     const getSellerByIdWrapper = async () => {
 		const res = await getSellerById({ sellerId: product.currentOwner })
         if (res.status === 200) {
-            setEntityName(res.data.data.companyName)
+            const entity = res.data.data
+            setEntityInfo(entity)
+            const role = entity.role
+            if (role === Roles.DISTRIBUTOR) {
+                const productPrice = getProductPriceByIdentity(product, Roles.MANUFACTURER)
+                setProductPrice(productPrice?.toString())
+            } else if (role === Roles.RETAILER) {
+                const productPrice = getProductPriceByIdentity(product, Roles.DISTRIBUTOR)
+                setProductPrice(productPrice?.toString())
+            } else if (role === Roles.CUSTOMER) {
+                const productPrice = getProductPriceByIdentity(product, Roles.RETAILER)
+                setProductPrice(productPrice?.toString())
+            }
             return
         }
 	}
 
     const purchaseProduct = async (instance: ProductInstance) => {
         if (buyer === undefined || instance.id === undefined) return
-        const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), price: productPrice, buyerId: parseInt(buyer), oldOwnerId: parseInt(instance.currentOwner!) })
+        const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), price: parseInt(productPrice!), buyerId: parseInt(buyer), oldOwnerId: parseInt(instance.currentOwner!) })
         if (res.status === 200) {
-            alert(`Product ${instance.product?.name} purchased successfully from ${entityName}!`)
+            alert(`Product ${instance.product?.name} purchased successfully from ${entityInfo!.companyName}!`)
             navigate('/orders')
             return
         } else {
-            alert(`Something went wrong while purchasing product ${instance.product?.name} from ${entityName}!`)
+            alert(`Something went wrong while purchasing product ${instance.product?.name} from ${entityInfo!.companyName}!`)
             return
         }
     }
-
-    useEffect(() => {
-        getSellerByIdWrapper()
-    }, [product])
 
 	return (
 		<div className="flex flex-row justify-between items-center">
@@ -153,7 +152,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
                     <p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-text text-xl drop-shadow-lg">Sold by</p>
-                        <GradientText text={entityName !== undefined ? entityName : "Unknown"} className="text-xl" />
+                        <GradientText text={entityInfo?.companyName!} className="text-xl" />
                     </span>
                     <span className="flex gap-2 items-center">
                         <p className="font-semibold text-color-black text-text text-xl drop-shadow-lg">Price</p>

@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom"
 import Navbar from "../components/Navbar"
-import { GRADIENTS, ProductStage } from "../shared/constants"
+import { GRADIENTS, ProductStage, Roles } from "../shared/constants"
 import { CustomerIcon, DistributorIcon, ManufacturerIcon, RetailerIcon, RightCaretIcon } from "../shared/icons"
 import GradientText from "../components/GradientText"
 import { Entity, Product, ProductInstance } from "../shared/types"
@@ -16,6 +16,7 @@ export default function ProductInfo() {
 	const [currentInstance, setCurrentInstance] = useState<ProductInstance>()
 	const [currentProductInstancePrice, setCurrentProductInstancePrice] = useState<string>()
 	const [showOtherProducts, setShowOtherProducts] = useState<boolean>(false)
+	const [productStatusString, setProductStatusString] = useState<string>("")
 	const sessionContext = useSessionContext()
 	const navigate = useNavigate()
 
@@ -45,6 +46,32 @@ export default function ProductInfo() {
 			setShowOtherProducts(true)
 		}
 		setProduct(res)
+		const oldOwnerInfo = await getSellerById({ sellerId: instance.previousOwner })
+		const newOwnerInfo = await getSellerById({ sellerId: instance.previousOwner })
+		getProductStatus(instance, oldOwnerInfo.data.data, newOwnerInfo.data.data)
+	}
+
+	const getProductStatus = async (instance: ProductInstance, oldOwner: Entity, newOwner: Entity) => {
+		let productStatusString = ""
+		if (instance.currentOwner === sessionContext.entityInfo?.id!) {
+			const oldOwnerCompanyName = oldOwner.companyName
+			const currentProductState = getProductStageFromId(instance.productState.toString())
+			if (currentProductState === ProductStage.PURCHASED) {
+				productStatusString = `Purchased from ${oldOwnerCompanyName}. Waiting for shipping..`
+			} else if (currentProductState === ProductStage.SHIPPED) {
+				productStatusString = `Shipped from ${oldOwnerCompanyName}. Your product is on the way..`
+			} else {
+				if (currentProductState === ProductStage.RECEIVED && sessionContext.entityInfo?.role === Roles.CUSTOMER) {
+					productStatusString = `Received from ${oldOwnerCompanyName}. You own this product.`
+				} else {
+					productStatusString = `Received from ${oldOwnerCompanyName}`
+				}
+			}
+		} else {
+			const newOwnerName = newOwner.role === Roles.CUSTOMER ? newOwner.name + ' ' + newOwner.surname : newOwner?.companyName
+			productStatusString = `Sold to ${newOwnerName}`
+		}
+		setProductStatusString(productStatusString)
 	}
 
 	return (
@@ -60,10 +87,7 @@ export default function ProductInfo() {
 								<p className="font-semibold text-text text-4xl">{product?.name}</p>
 							</span>
 							<p className="text-text text-xl">{product?.description}</p>
-							<div className="flex w-full gap-3 items-center justify-between">
-								<GradientText text={`$${currentProductInstancePrice}`} className="text-4xl" />
-								{/*<Button text="Buy" className="w-fit" />*/}
-							</div>
+							<p className="text-text text-xl">{productStatusString}</p>
 						</div>
 					</div>
 					{/*

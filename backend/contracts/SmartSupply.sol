@@ -143,7 +143,7 @@ contract SmartSupply is Entities, Utils {
             uint256 reward = divisionRoundUp(products[_productID].certificationPrice, 4); // 25% of the certification price
 
             // Distribute payments only if TransactionIDs are not null
-            distributeReward(payable(products[_productID].ownerships.manufacturer), 0, reward); //0 because manufacturer don't have to make any external payments
+            distributeReward(payable(products[_productID].ownerships.manufacturer), 0, reward); //0 because manufacturer doesn't have to make any external payments
             distributeReward(payable(products[_productID].ownerships.distributor), products[_productID].transactionIDs.distributorBankTransactionID, reward);
             distributeReward(payable(products[_productID].ownerships.retailer), products[_productID].transactionIDs.retailerBankTransactionID, reward);
         }
@@ -209,10 +209,7 @@ contract SmartSupply is Entities, Utils {
         address distributorAddress = products[_productID].ownerships.distributor;
         address retailerAddress = products[_productID].ownerships.retailer;
 
-        if (customers[msg.sender] && msg.sender == customerAddress) {
-            // Only the customer that bought the product can change customerBankTransactionID
-            // products[_productID].transactionIDs.customerBankTransactionID = _newTransactionID;
-        } else if (distributors[msg.sender] && msg.sender == distributorAddress) {
+        if (distributors[msg.sender] && msg.sender == distributorAddress) {
             // Only the distributor that bought the product can change distributorBankTransactionID
             products[_productID].transactionIDs.distributorBankTransactionID = _newTransactionID;
         } else if (retailers[msg.sender] && msg.sender == retailerAddress) {
@@ -236,39 +233,5 @@ contract SmartSupply is Entities, Utils {
         }
 
         emit BankTransactionChanged(_productID, msg.sender);
-    }
-
-    // address payable [] public recipients;
-    // event TransferReceived(address _from, uint _amount);
-
-    // constructor (address payable [] memory _recipients){
-    //     for (uint i = 0; i < _recipients.length; i++){ // loop through all the recipients and add them to the array
-    //         recipients.push(_recipients[i]);
-    //     }
-    // }
-
-    // receive() payable external { // receive function to receive ether 
-    //     uint256 amount = msg.value / recipients.length; // divide the amount of ether by the number of recipients
-    //     for (uint i = 0; i < recipients.length; i++){ // loop through all the recipients and send them the amount of ether
-    //         recipients[i].transfer(amount);
-    //     }
-    //     emit TransferReceived(msg.sender, msg.value); // emit an event to notify the frontend that ether has been received
-    // }
-
-    string public status;
-    function getStatus() external {
-        status = "Payed";
-    }
-
-    function getBalance() public view returns(uint) {
-        return address(this).balance;
-    }
-
-    fallback() external payable {
-        console.log("----- fallback:", msg.value);
-    }
-
-    receive() external payable {
-        console.log("----- receive:", msg.value);
     }
 }

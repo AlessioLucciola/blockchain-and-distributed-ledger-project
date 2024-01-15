@@ -107,7 +107,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 
 	useEffect(() => {
 		getProductStatus()
-	}, [productStatus, productReceived, oldOwnerInfo, newOwnerInfo])
+	}, [productStatus, productReceived, oldOwnerInfo, newOwnerInfo, productReceived])
 
 	useEffect(() => {
 		checkTransactionIdToChange()
@@ -226,8 +226,8 @@ function OrderCard({ product, image }: OrderCardProps) {
 				productStatusString = `Received from ${oldOwnerCompanyName}.`
 			}
 		} else {
-			const newOwnerCompanyName = newOwnerInfo?.companyName
-			productStatusString = `Sold to ${newOwnerCompanyName}`
+			const newOwnerName = newOwnerInfo?.role === Roles.CUSTOMER ? newOwnerInfo.name + ' ' + newOwnerInfo.surname : newOwnerInfo?.companyName
+			productStatusString = `Sold to ${newOwnerName}`
 		}
 		setProductStatusString(productStatusString)
 	}
@@ -286,7 +286,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 					{waitingForProduct() ? (
 						<Button text="Product Received" className={`p-2 font-semibold`} onClick={() => receiveProduct(product?.id!)} />
 					) : ""}
-					{getProductStageFromId(product.productState.toString()) === ProductStage.RECEIVED && sessionContext.entityInfo?.role === Roles.CUSTOMER ? (
+					{(getProductStageFromId(product.productState.toString()) === ProductStage.RECEIVED || productReceived) && sessionContext.entityInfo?.role === Roles.CUSTOMER ? (
 						<Button text="Get Product Certification" className={`p-2 font-semibold`} onClick={() => getProductCertification(product)} />
 					) : ""}
 				</div>

@@ -946,14 +946,14 @@ export const changeOnSaleRetailer = async (_productID: number, _retailerPrice: n
                         return changeOnSaleTransaction.wait()
                     })
                     .then(() => {
-                        console.log("changeOnSale function called successfully")
+                        console.log("changeOnSaleRetailer function called successfully")
                     })
                     .catch((error) => {
                         console.error("Error calling changeOnSale:", error)
                         reject(error)
                     })
 
-                contract.on("ChangedOnSale", (productID, owner) => {
+                contract.on("ChangedOnSaleRetailer", (productID, owner) => {
                     const event_ret = {
                         productId: productID,
                         owner: owner,

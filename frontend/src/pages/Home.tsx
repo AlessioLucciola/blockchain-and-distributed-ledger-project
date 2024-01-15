@@ -105,8 +105,8 @@ export default function Home() {
 						<div className="flex flex-col pt-40 gap-5 items-center justify-center">
 							<GradientText text="Admin settings:" className="text-3xl" />
 							<span className="flex pt-2 gap-2 items-center justify-center">
-								<Button text="Change Verification Amount" onClick={() => setShowChangeVerificationAmountModal(true)} /> 
-								<Button text="Change Certification Amount" onClick={() => setShowChangeCertificationAmountModal(true)} />
+								<Button text="Change Verification Price" onClick={() => setShowChangeVerificationAmountModal(true)} /> 
+								<Button text="Change Certification Percentage Price" onClick={() => setShowChangeCertificationAmountModal(true)} />
 							</span>
 						</div>
 							<ChangeCertificationAmountModal showModal={showChangeCertificationAmountModal} setShowModal={() => setShowChangeCertificationAmountModal(!showChangeCertificationAmountModal)} />
