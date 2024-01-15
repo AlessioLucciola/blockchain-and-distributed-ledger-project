@@ -146,7 +146,6 @@ function OwnedProductCard({ product, owner, image }: OwnedProductCardProps) {
 
 	useEffect(() => {
 		const role = owner.role
-		console.log(role)
 		if (role === Roles.MANUFACTURER) {
 			const productPrice = getProductPriceByIdentity(product, Roles.MANUFACTURER)
 			setProductPrice(productPrice?.toString())
@@ -209,7 +208,7 @@ function OwnedProductCard({ product, owner, image }: OwnedProductCardProps) {
 			return
 		} else {
 			alert(`Product is now shipped to ${newOwner.role === Roles.CUSTOMER ? newOwner.name + ' ' + newOwner.surname : newOwner.companyName}`)
-			setUpdatedProductStage(ProductStage.ON_SALE)
+			setUpdatedProductStage(ProductStage.SHIPPED)
 			return
 		}
 	}

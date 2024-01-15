@@ -67,7 +67,6 @@ export const formatUnixTimestampToDatetime = (timestamp: number) => {
 }
 
 export const getProductPriceByIdentity = (product: ProductInstance, entityRole: string): number | undefined => {
-	console.log(product)
 	switch (entityRole) {
 		case "manufacturer":
 			return product.manufacturerPrice !== undefined ? product.manufacturerPrice : undefined
