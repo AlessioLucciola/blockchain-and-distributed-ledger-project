@@ -54,6 +54,7 @@ contract SmartSupply is Entities, Utils {
 
     function changeOnSale(uint _productID) external onlyBusinessActivities {
         require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to OnSale");
+        require(!retailers[msg.sender], "To flag the product onSale use the changeOnSaleRetailer function instead");
         require(
             products[_productID].productStage != ProductStage.Purchased && 
             products[_productID].productStage != ProductStage.Shipped,
@@ -139,13 +140,13 @@ contract SmartSupply is Entities, Utils {
         products[_productID].productLocation = ProductLocation.Shipping; // Flag the item location to "Shipping"
 
         // If the receiver is a customer, distribute payments to the manufacturer, distributor, and retailer
-        if (customers[receiver]) {
+        if (retailers[msg.sender]) {
             uint256 reward = divisionRoundUp(products[_productID].certificationPrice, 4); // 25% of the certification price
 
             // Distribute payments only if TransactionIDs are not null
-            distributeReward(payable(products[_productID].ownerships.manufacturer), 0, reward); //0 because manufacturer doesn't have to make any external payments
-            distributeReward(payable(products[_productID].ownerships.distributor), products[_productID].transactionIDs.distributorBankTransactionID, reward);
-            distributeReward(payable(products[_productID].ownerships.retailer), products[_productID].transactionIDs.retailerBankTransactionID, reward);
+            distributeReward(payable(products[_productID].ownerships.manufacturer), _productID, reward); //0 because manufacturer doesn't have to make any external payments
+            distributeReward(payable(products[_productID].ownerships.distributor), _productID, reward);
+            distributeReward(payable(products[_productID].ownerships.retailer), _productID, reward);
         }
 
         emit ProductShipped(_productID, msg.sender, receiver);
@@ -172,33 +173,27 @@ contract SmartSupply is Entities, Utils {
         emit ProductReceived(_productID, msg.sender);
     }
 
-    function distributeReward(address payable recipient, uint256 _productID, uint256 amount) internal {
+    function distributeReward(address payable recipient, uint _productID, uint256 amount) internal {
         require(recipient != address(0), "Invalid recipient address");
         require(amount > 0, "Invalid payment amount");
 
         // Check if the recipient is a retailer and has a non-null retailerBankTransactionID
-        if (retailers[recipient]) {
-            if (products[_productID].transactionIDs.retailerBankTransactionID > 0) {
-                recipient.transfer(amount);
-                products[_productID].rewards.retailerRewarded = true;
-                emit RewardGiven(recipient, amount);
-            }
-        }
-        // Check if the recipient is a distributor and has a non-null distributorBankTransactionID
-        else if (distributors[recipient]) {
-            if (products[_productID].transactionIDs.distributorBankTransactionID > 0) {
-                recipient.transfer(amount);
-                products[_productID].rewards.distributorRewarded = true;
-                emit RewardGiven(recipient, amount);
-            }
-        }
-        // Always give the money to the manufacturer
-        else if (manufacturers[recipient]) {
+        if (manufacturers[recipient]) {
             recipient.transfer(amount);
             products[_productID].rewards.manufacturerRewarded = true;
             emit RewardGiven(recipient, amount);
-        } else {
-            revert("Invalid recipient role or missing transactionID");
+        }
+        // Check if the recipient is a distributor and has a non-null distributorBankTransactionID
+        else if (distributors[recipient] && products[_productID].transactionIDs.distributorBankTransactionID > 0) {
+            recipient.transfer(amount);
+            products[_productID].rewards.distributorRewarded = true;
+            emit RewardGiven(recipient, amount);
+        }
+        // Always give the money to the manufacturer
+        else if (retailers[recipient] && products[_productID].transactionIDs.retailerBankTransactionID > 0) {
+            recipient.transfer(amount);
+            products[_productID].rewards.retailerRewarded = true;
+            emit RewardGiven(recipient, amount);
         }
     }
 
@@ -225,11 +220,9 @@ contract SmartSupply is Entities, Utils {
         if (distributors[msg.sender] && msg.sender == distributorAddress && !products[_productID].rewards.distributorRewarded && (customerAddress != address(0) && (products[_productID].productStage == ProductStage.Shipped || products[_productID].productStage == ProductStage.Received))) {
             // Send the reward to the distributor
             distributeReward(payable(msg.sender), _productID, reward);
-            products[_productID].rewards.distributorRewarded = true;
         } else if (retailers[msg.sender] && msg.sender == retailerAddress && !products[_productID].rewards.retailerRewarded && (customerAddress != address(0) && (products[_productID].productStage == ProductStage.Shipped || products[_productID].productStage == ProductStage.Received))) {
             // Send the reward to the retailer
             distributeReward(payable(msg.sender), _productID, reward);
-            products[_productID].rewards.retailerRewarded = true;
         }
 
         emit BankTransactionChanged(_productID, msg.sender);
