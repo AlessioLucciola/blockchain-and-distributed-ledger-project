@@ -117,24 +117,21 @@ function OrderCard({ product, image }: OrderCardProps) {
 		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
 			navigate("/login")
 		}
-		if (sessionContext.entityInfo?.role === Roles.MANUFACTURER) {
+		const role = sessionContext?.entityInfo!.role
+		if (role === Roles.MANUFACTURER) {
 			setIsAuthorized(false)
 		}
+		if (role === Roles.DISTRIBUTOR) {
+			const productPrice = getProductPriceByIdentity(product, Roles.MANUFACTURER)
+            setProductPrice(productPrice?.toString())
+        } else if (role === Roles.RETAILER) {
+			const productPrice = getProductPriceByIdentity(product, Roles.DISTRIBUTOR)
+            setProductPrice(productPrice?.toString())
+        } else if (role === Roles.CUSTOMER) {
+			const productPrice = getProductPriceByIdentity(product, Roles.RETAILER)
+            setProductPrice(productPrice?.toString())
+        }
 	}, [sessionContext])
-
-	// Based on the role, get the product price
-    useEffect(() => {
-        const role = sessionContext?.entityInfo!.role
-        if (role === Roles.DISTRIBUTOR) {
-            setProductPrice(getProductPriceByIdentity(product, Roles.MANUFACTURER))
-        }
-        if (role === Roles.RETAILER) {
-            setProductPrice(getProductPriceByIdentity(product, Roles.DISTRIBUTOR))
-        }
-        if (role === Roles.CUSTOMER) {
-            setProductPrice(getProductPriceByIdentity(product, Roles.RETAILER))
-        }
-    }, []);
 
 	if (isAuthorized === false) {
 		return (

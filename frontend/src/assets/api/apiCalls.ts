@@ -209,13 +209,13 @@ export const searchProduct = async ({ name, productId, includeInstances }: { nam
                 if (productInstance.id !== undefined) {
                     const proxyResult = await getContractProductInfo(parseInt(productInstance.id))
                     productInstance.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
-                    const bankTransactionProxy = proxyResult[8]
+                    const bankTransactionProxy = proxyResult[9]
                     productInstance.bankTransaction = {
                         distributorBankTransactionID: bankTransactionProxy[0].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[0].toString(),
                         retailerBankTransactionID: bankTransactionProxy[1].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[1].toString(),
                     }
 
-                    const rewardsProxy = proxyResult[9]
+                    const rewardsProxy = proxyResult[10]
                     productInstance.rewards = {
                         manufacturerRewarded: rewardsProxy[0].toString(),
                         distributorRewarded: rewardsProxy[1].toString(),
@@ -249,7 +249,7 @@ export const getProductInfo = async ({ productId }: { productId: string }): Prom
 				const proxyResult = await getContractProductInfo(parseInt(productInstances.id))
 				// Assign the values from ProxyResult to ProductInstance
 				productInstances.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
-				const bankTransactionProxy = proxyResult[8]
+				const bankTransactionProxy = proxyResult[9]
 				productInstances.bankTransaction = {
 					distributorBankTransactionID: bankTransactionProxy[0].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[0].toString(),
 					retailerBankTransactionID: bankTransactionProxy[1].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[1].toString(),
@@ -421,13 +421,13 @@ export const getOrders = async ({ id }: { id: number }): Promise<AxiosResponse<{
 
 				// Assign the values from ProxyResult to ProductInstance
 				productInstance.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
-				const bankTransactionProxy = proxyResult[8]
+				const bankTransactionProxy = proxyResult[9]
 				productInstance.bankTransaction = {
 					distributorBankTransactionID: bankTransactionProxy[0].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[0].toString(),
 					retailerBankTransactionID: bankTransactionProxy[1].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[1].toString(),
 				}
 
-				const rewardsProxy = proxyResult[9];
+				const rewardsProxy = proxyResult[10];
 				productInstance.rewards = {
 					manufacturerRewarded: rewardsProxy[0].toString(),
 					distributorRewarded: rewardsProxy[1].toString(),
