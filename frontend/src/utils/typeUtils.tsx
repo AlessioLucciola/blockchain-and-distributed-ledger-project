@@ -1,4 +1,5 @@
 import { ProductStage, ProductLocation } from "../shared/constants"
+import { ProductInstance } from "../shared/types"
 
 export const getProductStageFromId = (id: string) => {
 	switch (id) {
@@ -65,17 +66,16 @@ export const formatUnixTimestampToDatetime = (timestamp: number) => {
 	return formattedDate
 }
 
-export const getProductPriceByIdentity = (product: any, entityRole: string) => {
+export const getProductPriceByIdentity = (product: ProductInstance, entityRole: string): number | undefined => {
+	console.log(product)
 	switch (entityRole) {
 		case "manufacturer":
-			return product.manufacturerPrice !== undefined ? product.manufacturerPrice : ""
+			return product.manufacturerPrice !== undefined ? product.manufacturerPrice : undefined
 		case "distributor":
-			return product.distributorPrice
+			return product.distributorPrice !== undefined ? product.distributorPrice : undefined
 		case "retailer":
-			return product.retailerPrice
-		case "customer":
-			return product.customerPrice
+			return product.retailerPrice !== undefined ? product.retailerPrice : undefined
 		default:
-			return null
+			return undefined
 	}
 }

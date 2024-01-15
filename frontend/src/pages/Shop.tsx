@@ -121,7 +121,7 @@ export default function Shop() {
                         <div className="flex flex-col gap-2 pt-10">
                             {myProducts.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
                                 <div key={instance.id}>
-									<OwnedProductCard product={instance} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+									<OwnedProductCard product={instance} owner={sessionContext?.entityInfo!} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
 								</div>
 							))}
                         </div>
@@ -134,29 +134,32 @@ export default function Shop() {
 
 interface OwnedProductCardProps {
 	product: ProductInstance
+	owner: Entity
 	image: string
 }
-function OwnedProductCard({ product, image }: OwnedProductCardProps) {
+function OwnedProductCard({ product, owner, image }: OwnedProductCardProps) {
     const navigate = useNavigate()
 	const [updatedProductStage, setUpdatedProductStage] = useState<ProductStage>()
 	const [newOwnerInfo, setNewOwnerInfo] = useState<Entity>()
-	const [showChangeProductPriceModal, setShowChangeProductPriceModal] = React.useState(false)
+	const [showChangeProductPriceModal, setShowChangeProductPriceModal] = useState<boolean>(false)
 	const [productPrice, setProductPrice] = useState<string>()
-	const sessionContext = useSessionContext()
 
-	// Based on the role, get the product price
 	useEffect(() => {
-		const role = sessionContext?.entityInfo!.role
+		const role = owner.role
+		console.log(role)
+		if (role === Roles.MANUFACTURER) {
+			const productPrice = getProductPriceByIdentity(product, Roles.MANUFACTURER)
+			setProductPrice(productPrice?.toString())
+		}
 		if (role === Roles.DISTRIBUTOR) {
-			setProductPrice(getProductPriceByIdentity(product, Roles.MANUFACTURER))
+			const productPrice = getProductPriceByIdentity(product, Roles.DISTRIBUTOR)
+			setProductPrice(productPrice?.toString())
 		}
 		if (role === Roles.RETAILER) {
-			setProductPrice(getProductPriceByIdentity(product, Roles.DISTRIBUTOR))
+			const productPrice = getProductPriceByIdentity(product, Roles.RETAILER)
+			setProductPrice(productPrice?.toString())
 		}
-		if (role === Roles.CUSTOMER) {
-			setProductPrice(getProductPriceByIdentity(product, Roles.RETAILER))
-		}
-	}, []);
+	}, [product])
 
 	const changeOnSale = async (productInstanceId: string, onSale: boolean) => {
 		if (onSale === true) {
@@ -245,7 +248,7 @@ function OwnedProductCard({ product, image }: OwnedProductCardProps) {
 				) : ""}
 			</div>
 			{showChangeProductPriceModal && (
-				<ChangeProductPriceModal showModal={showChangeProductPriceModal} setShowModal={() => setShowChangeProductPriceModal(!showChangeProductPriceModal)} productId={product.id!} currentPrice={getProductPriceByIdentity(product, sessionContext?.entityInfo!.role)}/>
+				<ChangeProductPriceModal showModal={showChangeProductPriceModal} setShowModal={() => setShowChangeProductPriceModal(!showChangeProductPriceModal)} productId={product.id!} currentPrice={parseInt(productPrice!)}/>
 			)}
 		</div>
 	)

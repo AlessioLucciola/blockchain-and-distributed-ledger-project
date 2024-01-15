@@ -1,12 +1,12 @@
 import { useNavigate, useParams } from "react-router-dom"
 import Navbar from "../components/Navbar"
-import { GRADIENTS } from "../shared/constants"
+import { GRADIENTS, ProductStage } from "../shared/constants"
 import { CustomerIcon, DistributorIcon, ManufacturerIcon, RetailerIcon, RightCaretIcon } from "../shared/icons"
 import GradientText from "../components/GradientText"
 import { Entity, Product, ProductInstance } from "../shared/types"
 import { useEffect, useState } from "react"
 import { getProductInfo, getSellerById, getVerificationInfoById } from "../assets/api/apiCalls"
-import { getProductPriceByIdentity } from "../utils/typeUtils"
+import { getProductPriceByIdentity, getProductStageFromId } from "../utils/typeUtils"
 import { useSessionContext } from "../context/exportContext"
 
 export default function ProductInfo() {
@@ -14,9 +14,19 @@ export default function ProductInfo() {
 	const [product, setProduct] = useState<Product>()
 	const [productInstances, setProductInstances] = useState<ProductInstance[]>([])
 	const [currentInstance, setCurrentInstance] = useState<ProductInstance>()
-	const [productPrice, setProductPrice] = useState<string>()
+	const [currentProductInstancePrice, setCurrentProductInstancePrice] = useState<string>()
+	const [showOtherProducts, setShowOtherProducts] = useState<boolean>(false)
 	const sessionContext = useSessionContext()
 	const navigate = useNavigate()
+
+	useEffect(() => {
+		if (!sessionContext.loading && sessionContext.entityInfo == undefined) {
+			navigate("/login")
+		}
+		if (sessionContext.entityInfo?.role) {
+			getProductInfoWrapper()
+		}
+	}, [sessionContext, instanceId])
 
 	const getProductInfoWrapper = async () => {
 		if (!productId) return
@@ -27,20 +37,15 @@ export default function ProductInfo() {
 			navigate(`/product/${productId}/${firstInstanceId}`)
 			return
 		}
-		setCurrentInstance(res.productInstances.filter((instance) => instance.id!.toString() === instanceId.toString())[0])
+		const instance = res.productInstances.filter((instance) => instance.id!.toString() === instanceId.toString())[0] 
+		setCurrentInstance(instance)
+		const currentPrice = getProductPriceByIdentity(instance, sessionContext?.entityInfo!.role)
+		setCurrentProductInstancePrice(currentPrice !== undefined ? currentPrice.toFixed(2) : "")
+		if (getProductStageFromId(instance.productState.toString()) === ProductStage.ON_SALE) {
+			setShowOtherProducts(true)
+		}
 		setProduct(res)
 	}
-
-	useEffect(() => {
-		getProductInfoWrapper()
-	}, [productId, instanceId])
-
-	useEffect(() => {
-		if (sessionContext) {
-			console.log(currentInstance?.manufacturerPrice)
-			setProductPrice(getProductPriceByIdentity(currentInstance, sessionContext?.entityInfo!.role).toFixed(2))
-		}
-	}, [sessionContext, currentInstance])
 
 	return (
 		<div className="bg-background h-screen w-screen overflow-scroll">
@@ -56,25 +61,31 @@ export default function ProductInfo() {
 							</span>
 							<p className="text-text text-xl">{product?.description}</p>
 							<div className="flex w-full gap-3 items-center justify-between">
-								<GradientText text={`$${productPrice}`} className="text-4xl" />
+								<GradientText text={`$${currentProductInstancePrice}`} className="text-4xl" />
 								{/*<Button text="Buy" className="w-fit" />*/}
 							</div>
 						</div>
 					</div>
-					<div className={`rounded-xl p-4 bg-${GRADIENTS["div-gradient"]} flex items-center flex-col`}>
-						<p className="font-semibold text-text text-nowrap pb-2 text-2xl">Other Products</p>
-						<div className="flex flex-col gap-2">
-							<div className="bg-background rounded-xl cursor-pointer grid py-1 px-3 gap-5 grid-cols-[1fr_3fr_2fr_1fr] box-shadow-lg place-items-center">
-								<p className="font-semibold text-text text-md text-nowrap">Id</p>
-								<p className="font-semibold text-text text-md text-nowrap">Sold By</p>
-								<p className="font-semibold text-text text-md text-nowrap">Price</p>
-								<RightCaretIcon className="h-4 fill-text text-nowrap w-4 invisible" />
+					{/*
+						<div className={`rounded-xl p-4 bg-${GRADIENTS["div-gradient"]} flex items-center flex-col`}>
+							<p className="font-semibold text-text text-nowrap pb-2 text-2xl">Other Products</p>
+							<div className="flex flex-col gap-2">
+								<div className="bg-background rounded-xl cursor-pointer grid py-1 px-3 gap-5 grid-cols-[1fr_3fr_2fr_1fr] box-shadow-lg place-items-center">
+									<p className="font-semibold text-text text-md text-nowrap">Id</p>
+									<p className="font-semibold text-text text-md text-nowrap">Sold By</p>
+									<p className="font-semibold text-text text-md text-nowrap">Price</p>
+									<RightCaretIcon className="h-4 fill-text text-nowrap w-4 invisible" />
+								</div>
+								{showOtherProducts ? (
+									<>
+										{productInstances?.map((productInstance: ProductInstance) => (
+											<OtherProductTab soldById={productInstance.currentOwner!} key={productInstance.id!} id={productInstance.id!} price={""} />
+										))}
+									</>
+								) : ""}
 							</div>
-							{productInstances?.map((productInstance: ProductInstance) => (
-								<OtherProductTab soldById={productInstance.currentOwner!} key={productInstance.id!} id={productInstance.id!} price={productPrice!} />
-							))}
 						</div>
-					</div>
+					*/}
 				</div>
 				<p className="font-bold text-text text-4xl">Product History</p>
 				<div className="flex pt-2 gap-2 items-center">
