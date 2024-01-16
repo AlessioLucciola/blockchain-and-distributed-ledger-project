@@ -229,7 +229,7 @@ function OwnedProductCard({ product, owner, image }: OwnedProductCardProps) {
 						<GradientText text={getStageNameString(updatedProductStage!)} className="text-xl" />
 					</span>
                     <span className="flex gap-2 items-center">
-						<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
+						<p className="font-semibold text-text text-xl drop-shadow-lg">Price:</p>
 						<GradientText text={"$"+productPrice} className="text-xl" />
 					</span>
 				</div>

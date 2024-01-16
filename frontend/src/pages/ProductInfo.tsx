@@ -88,6 +88,7 @@ export default function ProductInfo() {
 							</span>
 							<p className="text-text text-xl">{product?.description}</p>
 							<p className="text-text text-xl">{productStatusString}</p>
+							<p className="text-text text-xl">Price: ${currentProductInstancePrice}</p>
 						</div>
 					</div>
 					{/*
