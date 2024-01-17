@@ -618,7 +618,7 @@ const SmartSupplyController = {
 
 		try {
 			const query = req.query
-			const role = query.role as Roles
+			let role = query.role as Roles
 			const data = await service.getProductsOnSale({ role: role })
 			res.json({
 				message: `Products currently sold by role ${role} fetched successfully`,

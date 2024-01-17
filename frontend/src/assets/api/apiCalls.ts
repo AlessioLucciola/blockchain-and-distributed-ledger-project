@@ -381,17 +381,20 @@ export const changeProductNotOnSale = async ({ productInstanceId }: { productIns
 }
 export const getProductsOnSale = async (): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
 	const currentRole = await getEntityRole()
-	let previousRole
+
+	// Display products on sale based on the previous role of the entity that is logged in
+	let role
 	if (currentRole === Roles.DISTRIBUTOR) {
-		previousRole = Roles.MANUFACTURER
+		role = Roles.MANUFACTURER
 	} else if (currentRole === Roles.RETAILER) {
-		previousRole = Roles.DISTRIBUTOR
+		role = Roles.DISTRIBUTOR
 	} else if (currentRole === Roles.CUSTOMER) {
-		previousRole = Roles.RETAILER
+		role = Roles.RETAILER
 	} else {
-		previousRole = undefined
+		role = undefined
 	}
-	const res = await api.get("/get-products-on-sale", { params: { previousRole	 } })
+
+	const res = await api.get("/get-products-on-sale", { params: { role } })
 	return res
 }
 export const purchaseProductByEntity = async ({ productInstanceId, price, buyerId, oldOwnerId }: { productInstanceId: number, price: number, buyerId: number, oldOwnerId: number }): Promise<AxiosResponse<{ data: { message: string } }>> => {
