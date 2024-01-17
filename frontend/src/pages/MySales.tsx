@@ -136,6 +136,24 @@ function OrderCard({ product, image }: OrderCardProps) {
 		}
 	}
 
+	const getProductRewarded = async () => {
+		try {
+			const role = sessionContext?.entityInfo?.role
+			switch (role) {
+				case Roles.MANUFACTURER:
+					return product.rewards.manufacturerRewarded
+				case Roles.DISTRIBUTOR:
+					return product.rewards.distributorRewarded
+				case Roles.RETAILER:
+					return product.rewards.retailerRewarded
+				default:
+					return false
+			}
+		} catch (err) {
+			return false
+		}
+	}
+
     useEffect(() => {
         getNewOwnerById(product)
     }, [])
@@ -147,12 +165,15 @@ function OrderCard({ product, image }: OrderCardProps) {
 	return (
 		<div className="flex flex-row justify-between items-center">
 			<div className="flex gap-10">
-				<img src={image} alt="product image" className="h-fit w-[200px]" />
+				<div className="flex flex-col justify-around">
+						<img src={image} alt="product image" className="h-fit w-[200px]" />
+						{getProductRewarded() ? <p className="text-white text-center">Reward obtained</p> : ""}
+					</div>
 					<div className="flex flex-col justify-around">
 					<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
 					<span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Sold to</p>
-						<GradientText text={newOwnerInfo?.role === Roles.CUSTOMER && newOwnerInfo !== undefined ? newOwnerInfo.name + ' ' + newOwnerInfo.surname : newOwnerInfo?.companyName || 'Unknown'} className="text-xl" />
+						{/* <GradientText text={newOwnerInfo?.role === Roles.CUSTOMER && newOwnerInfo !== undefined ? newOwnerInfo.name + ' ' + newOwnerInfo.surname : newOwnerInfo?.companyName || 'Unknown'} className="text-xl" /> */}
 					</span>
 					<span className="flex gap-2 items-center">
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Status</p>
