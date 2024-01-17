@@ -14,7 +14,6 @@ export default function ProductInfo() {
 	const [product, setProduct] = useState<Product>()
 	const [productInstances, setProductInstances] = useState<ProductInstance[]>([])
 	const [currentInstance, setCurrentInstance] = useState<ProductInstance>()
-	const [currentProductInstancePrice, setCurrentProductInstancePrice] = useState<string>()
 	const [showOtherProducts, setShowOtherProducts] = useState<boolean>(false)
 	const [productStatusString, setProductStatusString] = useState<string>("")
 	const sessionContext = useSessionContext()
@@ -41,7 +40,6 @@ export default function ProductInfo() {
 		const instance = res.productInstances.filter((instance) => instance.id!.toString() === instanceId.toString())[0] 
 		setCurrentInstance(instance)
 		const currentPrice = getProductPriceByIdentity(instance, sessionContext?.entityInfo!.role)
-		setCurrentProductInstancePrice(currentPrice !== undefined ? currentPrice.toFixed(2) : "")
 		if (getProductStageFromId(instance.productState.toString()) === ProductStage.ON_SALE) {
 			setShowOtherProducts(true)
 		}
@@ -88,7 +86,6 @@ export default function ProductInfo() {
 							</span>
 							<p className="text-text text-xl">{product?.description}</p>
 							<p className="text-text text-xl">{productStatusString}</p>
-							<p className="text-text text-xl">Price: ${currentProductInstancePrice}</p>
 						</div>
 					</div>
 					{/*
