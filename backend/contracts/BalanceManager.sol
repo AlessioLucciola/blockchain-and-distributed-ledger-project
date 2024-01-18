@@ -26,6 +26,10 @@ contract BalanceManager {
         emit FundsAdded(msg.sender, msg.value);
     }
 
+    function getSmartSupplyBalance() public view returns(uint256) {
+        return smartSupplyBalance;
+    }
+
     function withdrawFunds(uint256 amount) external onlyAdmin {
         require(amount <= smartSupplyBalance, "Insufficient funds");
         smartSupplyBalance -= amount;

@@ -227,4 +227,12 @@ contract SmartSupply is Entities, Utils {
 
         emit BankTransactionChanged(_productID, msg.sender);
     }
+
+    fallback() external payable {
+        console.log("----- fallback:", msg.value);
+    }
+
+    receive() external payable {
+        console.log("----- receive:", msg.value);
+    }
 }
