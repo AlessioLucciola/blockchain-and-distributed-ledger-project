@@ -8,7 +8,11 @@ async function deployContract(contractName: string) {
     const contract = await ethers.deployContract(contractName);
     await contract.waitForDeployment();
 
-    console.log(`${contractName} deployed to:`, contract.target);
+    if (contractName === "SmartSupply") {
+        console.log(`---> ${contractName} deployed to: `, contract.target, ` <---`);
+    } else {
+        console.log(`${contractName} deployed to:`, contract.target);
+    }
     return contract;
 }
 
