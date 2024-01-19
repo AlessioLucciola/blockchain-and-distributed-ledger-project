@@ -28,11 +28,8 @@ export default function MySales() {
 		if (sessionContext.entityInfo?.role === Roles.CUSTOMER) {
 			setIsAuthorized(false)
 		}
+		getProductList()
 	}, [sessionContext])
-
-	useEffect(() => {
-        getProductList()
-    }, [])
     
 	const getProductList = async () => {
 		if (!sessionContext.entityInfo?.id === undefined) return
