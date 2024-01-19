@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar"
 import { useSessionContext } from "../context/exportContext"
 import { useNavigate } from "react-router-dom"
 import { Entity, ProductInstance } from "../shared/types"
-import { getOrders, getSellerById, receiveProductFromEntity } from "../assets/api/apiCalls"
+import { getOrders, getProductInstanceInfo, getSellerById, receiveProductFromEntity } from "../assets/api/apiCalls"
 import InputField from "../components/InputField"
 import { getEntityRole } from "../assets/api/contractCalls"
 import { ProductStage, Roles } from "../shared/constants"
@@ -13,6 +13,7 @@ import { getProductStageFromId, getProductPriceByIdentity } from "../utils/typeU
 import MessagePage from "./MessagePage"
 import ChangeTransactionIdModal from "../components/ChangeTransactionIdModal"
 import { generateProductCertification } from "../utils/customerUtils"
+import { getProductImage } from "../utils/renderUtils"
 
 export default function MyOrders() {
 	const navigate = useNavigate()
@@ -71,7 +72,7 @@ export default function MyOrders() {
 					<div className="flex flex-col gap-2 pt-10">
 						{ordersList.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
 							<div key={instance.id}>
-								<OrderCard product={instance} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+								<OrderCard product={instance} image={getProductImage(instance.product?.uid!)} />
 							</div>
 						))}
                     </div>
@@ -107,7 +108,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 
 	useEffect(() => {
 		getProductStatus()
-	}, [productStatus, productReceived, oldOwnerInfo, newOwnerInfo, productReceived])
+	}, [productStatus, productReceived, oldOwnerInfo, newOwnerInfo])
 
 	useEffect(() => {
 		checkTransactionIdToChange()
@@ -269,12 +270,29 @@ function OrderCard({ product, image }: OrderCardProps) {
 		generateProductCertification(product, ownerInfo, manufacturerName!, distributorName!, retailerName!);
 	}
 
+	const handleModalClose = async () => {
+		try {
+			const res = await getProductInstanceInfo({ productInstanceId: product.id!, productId: product.product?.uid! })
+			const updatedProductInfo = res.data.data
+			product = updatedProductInfo
+			if (updatedProductInfo !== undefined) {
+				if (sessionContext?.entityInfo!.role === Roles.DISTRIBUTOR && updatedProductInfo.bankTransaction.distributorBankTransactionID !== undefined) {
+					setTransactionIdToChange(true)
+				} else if (sessionContext?.entityInfo!.role === Roles.RETAILER && updatedProductInfo.bankTransaction.retailerBankTransactionID !== undefined) {
+					setTransactionIdToChange(true)
+				}
+			}
+		  } catch (error) {
+			console.error("Error fetching updated product info:", error)
+		  }
+	}
+
 	return (
 		<>
 			<div className="flex flex-row justify-between items-center">
 				<div className="flex gap-10">
 					<div className="flex flex-col justify-around">
-						<img src={image} alt="product image" className="h-fit w-[200px]" />
+						<img src={image} alt="product image" className="h-[200px] w-[200px] p-5" />
 						{getProductRewarded() ? <p className="text-white text-center">Reward obtained</p> : ""}
 					</div>
 					<div className="flex flex-col justify-around">
@@ -298,17 +316,17 @@ function OrderCard({ product, image }: OrderCardProps) {
 				</div>
 				<div className="flex flex-col justify-around">
 					{allowTransactionIdChange() ? (
-						<Button text={transactionIdToChange ? "Change Bank Transaction ID" : "Confirm Payment"} className={`p-2 font-semibold`} onClick={() => setShowChangeTransactionIdModal(true)} />
+						<Button text={transactionIdToChange ? "Change Bank Transaction ID" : "Confirm Payment"} className={`p-2 font-semibold`} fixedWidth={true} onClick={() => setShowChangeTransactionIdModal(true)} />
 					) : ""}
 					{waitingForProduct() ? (
-						<Button text="Product Received" className={`p-2 font-semibold`} onClick={() => receiveProduct(product?.id!)} />
+						<Button text="Product Received" className={`p-2 font-semibold`} fixedWidth={true} onClick={() => receiveProduct(product?.id!)} />
 					) : ""}
 					{(getProductStageFromId(product.productState.toString()) === ProductStage.RECEIVED || productReceived) && sessionContext.entityInfo?.role === Roles.CUSTOMER ? (
 						<Button text="Get Product Certification" className={`p-2 font-semibold`} onClick={() => getProductCertification(product)} />
 					) : ""}
 				</div>
 			</div>
-			<ChangeTransactionIdModal productInstanceId={parseInt(product?.id!)} transactionInfo={sessionContext?.entityInfo!.role === Roles.DISTRIBUTOR ? product.bankTransaction.distributorBankTransactionID : product.bankTransaction.retailerBankTransactionID} showModal={showChangeTransactionIdModal} setShowModal={() => setShowChangeTransactionIdModal(!showChangeTransactionIdModal)} />
+			<ChangeTransactionIdModal onModalClose={handleModalClose} productInstanceId={parseInt(product?.id!)} transactionInfo={sessionContext?.entityInfo!.role === Roles.DISTRIBUTOR ? product.bankTransaction.distributorBankTransactionID : product.bankTransaction.retailerBankTransactionID} showModal={showChangeTransactionIdModal} setShowModal={() => setShowChangeTransactionIdModal(!showChangeTransactionIdModal)} />
 		</>
 	)
 }

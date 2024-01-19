@@ -43,26 +43,6 @@ If you have some dependency problems, simply delete `node_modules` and `package-
 2. Deploy smart contract
     ```
     npx hardhat run ./scripts/deploy.ts --network localhost
-    ```
-    ⚠️ If you get this error `ProviderError: Error: Transaction reverted: trying to deploy a contract whose code is too large` add this in `hardhat.config.ts`
-    ```
-    ...
-    const config = {
-        solidity: ...,
-        settings: {
-            optimizer: {
-            enabled: true,
-            runs: 200,
-            details: { yul: false },
-            },
-        },
-        networks: {
-                ...
-                allowUnlimitedContractSize: true,
-            }
-        },
-    };  
-    ```
 3. Copy the contract address into the `.env` file
 4. Copy the `SmartSupply.json` from `backend\artifacts\contracts\SmartSupply.sol` folder to `frontend\src\assets\abi`
 

@@ -12,6 +12,7 @@ import { changeProductOnSale, changeProductNotOnSale, getProductInstancesFromSel
 import Button from "../components/Button"
 import InputField from "../components/InputField"
 import { getProductStageFromId, getStageNameString, getProductPriceByIdentity } from "../utils/typeUtils"
+import { getProductImage } from "../utils/renderUtils"
 
 export default function Shop() {
 	const [showCreateProductModal, setShowCreateProductModal] = useState(false)
@@ -106,7 +107,7 @@ export default function Shop() {
 									name={product!.name}
 									id={product!.uid!}
 									price={manufacturerPrice.toFixed(2)}
-									image={"/src/assets/placeholders/nike-dunk-low-diffused-taupe.png"}
+									image={getProductImage(product?.uid!)}
 									key={product!.uid!}
 									onClick={() => navigate(`/product/${product!.uid!}`)}
 								/>
@@ -121,7 +122,7 @@ export default function Shop() {
                         <div className="flex flex-col gap-2 pt-10">
                             {myProducts.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
                                 <div key={instance.id}>
-									<OwnedProductCard product={instance} owner={sessionContext?.entityInfo!} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+									<OwnedProductCard product={instance} owner={sessionContext?.entityInfo!} image={getProductImage(instance.product?.uid!)} />
 								</div>
 							))}
                         </div>
@@ -221,7 +222,7 @@ function OwnedProductCard({ product, owner, image }: OwnedProductCardProps) {
 	return (
 		<div className="flex flex-row justify-between items-center">
 			<div className="flex gap-10">
-				<img src={image} alt="product image" className="h-fit w-[200px]" />
+				<img src={image} alt="product image" className="h-[200px] w-[200px] p-5" />
 				<div className="flex flex-col justify-around">
 					<p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
                     <span className="flex gap-2 items-center">
@@ -232,18 +233,20 @@ function OwnedProductCard({ product, owner, image }: OwnedProductCardProps) {
 						<p className="font-semibold text-text text-xl drop-shadow-lg">Price:</p>
 						<GradientText text={"$"+productPrice} className="text-xl" />
 					</span>
+					<span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
+						<GradientText text={"Details >"} className="text-xl" />
+					</span>
 				</div>
 			</div>
 			<div className="flex flex-col justify-around">
-				<Button text="Details" className={`p-2 font-semibold`} onClick={() => navigate(`/product/${product.product?.uid}`)}/>
 				{product.productState !== undefined && (updatedProductStage === ProductStage.PRODUCED || updatedProductStage === ProductStage.RECEIVED || updatedProductStage === ProductStage.NOT_ON_SALE) ? (
-					<Button text="Change on sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!, true)					}/>
+					<Button text="Change on sale" className={`p-2 font-semibold`} fixedWidth={true} onClick={() => changeOnSale(product.id!, true)					}/>
 				) : ""}
 				{product.productState !== undefined && (updatedProductStage === ProductStage.ON_SALE) ? (
-					<Button text="Remove from sale" className={`p-2 font-semibold`} onClick={() => changeOnSale(product.id!, false)}/>
+					<Button text="Remove from sale" className={`p-2 font-semibold`} fixedWidth={true} onClick={() => changeOnSale(product.id!, false)}/>
 				) : ""}
 				{product !== undefined && updatedProductStage === ProductStage.PURCHASED ? (
-					<Button text="Ship product" className={`p-2 font-semibold`} onClick={() => shipProduct(product.id!, newOwnerInfo!)}/>
+					<Button text="Ship product" className={`p-2 font-semibold`} fixedWidth={true} onClick={() => shipProduct(product.id!, newOwnerInfo!)}/>
 				) : ""}
 			</div>
 			{showChangeProductPriceModal && (

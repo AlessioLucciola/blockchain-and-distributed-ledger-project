@@ -11,6 +11,7 @@ import { useSessionContext } from "../context/exportContext"
 import { getEntityRole } from "../assets/api/contractCalls"
 import { getProductStageFromId, getProductPriceByIdentity } from "../utils/typeUtils"
 import MessagePage from "./MessagePage"
+import { getProductImage } from "../utils/renderUtils"
 
 export default function MySales() {
 	const navigate = useNavigate()
@@ -67,7 +68,7 @@ export default function MySales() {
 					<div className="flex flex-col gap-2 pt-10">
 						{salesList.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
 							<div key={instance.id}>
-								<OrderCard product={instance} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+								<OrderCard product={instance} image={getProductImage(instance.product?.uid!)}/>
 							</div>
 						))}
                     </div>
@@ -136,22 +137,14 @@ function OrderCard({ product, image }: OrderCardProps) {
 		}
 	}
 
-	const getProductRewarded = async () => {
-		try {
-			const role = sessionContext?.entityInfo?.role
-			switch (role) {
-				case Roles.MANUFACTURER:
-					return product.rewards.manufacturerRewarded
-				case Roles.DISTRIBUTOR:
-					return product.rewards.distributorRewarded
-				case Roles.RETAILER:
-					return product.rewards.retailerRewarded
-				default:
-					return false
+	const getProductRewarded = () => {
+		const role = sessionContext.entityInfo?.role
+		switch (role) {
+			case Roles.MANUFACTURER:
+				return product.rewards.manufacturerRewarded
+			default:
+				return false
 			}
-		} catch (err) {
-			return false
-		}
 	}
 
     useEffect(() => {
@@ -166,7 +159,7 @@ function OrderCard({ product, image }: OrderCardProps) {
 		<div className="flex flex-row justify-between items-center">
 			<div className="flex gap-10">
 				<div className="flex flex-col justify-around">
-						<img src={image} alt="product image" className="h-fit w-[200px]" />
+						<img src={image} alt="product image" className="h-[200px] w-[200px] p-5" />
 						{getProductRewarded() ? <p className="text-white text-center">Reward obtained</p> : ""}
 					</div>
 					<div className="flex flex-col justify-around">

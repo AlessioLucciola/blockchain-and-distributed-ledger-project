@@ -12,6 +12,7 @@ import { Roles } from "../shared/constants"
 import { fetchETHPrice } from "../utils/fetchETHPrice"
 import MessagePage from "./MessagePage"
 import { getProductPriceByIdentity } from "../utils/typeUtils"
+import { getProductImage } from "../utils/renderUtils"
 
 export default function MyOrders() {
     const navigate = useNavigate()
@@ -69,7 +70,7 @@ export default function MyOrders() {
                         <div className="flex flex-col gap-2 pt-10">
                             {productList.filter((instance => instance.product?.name.toLowerCase().includes(search.toLowerCase()))).map((instance) => (
                                 <div key={instance.id}>
-                                    <PurchaseCard product={instance} buyer={sessionContext?.entityInfo!} image="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" />
+                                    <PurchaseCard product={instance} buyer={sessionContext?.entityInfo!} image={getProductImage(instance.product?.uid!)} />
                                 </div>
                             ))}
                         </div>
@@ -151,7 +152,7 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
 	return (
 		<div className="flex flex-row justify-between items-center">
             <div className="flex gap-10">
-                <img src={image} alt="product image" className="h-fit w-[200px]" />
+                <img src={image} alt="product image" className="h-[200px] w-[200px] p-5" />
                 <div className="flex flex-col justify-around">
                     <p className="font-semibold text-text text-xl drop-shadow-lg">{product.product?.name}</p>
                     <span className="flex gap-2 items-center">

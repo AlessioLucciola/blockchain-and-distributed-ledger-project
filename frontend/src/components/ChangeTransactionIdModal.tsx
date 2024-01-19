@@ -7,8 +7,9 @@ interface ChangeTransactionIdModalProps {
     transactionInfo: string | undefined
 	showModal: boolean
 	setShowModal: (showModal: boolean) => void
+	onModalClose: () => void
 }
-export default function ChangeTransactionIdModal({ productInstanceId, transactionInfo, showModal, setShowModal }: ChangeTransactionIdModalProps) {
+export default function ChangeTransactionIdModal({ productInstanceId, transactionInfo, showModal, setShowModal, onModalClose }: ChangeTransactionIdModalProps) {
 	const transactionIdRef = useRef<HTMLInputElement | null>(null)
 
 	const addTransactionId = async () => {
@@ -23,6 +24,7 @@ export default function ChangeTransactionIdModal({ productInstanceId, transactio
 			if (parseInt(contract_res.productId) === productInstanceId) {
                 alert("Transaction ID changed successfully")
                 setShowModal(false)
+				return
             } else {
                 const error = console.error("Error changing transactionID. Can't catch the contract event.")
                 throw error
@@ -81,7 +83,7 @@ export default function ChangeTransactionIdModal({ productInstanceId, transactio
                                         <button
                                             className="bg-secondary rounded font-bold outline-none shadow text-text text-sm mr-1 mb-1 py-3 px-6 transition-all ease-linear duration-150 uppercase hover:shadow-lg focus:outline-none active:bg-emerald-600"
                                             type="button"
-                                            onClick={() => setShowModal(false)}
+                                            onClick={() => {setShowModal(false); onModalClose()}}
                                         >
                                             Close
                                         </button>

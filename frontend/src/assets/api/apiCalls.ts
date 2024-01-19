@@ -237,6 +237,26 @@ export const searchProduct = async ({ name, productId, includeInstances }: { nam
 
 export const getProductInstanceInfo = async ({ productInstanceId, productId }: { productInstanceId: string; productId: string }): Promise<AxiosResponse<{ data: ProductInstance }>> => {
 	const res = await api.get("/get-product-instance-info", { params: { productInstanceId, productId } })
+	const productInstance: ProductInstance = res.data.data
+	if (productInstance.id !== undefined) {
+		const proxyResult = await getContractProductInfo(parseInt(productInstance.id))
+		// Assign the values from ProxyResult to ProductInstance
+		productInstance.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
+		const bankTransactionProxy = proxyResult[9]
+		productInstance.bankTransaction = {
+			distributorBankTransactionID: bankTransactionProxy[0].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[0].toString(),
+			retailerBankTransactionID: bankTransactionProxy[1].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[1].toString(),
+		}
+
+		const rewardsProxy = proxyResult[10];
+		productInstance.rewards = {
+			manufacturerRewarded: rewardsProxy[0],
+			distributorRewarded: rewardsProxy[1],
+			retailerRewarded: rewardsProxy[2],
+		}
+	} else {
+		console.error("Product instance has undefined id:", productInstance)
+	}
 	return res
 }
 
@@ -461,6 +481,31 @@ export const shipProductToEntity = async ({ productInstanceId, newOwnerAddress }
 export const getSoldProducts = async ({ id }: { id: number }): Promise<AxiosResponse<{ data: ProductInstance[] }>> => {
 	const currentRole = await getEntityRole()
 	const res = await api.get("/get-sold-products", { params: { id: id, role: currentRole }})
+	const productInstances: ProductInstance[] = res.data.data
+	if (productInstances !== undefined) {
+		for (const productInstance of productInstances) {
+			if (productInstance.id !== undefined) {
+				const proxyResult = await getContractProductInfo(parseInt(productInstance.id))
+
+				// Assign the values from ProxyResult to ProductInstance
+				productInstance.creationDate = formatUnixTimestampToDatetime(parseInt(proxyResult[4].toString()))
+				const bankTransactionProxy = proxyResult[9]
+				productInstance.bankTransaction = {
+					distributorBankTransactionID: bankTransactionProxy[0].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[0].toString(),
+					retailerBankTransactionID: bankTransactionProxy[1].toString() === empty_transaction_ID ? undefined : bankTransactionProxy[1].toString(),
+				}
+
+				const rewardsProxy = proxyResult[10];
+				productInstance.rewards = {
+					manufacturerRewarded: rewardsProxy[0],
+					distributorRewarded: rewardsProxy[1],
+					retailerRewarded: rewardsProxy[2],
+				}
+			} else {
+				console.error("Product instance has undefined id:", productInstances)
+			}
+		}
+	}
 	return res
 }
 export const receiveProductFromEntity = async ({ productInstanceId }: { productInstanceId: number }): Promise<AxiosResponse<{ data: { message: string } }>> => {

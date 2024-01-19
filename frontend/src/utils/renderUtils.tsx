@@ -17,3 +17,8 @@ export const getRoleIcon = (role: Roles) => {
 			return <CustomerIcon className="h-10 fill-primary w-10" />
 	}
 }
+
+export const getProductImage = (productId: string): string => {
+	const imageId = parseInt(productId) % 10;
+	return `/src/assets/placeholders/img${imageId + 1}.png`
+}

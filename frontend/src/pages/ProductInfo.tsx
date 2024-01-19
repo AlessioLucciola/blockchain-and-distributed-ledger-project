@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 import { getProductInfo, getSellerById, getVerificationInfoById } from "../assets/api/apiCalls"
 import { getProductPriceByIdentity, getProductStageFromId } from "../utils/typeUtils"
 import { useSessionContext } from "../context/exportContext"
+import { getProductImage } from "../utils/renderUtils"
 
 export default function ProductInfo() {
 	const { productId, instanceId } = useParams()
@@ -79,7 +80,7 @@ export default function ProductInfo() {
 				<p className="font-bold text-text text-4xl">Product Info</p>
 				<div className="flex gap-10">
 					<div className="flex w-full">
-						<img src="/src/assets/placeholders/nike-dunk-low-diffused-taupe.png" alt="product image" className="h-fit w-fit" />
+						<img src={getProductImage(product?.uid!)} alt="product image" className="h-[300px] w-fit p-5"/>
 						<div className="flex flex-col mx-3 gap-10">
 							<span className="flex flex-col gap-2">
 								<p className="font-semibold text-text text-4xl">{product?.name}</p>
