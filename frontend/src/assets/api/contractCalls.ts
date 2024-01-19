@@ -583,7 +583,8 @@ export const verifyEntity = async (): Promise<string | null> => {
             // Get the amount of coins that the entity has to send to get verified
             let verificationAmount = await getVerificationAmount()
 
-            verificationAmount = ethers.parseUnits(verificationAmount!, "gwei").toString();
+            // Convert verificationAmount from ether to gwei
+            verificationAmount = ethers.parseUnits(verificationAmount.toString(), "ether").toString();
 
             // Create a promise to resolve when the event is emitted
             return new Promise((resolve, reject) => {
@@ -647,8 +648,10 @@ export const getVerificationAmount = async () => {
         const contract = await getContractInstance()
 
         if (contract) {
-            const verificationAmount = await contract.getVerificationAmount()
-            console.log("Verification amount: ", verificationAmount.toString())
+            let verificationAmount = await contract.getVerificationAmount()
+            verificationAmount = ethers.formatUnits(verificationAmount, "ether");
+
+            console.log("Verification amount: ", verificationAmount.toString(), "ETH")
 
             return verificationAmount.toString()
         } else {
@@ -669,10 +672,13 @@ export const changeVerificationAmount = async (
 
         if (contract) {
             // Create a promise to resolve when the event is emitted
+
+            let newVerificationAmount = ethers.parseUnits(_verificationAmount.toString(), "ether");
+
             return new Promise((resolve, reject) => {
                 // Call the productProduct function on the contract by sending the id and uid of a product
                 contract
-                    .setVerificationAmount(_verificationAmount)
+                    .setVerificationAmount(newVerificationAmount)
                     .then((verificationAmountTransaction) => {
                         return verificationAmountTransaction.wait()
                     })
