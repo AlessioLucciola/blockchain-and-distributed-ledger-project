@@ -583,7 +583,8 @@ export const verifyEntity = async (): Promise<string | null> => {
             // Get the amount of coins that the entity has to send to get verified
             let verificationAmount = await getVerificationAmount()
 
-            verificationAmount = ethers.parseUnits(verificationAmount!, "gwei").toString();
+            // Convert verificationAmount from ether to gwei
+            verificationAmount = ethers.parseUnits(verificationAmount.toString(), "ether").toString();
 
             // Create a promise to resolve when the event is emitted
             return new Promise((resolve, reject) => {
@@ -647,8 +648,10 @@ export const getVerificationAmount = async () => {
         const contract = await getContractInstance()
 
         if (contract) {
-            const verificationAmount = await contract.getVerificationAmount()
-            console.log("Verification amount: ", verificationAmount.toString())
+            let verificationAmount = await contract.getVerificationAmount()
+            verificationAmount = ethers.formatUnits(verificationAmount, "ether");
+
+            console.log("Verification amount: ", verificationAmount.toString(), "ETH")
 
             return verificationAmount.toString()
         } else {
@@ -669,10 +672,13 @@ export const changeVerificationAmount = async (
 
         if (contract) {
             // Create a promise to resolve when the event is emitted
+
+            let newVerificationAmount = ethers.parseUnits(_verificationAmount.toString(), "ether");
+
             return new Promise((resolve, reject) => {
                 // Call the productProduct function on the contract by sending the id and uid of a product
                 contract
-                    .setVerificationAmount(_verificationAmount)
+                    .setVerificationAmount(newVerificationAmount)
                     .then((verificationAmountTransaction) => {
                         return verificationAmountTransaction.wait()
                     })
@@ -1021,7 +1027,8 @@ export const changeNotOnSale = async (_productID: number): Promise<any | null> =
 
 export const purchaseProduct = async (
     _productID: number,
-    _price: number
+    _productPrice: number,
+    _certificationPrice: number
 ): Promise<any | null> => {
     try {
         // Get the contract instance by awaiting the promise
@@ -1032,20 +1039,11 @@ export const purchaseProduct = async (
             return new Promise(async (resolve, reject) => {
                 // Call the purchaseProduct function to purchase a product
                 if (await isCustomer()) {
-                    // Get the percentage of the price that goes to the certification
-                    let certificationPercentage = await getCertificationPercentage();
-                    let certificationAmount = (_price * certificationPercentage) / 100
-
-                    // Get current eth price in dollars
-                    let ethPrice = await fetchETHPrice()
-                    certificationAmount = (certificationAmount / ethPrice.USD)
-
-                    // Convert _certificationAmount from ether to gwei
-                    let newCertificationAmount = ethers.parseUnits(certificationAmount.toString(), "ether").toString();
+                    let newCertificationPrice = ethers.parseUnits(_certificationPrice!.toString(), "ether").toString();
 
                     // If the entity is a customer, he also has to send a certain amount of coins to the get product certification
                     contract
-                        .purchaseProduct(_productID, { value: BigInt(newCertificationAmount), to: contract.address, from: getMetamaskAddress() })
+                        .purchaseProduct(_productID, { value: BigInt(newCertificationPrice), to: contract.address, from: getMetamaskAddress() })
                         .then((purchaseProductTransaction) => {
                             return purchaseProductTransaction.wait()
                         })

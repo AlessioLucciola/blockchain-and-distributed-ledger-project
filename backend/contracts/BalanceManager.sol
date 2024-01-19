@@ -4,7 +4,7 @@ pragma solidity >=0.8.0 <0.9.0;
 contract BalanceManager {
     address public admin;
     uint256 public smartSupplyBalance;
-    uint256 private verificationAmount = 0.05 gwei; // base price for verification 
+    uint256 private verificationAmount = 50000000 gwei; // base price for verification 
     uint256 private certificationPercentage = 10; // base price for certification 
 
     event FundsAdded(address indexed from, uint256 amount);

@@ -14,7 +14,6 @@ export default function ChangeVerificationAmountModal({ showModal, setShowModal 
 
 	const fetchCurrentVerificationAmount = async () => {
 		let currentAmount = await getVerificationAmount();
-		currentAmount = ethers.formatUnits(currentAmount, "gwei");
 		setVerificationAmount(currentAmount);
 	};
 
@@ -40,8 +39,6 @@ export default function ChangeVerificationAmountModal({ showModal, setShowModal 
 		}
 
 		let price = priceRef.current?.value
-
-		price = ethers.parseUnits(price!, "gwei").toString();
 
 		try {
 			const res = await changeVerificationAmount(parseFloat(price!))
