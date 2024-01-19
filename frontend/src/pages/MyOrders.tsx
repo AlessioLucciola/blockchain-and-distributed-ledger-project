@@ -7,12 +7,13 @@ import { useNavigate } from "react-router-dom"
 import { Entity, ProductInstance } from "../shared/types"
 import { getOrders, getSellerById, receiveProductFromEntity } from "../assets/api/apiCalls"
 import InputField from "../components/InputField"
-import { getEntityRole } from "../assets/api/contractCalls"
+import { getCertificationPercentage, getEntityRole } from "../assets/api/contractCalls"
 import { ProductStage, Roles } from "../shared/constants"
 import { getProductStageFromId, getProductPriceByIdentity } from "../utils/typeUtils"
 import MessagePage from "./MessagePage"
 import ChangeTransactionIdModal from "../components/ChangeTransactionIdModal"
 import { generateProductCertification } from "../utils/customerUtils"
+import { fetchETHPrice } from "../utils/fetchETHPrice"
 
 export default function MyOrders() {
 	const navigate = useNavigate()
@@ -97,6 +98,21 @@ function OrderCard({ product, image }: OrderCardProps) {
 	const [showChangeTransactionIdModal, setShowChangeTransactionIdModal] = useState(false)
 	const [productReceived, setProductReceived] = useState<boolean>(false)
 	const [productPrice, setProductPrice] = useState<string>()
+	const [certificationPrice, setCertificationPrice] = useState<string>()
+
+	const getCertificationAmount = async () => {
+        let certificationPercentage = await getCertificationPercentage()
+        let certificationPrice = (parseInt(productPrice!) * certificationPercentage) / 100
+
+        // Get current eth price in dollars
+        let ethPrice = await fetchETHPrice()
+        certificationPrice = (certificationPrice / ethPrice.USD)
+        setCertificationPrice(certificationPrice.toFixed(5))
+    }
+
+	useEffect(() => {
+        getCertificationAmount()
+    }, [productPrice])
 
     useEffect(() => {
         getOldOwnerByIdWrapper()
@@ -291,6 +307,12 @@ function OrderCard({ product, image }: OrderCardProps) {
 							<p className="font-semibold text-text text-xl drop-shadow-lg">Price</p>
 							<GradientText text={"$"+productPrice} className="text-xl" />
 						</span>
+						{sessionContext.entityInfo?.role === Roles.CUSTOMER ? (
+							<span className="flex gap-2 items-center">
+								<p className="font-semibold text-text text-xl drop-shadow-lg">Certification price</p>
+								<GradientText text={"ETH"+certificationPrice} className="text-xl" />
+							</span>
+						) : ""}
 						<span className="cursor-pointer select-none" onClick={() => navigate(`/product/${product.product?.uid}`)}>
 							<GradientText text={"Details >"} className="text-xl" />
 						</span>

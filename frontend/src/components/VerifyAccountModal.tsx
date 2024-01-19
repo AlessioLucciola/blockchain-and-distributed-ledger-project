@@ -3,6 +3,8 @@ import InputField from "./InputField"
 import { addVerificationID, getVerificationInfoById, updateVerificationPayment } from "../assets/api/apiCalls"
 import { useSessionContext } from "../context/exportContext"
 import { Verifications } from "../shared/types"
+import { getVerificationAmount } from "../assets/api/contractCalls"
+import React from "react"
 
 interface VerifyAccountModalProps {
 	showModal: boolean
@@ -11,7 +13,18 @@ interface VerifyAccountModalProps {
 export default function VerifyAccountModal({ showModal, setShowModal }: VerifyAccountModalProps) {
 	const verificationRef = useRef<HTMLInputElement | null>(null)
 	const [verificationDetails, setVerificationsDetails] = useState<Verifications | undefined>()
+	const [verificationAmount, setVerificationAmount] = React.useState(0);
 	const sessionContext = useSessionContext()
+
+	const fetchCurrentVerificationAmount = async () => {
+		let currentAmount = await getVerificationAmount();
+		setVerificationAmount(currentAmount);
+	};
+
+	useEffect(() => {
+		fetchCurrentVerificationAmount();
+	}, []);
+
 
 	const getVerificationDetails = async () => {
 		const userID = sessionContext.entityInfo?.id!.toString()
@@ -105,7 +118,7 @@ export default function VerifyAccountModal({ showModal, setShowModal }: VerifyAc
 																	type="button"
 																	onClick={() => payBadge(verificationDetails.id, true)}
 																>
-																	Make the payment
+																	Make the payment - {verificationAmount} ETH
 																</button>
 																<button
 																	className="bg-secondary rounded font-bold outline-none shadow text-text text-sm mr-1 mb-1 py-3 px-6 transition-all ease-linear duration-150 uppercase hover:shadow-lg focus:outline-none active:bg-emerald-600"
