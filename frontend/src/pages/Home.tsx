@@ -123,13 +123,15 @@ export default function Home() {
 						{sessionContext.entityInfo?.role as Roles !== Roles.MANUFACTURER ? <Card title="My Orders" Icon={CartIcon} onClick={() => navigate("/orders")} />  : ""}
 						{sessionContext.entityInfo?.role as Roles !== Roles.CUSTOMER? <Card title="My Shop" Icon={StoreIcon} onClick={() => navigate("/shop")} /> : ""}
 					</div>
-					<div className="flex flex-col pt-40 gap-5 items-center justify-center">
-						<GradientText text="Account settings:" className="text-3xl" />
-						<span className="flex pt-2 gap-2 items-center justify-center">
-							{/*<Button text="Delete Account" onClick={() => setShowDeleteModal(true)} />*/}
-							{sessionContext.entityInfo?.role as Roles !== Roles.CUSTOMER ? <Button text="Verify Account" onClick={() => setShowVerifyAccountModal(true)} /> : ""}
-						</span>
-					</div>
+					{sessionContext.entityInfo?.role as Roles !== Roles.CUSTOMER ? (
+						<div className="flex flex-col pt-40 gap-5 items-center justify-center">
+							<GradientText text="Account settings:" className="text-3xl" />
+							<span className="flex pt-2 gap-2 items-center justify-center">
+								{/*<Button text="Delete Account" onClick={() => setShowDeleteModal(true)} />*/}
+								<Button text="Verify Account" onClick={() => setShowVerifyAccountModal(true)} />
+							</span>
+						</div>
+					) : ""}
 					<DeleteAccountModal showModal={showDeleteModal} setShowModal={() => setShowDeleteModal(!showDeleteModal)} />
 					<VerifyAccountModal showModal={showVerifyAccountModal} setShowModal={() => setShowVerifyAccountModal(!showVerifyAccountModal)} />
 				</>
