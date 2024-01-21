@@ -298,9 +298,9 @@ function OrderCard({ product, image }: OrderCardProps) {
 					setTransactionIdToChange(true)
 				}
 			}
-		  } catch (error) {
-			console.error("Error fetching updated product info:", error)
-		  }
+		} catch (error) {
+		console.error("Error fetching updated product info:", error)
+		}
 	}
 
 	return (
@@ -352,3 +352,4 @@ function OrderCard({ product, image }: OrderCardProps) {
 		</>
 	)
 }
+
