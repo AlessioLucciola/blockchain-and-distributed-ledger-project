@@ -23,6 +23,7 @@ export default function ChangeTransactionIdModal({ productInstanceId, transactio
 			const contract_res = await changeBankTransactionID(productInstanceId, parseInt(newTransactionId))
 			if (parseInt(contract_res.productId) === productInstanceId) {
                 alert("Transaction ID changed successfully")
+				window.location.reload()
                 setShowModal(false)
 				return
             } else {
