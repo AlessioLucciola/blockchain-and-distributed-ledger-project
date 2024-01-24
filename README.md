@@ -5,6 +5,7 @@ This project was done by:
 *   Domiziano Scarcelli (matr. 1872664)
 
 The project is composed by two subfolders "frontend" and "backend". The smart contract files are stored in "./backend/contracts/*".
+A demo of the project is available at this link: https://www.youtube.com/watch?v=Jb_NyqDaF1o&ab_channel=AlessioLucciola
 
 ## Setup
 Install the dependencies with `npm install` (both in the frontend and backend folder)
