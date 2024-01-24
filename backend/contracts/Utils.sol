@@ -62,7 +62,7 @@ contract Utils {
         address customer;
     }
 
-    // Define some events
+    // Define some events that are used in the SmartSupply contract
     event ProductProduced(uint256 productID, address manufacturer);
     event ChangedOnSaleRetailer(uint256 productID, address retailer, uint256 newCertificationPrice);   
     event ChangedOnSale(uint256 productID, address owner);

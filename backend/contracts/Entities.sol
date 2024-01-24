@@ -177,28 +177,22 @@ contract Entities is BalanceManager {
 
     // Define a function to make the payment and receive the verified badge (only for entities that sent a proof and it was accepted by the admin)
     function verifyEntity() external payable onlyVerificationPermittedEntity {
-        // Ensure a certain amount of Ether is sent for verification
         BalanceManager balanceManager = new BalanceManager();
-        uint256 verificationAmount = balanceManager.getVerificationAmount();
-
-        require(msg.value >= verificationAmount, "Insufficient payment for verification");
-
+        uint256 verificationAmount = balanceManager.getVerificationAmount(); // Get the verification amount from the BalanceManager contract
+        require(msg.value >= verificationAmount, "Insufficient payment for verification"); // Ensure the amount sent is greater than the verification amount
         uint256 amountSent = msg.value;
+        smartSupplyBalance += amountSent; // Add the amount sent to the SmartSupply balance
+        emit FundsAdded(msg.sender, amountSent); // Emit an event to notify the addition of funds
 
-        smartSupplyBalance += amountSent;
-        emit FundsAdded(msg.sender, amountSent);
-
-        // Mark the entity as verified
-        verificationStatus[msg.sender] = true;
-
-        emit EntityVerified(msg.sender);
+        verificationStatus[msg.sender] = true; // Mark the entity as verified
+        emit EntityVerified(msg.sender); // Emit an event to notify the verification
     }
 
     // Define a function to force the removal of the verification (can be done only by the admin)
     function removeVerification(address account) external onlyAdmin {
         require(verificationStatus[account], "Entity is already not verified");
-        verificationStatus[account] = false;
+        verificationStatus[account] = false; // Mark the entity as not verified
 
-        emit EntityVerificationRemoved(account);
+        emit EntityVerificationRemoved(account); // Emit an event to notify the removal of the verification
     }
 }

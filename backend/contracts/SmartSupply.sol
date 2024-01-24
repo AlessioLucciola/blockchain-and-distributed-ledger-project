@@ -51,10 +51,11 @@ contract SmartSupply is Entities, Utils {
         );
     }
 
-
+    // Function to change the certification price of a product (only executable by business activities - not customers)
     function changeOnSale(uint _productID) external onlyBusinessActivities {
-        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to OnSale");
-        require(!retailers[msg.sender], "To flag the product onSale use the changeOnSaleRetailer function instead");
+        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to OnSale"); // Ensure that the product is not flagged on sale by another identity
+        require(!retailers[msg.sender], "To flag the product onSale use the changeOnSaleRetailer function instead"); // Ensure that the product is not flagged on sale by a retailer (that must use another function instead)
+        // Ensure that the product is not in the Purchased or Shipped stage
         require(
             products[_productID].productStage != ProductStage.Purchased && 
             products[_productID].productStage != ProductStage.Shipped,
@@ -62,13 +63,14 @@ contract SmartSupply is Entities, Utils {
         );
         products[_productID].productStage = ProductStage.OnSale; // Flag the item onSale
 
-        emit ChangedOnSale(_productID, msg.sender);
+        emit ChangedOnSale(_productID, msg.sender); // Emit the event
     }
 
-    // Function to change the certificationPrice of a product
+    // Function to change the certificationPrice of a product (only executable by retailers)
     function changeOnSaleRetailer(uint256 _productID, uint256 _newCertificationPrice) external onlyBusinessActivities {
-        require(retailers[msg.sender], "Only retailers can change the certification price");
-        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the certification price");
+        require(retailers[msg.sender], "Only retailers can change the certification price"); // Ensure that the product is flagged on sale by a retailer
+        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the certification price"); // Ensure that the product is not flagged on sale by another identity
+        // Ensure that the product is not in the Purchased or Shipped stage
         require(
             products[_productID].productStage != ProductStage.Purchased && 
             products[_productID].productStage != ProductStage.Shipped,
@@ -78,32 +80,36 @@ contract SmartSupply is Entities, Utils {
         products[_productID].productStage = ProductStage.OnSale; // Flag the item onSale
         products[_productID].certificationPrice = _newCertificationPrice; // Update the certification price of the product
         
-        emit ChangedOnSaleRetailer(_productID, msg.sender, _newCertificationPrice);
+        emit ChangedOnSaleRetailer(_productID, msg.sender, _newCertificationPrice); // Emit the event
     }
 
+    // Function to change the product stage to notOnSale (only executable by business activities - not customers)
     function changeNotOnSale(uint _productID) external onlyBusinessActivities {
-        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to NotOnSale");
+        require(products[_productID].currentOwner == msg.sender, "Only the current owner can change the product stage to NotOnSale"); // Ensure that the product is not flagged on sale by another identity
+        // Ensure that the product is not in the Purchased or Shipped stage
         require(
             products[_productID].productStage != ProductStage.Purchased && 
             products[_productID].productStage != ProductStage.Shipped,
             "Product must not be in Purchased or Shipped stage to change to NotOnSale"
         );
-        products[_productID].productStage = ProductStage.NotOnSale; // Flag the item NotonSale
+        products[_productID].productStage = ProductStage.NotOnSale; // Flag the item notOnSale
 
-        emit ChangedNotOnSale(_productID, msg.sender);
+        emit ChangedNotOnSale(_productID, msg.sender); // Emit the event
     }
 
+    // Function to purchase a product (only executable by receives - not manufacturers)
     function purchaseProduct(uint _productID) external payable onlyReceivers {
-        require(products[_productID].currentOwner != msg.sender, "Current owners can't buy their own products");
-        require(products[_productID].productStage == ProductStage.OnSale, "Product must be On Sale to be purchased");
+        require(products[_productID].currentOwner != msg.sender, "Current owners can't buy their own products"); // Ensure that the product is not purchased by the current owner
+        require(products[_productID].productStage == ProductStage.OnSale, "Product must be On Sale to be purchased"); // Ensure that the product is flagged on sale
 
         // Check if the buyer is a customer
         bool isCustomer = customers[msg.sender];
 
+        // If the buyer is a customer, they must pay for the certification price (otherwise it is just a transfer of ownership)
         if (isCustomer) {
-            require(msg.value >= products[_productID].certificationPrice, "Insufficient funds to purchase the product");
+            require(msg.value >= products[_productID].certificationPrice, "Insufficient funds to purchase the product"); // Ensure that the customer has enough funds to purchase the certification
             smartSupplyBalance += msg.value; //Transfer the amount of coins to SmartSupply balance
-            emit FundsAdded(msg.sender, msg.value);
+            emit FundsAdded(msg.sender, msg.value); // Emit an event to notify the addition of funds
         }
 
         products[_productID].productStage = ProductStage.Purchased; // Flag the item "Purchased"
@@ -125,15 +131,17 @@ contract SmartSupply is Entities, Utils {
             revert("Invalid role for updating product information");
         }
 
-        emit ProductPurchased(_productID, products[_productID].previousOwner, msg.sender);
+        emit ProductPurchased(_productID, products[_productID].previousOwner, msg.sender); // Emit the event
     }
 
+    // Function to divide two numbers and round up the result
     function divisionRoundUp(uint256 x, uint256 y) internal pure returns (uint256 z) {
         z = (x + (y / 2) / y);
     }
 
+    // Function to ship a product (only executable by business activities - not customers)
     function shipProduct(uint _productID, address receiver) external onlyBusinessActivities {
-        require(products[_productID].productStage == ProductStage.Purchased, "Product must be purchased by some entity to be shipped");
+        require(products[_productID].productStage == ProductStage.Purchased, "Product must be purchased by some entity to be shipped"); // Ensure that the product is purchased by some entity
         require(msg.sender == products[_productID].previousOwner, "Product can only be shipped by the old owner"); // Ensure that the product is not shipped by another identity
         checkOldOwnerAndLocation(_productID, msg.sender, receiver); // Call the internal function to check old owner and product location
         products[_productID].productStage = ProductStage.Shipped; // Flag the item stage "Shipped"
@@ -149,13 +157,14 @@ contract SmartSupply is Entities, Utils {
             distributeReward(payable(products[_productID].ownerships.retailer), _productID, reward);
         }
 
-        emit ProductShipped(_productID, msg.sender, receiver);
+        emit ProductShipped(_productID, msg.sender, receiver); // Emit the event
     }
 
+    // Function to receive a product (only executable by receives - not manufacturers)
     function receiveProduct(uint _productID) external onlyReceivers {
-        require(products[_productID].productStage == ProductStage.Shipped, "Product must be in 'Shipped' stage to be received");
-        require(products[_productID].productLocation == ProductLocation.Shipping, "Product must be in 'Shipping' location to be received");
-        require(products[_productID].currentOwner == msg.sender, "Only the current owner can receive the product");
+        require(products[_productID].productStage == ProductStage.Shipped, "Product must be in 'Shipped' stage to be received"); // Ensure that the product is in the "Shipped" stage
+        require(products[_productID].productLocation == ProductLocation.Shipping, "Product must be in 'Shipping' location to be received"); // Ensure that the product is in the "Shipping" location
+        require(products[_productID].currentOwner == msg.sender, "Only the current owner can receive the product"); // Ensure that the product is not received by another identity but the current owner
         products[_productID].productStage = ProductStage.Received; // Flag the item stage "Received"
         
         // Determine the correct location based on the current owner
@@ -170,12 +179,13 @@ contract SmartSupply is Entities, Utils {
             revert("Invalid current owner for updating location");
         }
 
-        emit ProductReceived(_productID, msg.sender);
+        emit ProductReceived(_productID, msg.sender); // Emit the event
     }
 
+    // Function to distribute rewards to the manufacturer, distributor, and retailer
     function distributeReward(address payable recipient, uint _productID, uint256 amount) internal {
-        require(recipient != address(0), "Invalid recipient address");
-        require(amount > 0, "Invalid payment amount");
+        require(recipient != address(0), "Invalid recipient address"); // Ensure that the recipient address is not null
+        require(amount > 0, "Invalid payment amount"); // Ensure that the amount is greater than 0
 
         // Check if the recipient is a retailer and has a non-null retailerBankTransactionID
         if (manufacturers[recipient]) {
@@ -197,13 +207,13 @@ contract SmartSupply is Entities, Utils {
         }
     }
 
+    // Function to change the bank transaction ID (only executable by distributors and retailers)
     function changeBankTransactionID(uint _productID, uint256 _newTransactionID) external {
-        //require(products[_productID].productStage == ProductStage.Purchased, "Product must be purchased to change bank transaction ID");
-
         address customerAddress = products[_productID].ownerships.customer;
         address distributorAddress = products[_productID].ownerships.distributor;
         address retailerAddress = products[_productID].ownerships.retailer;
 
+        // Check if the caller is a distributor or retailer
         if (distributors[msg.sender] && msg.sender == distributorAddress) {
             // Only the distributor that bought the product can change distributorBankTransactionID
             products[_productID].transactionIDs.distributorBankTransactionID = _newTransactionID;
@@ -216,7 +226,7 @@ contract SmartSupply is Entities, Utils {
 
         uint256 reward = divisionRoundUp(products[_productID].certificationPrice, 4); // 25% of the certification price
 
-        // Check if distributor or retailer rewards need to be distributed
+        // Check if distributor or retailer rewards need to be distributed (product already shipped by retailer and reward not already given to the entity)
         if (distributors[msg.sender] && msg.sender == distributorAddress && !products[_productID].rewards.distributorRewarded && (customerAddress != address(0) && (products[_productID].productStage == ProductStage.Shipped || products[_productID].productStage == ProductStage.Received))) {
             // Send the reward to the distributor
             distributeReward(payable(msg.sender), _productID, reward);
@@ -225,7 +235,7 @@ contract SmartSupply is Entities, Utils {
             distributeReward(payable(msg.sender), _productID, reward);
         }
 
-        emit BankTransactionChanged(_productID, msg.sender);
+        emit BankTransactionChanged(_productID, msg.sender); // Emit the event
     }
 
     fallback() external payable {
