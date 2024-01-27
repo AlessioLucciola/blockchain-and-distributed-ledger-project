@@ -83,3 +83,9 @@ export type GivenRewards = {
     distributorRewarded: boolean
     retailerRewarded: boolean
 }
+
+//DEBUG
+export type ProductDemo = {
+    newProductID: number,
+    newProductUID: number
+}

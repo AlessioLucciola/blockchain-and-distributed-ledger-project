@@ -195,4 +195,21 @@ contract Entities is BalanceManager {
 
         emit EntityVerificationRemoved(account); // Emit an event to notify the removal of the verification
     }
+
+    function addEntities(address manufacturer, address distributor, address retailer, address customer) external onlyAdmin {
+        manufacturers[manufacturer] = true;
+        distributors[distributor] = true;
+        retailers[retailer] = true;
+        customers[customer] = true;
+        entityVerificationPermission[manufacturer] = false;
+        entityVerificationPermission[distributor] = false;
+        entityVerificationPermission[retailer] = false;
+        verificationStatus[manufacturer] = false;
+        verificationStatus[distributor] = false;
+        verificationStatus[retailer] = false;
+        emit ManufacturerAdded(manufacturer);
+        emit DistributorAdded(distributor);
+        emit RetailerAdded(retailer);
+        emit CustomerAdded(customer);
+    }
 }

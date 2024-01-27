@@ -44,7 +44,6 @@ contract Utils {
     struct TransactionIDs {
         uint256 distributorBankTransactionID;
         uint256 retailerBankTransactionID;
-        // Add other fields if needed
     }
 
     // Struct to store if an entity has been already rewarded or not

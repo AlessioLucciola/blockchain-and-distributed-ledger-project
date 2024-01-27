@@ -14,6 +14,7 @@ import Home from "./pages/Home.tsx"
 import { SessionProvider } from "./context/SessionProvider.tsx"
 import MessagePage from "./pages/MessagePage.tsx"
 import PurchaseProduct from "./pages/purchaseProduct.tsx"
+import Options from "./pages/Options.tsx"
 
 const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -41,6 +42,7 @@ const router = createBrowserRouter(
 					/>
 				}
 			/>
+			<Route path="options" element={<Options />} />
 		</>
 	)
 )

@@ -34,6 +34,35 @@ contract SmartSupply is Entities, Utils {
         emit ProductProduced(_productID, msg.sender);
     }
 
+    function addProductForDemo(uint256 _productID, uint256 _productUID, address manufacturer, address distributor, address retailer, uint256 certificationPrice) external {
+        Product memory newProduct; // Define a new product in memory
+        newProduct.productID = _productID; // Define the ID of the product
+        newProduct.productUID = _productUID; // Define the UID of the product
+        newProduct.currentOwner = retailer; // Define the initial owner as the manufacturer who produced the product
+        newProduct.previousOwner = distributor; // Define the previous owner as the first one (default when the product is first produced)
+        newProduct.creationDate = block.timestamp; // Assign the date of creation of the product
+        newProduct.certificationPrice = certificationPrice; // Assign the certification price to the product
+        newProduct.productStage = ProductStage.OnSale; // Assign the initial default stage to the product
+        newProduct.productLocation = ProductLocation.InRetailer; // Assign the initial default stage to the product
+
+        // Create a new Roles struct with placeholders for empty fields
+        Ownerships memory ownerships;
+        ownerships.manufacturer = manufacturer;
+        ownerships.distributor = distributor;
+        ownerships.retailer = retailer;
+        newProduct.ownerships = ownerships;
+
+        TransactionIDs memory transactionIDs;
+        transactionIDs.distributorBankTransactionID = 1111;
+        transactionIDs.retailerBankTransactionID = 1111;
+
+        // Add a new product to the product list
+        products[_productID] = newProduct;
+
+        // Emit the event related to the production of the product
+        emit ProductProduced(_productID, msg.sender);
+    }
+
     // Function to check that entity is allowed to ship the product
     function checkOldOwnerAndLocation(uint256 _productID, address _oldOwner, address _receiver) internal view {
         require(_receiver != _oldOwner, "Product cannot be shipped to the same address as the old owner"); // Ensure that the product is not shipped to the same address as the old owner

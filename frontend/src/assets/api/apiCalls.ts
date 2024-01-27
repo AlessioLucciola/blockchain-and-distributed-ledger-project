@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios"
-import { Entity, Product, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
+import { Entity, Product, ProductDemo, ProductInstance, VerificationWithEntity, Verifications } from "../../shared/types"
 import { formatUnixTimestampToDatetime } from "../../utils/typeUtils"
 import { addCustomer, addDistributor, addManufacturer, addRetailer, changeOnSale, changeOnSaleRetailer, changeNotOnSale, getContractProductInfo, getEntityRole, grantVerificationPermission, isManufacturer, produceProduct, purchaseProduct, receiveProduct, removeCustomer, removeDistributor, removeManufacturer, removeRetailer, shipProduct, verifyEntity, isDistributor, isRetailer } from "../api/contractCalls"
 import { Roles, empty_transaction_ID } from "../../shared/constants"
@@ -81,6 +81,44 @@ export const createEntity = async ({
 				throw error
         }
 
+		if (metamaskAddress !== null) {
+			const dbResponse = await api.post("/create-entity", {
+				name,
+				surname,
+				email,
+				password,
+				address_1,
+				address_2,
+				companyName,
+				shopName,
+				metamaskAddress,
+				role,
+			})
+
+			return dbResponse
+		} else {
+			const error = console.error("Error creating entity. Can't catch the contract event.")
+			throw error
+		}
+    } catch (error) {
+        console.error('Error creating entity:', error)
+        throw error
+    }
+}
+
+export const registerEntity = async ({
+    name,
+    surname,
+    email,
+    password,
+    address_1,
+    address_2,
+    companyName,
+    shopName,
+	metamaskAddress,
+    role,
+}: Entity): Promise<AxiosResponse<{ message: string; data: Entity }, any> | undefined> => {
+    try {
 		if (metamaskAddress !== null) {
 			const dbResponse = await api.post("/create-entity", {
 				name,
@@ -522,6 +560,23 @@ export const receiveProductFromEntity = async ({ productInstanceId }: { productI
 	} catch (error) {
 		console.error('Error receiving product:', error)
 		throw error
+	}
+}
+
+export const injectProduct = async ({ name, description, manufacturerPrice, distributorPrice, retailerPrice, manufacturerId, distributorId, retailerId}: { name: string; description: string; manufacturerPrice: number, distributorPrice: number, retailerPrice: number, manufacturerId: number, distributorId: number, retailerId: number }): Promise<ProductDemo> => {
+	try {
+		const res: AxiosResponse = await api.put("/add-product-instance-for-demo", { name, description, manufacturerPrice, distributorPrice, retailerPrice, manufacturerId, distributorId, retailerId})
+		const id: number = res.data['data']['id']
+		const uid: number = res.data['data']['productId']
+		
+		const newProduct: ProductDemo = {
+			newProductID: id,
+			newProductUID: uid
+		}
+		return newProduct
+	} catch (error) {
+		console.error('Error adding a new product:', error)
+        throw error
 	}
 }
 

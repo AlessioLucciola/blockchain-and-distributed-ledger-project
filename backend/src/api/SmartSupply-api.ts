@@ -33,6 +33,9 @@ const SmartSupplyAPI = (app: Express) => {
 	app.patch("/api/ship-product", SmartSupplyController.shipProduct)
 	app.get("/api/get-sold-products", SmartSupplyController.getSoldProducts)
 	app.patch("/api/receive-product", SmartSupplyController.receiveProduct)
+
+	//Debug
+	app.put("/api/add-product-instance-for-demo", SmartSupplyController.addProductInstanceForDemo)
 }
 
 export default SmartSupplyAPI

@@ -114,6 +114,50 @@ class SmartSupplyRepository {
         })
         return { productInstance, updatedProduct }
     }
+
+    async addProductInstanceForDemo({
+        name,
+        description,
+        manufacturerPrice,
+        distributorPrice,
+        retailerPrice,
+        manufacturerId,
+        distributorId,
+        retailerId,
+    }: {
+        name: string
+        description: string
+        manufacturerPrice: number
+        distributorPrice: number
+        retailerPrice: number
+        manufacturerId: number
+        distributorId: number
+        retailerId: number
+    }): Promise<ProductInstances> {
+        const product = await prisma.products.create({
+            data: {
+                name,
+                description,
+            },
+        })
+        const productInstance = await prisma.productInstances.create({
+            data: {
+                productId: product.uid,
+                currentOwner: retailerId,
+                previousOwner: distributorId,
+                manufacturerId: manufacturerId,
+                manufacturerPrice: manufacturerPrice,
+                distributorId: distributorId,
+                distributorPrice: distributorPrice,
+                retailerId: retailerId,
+                retailerPrice: retailerPrice,
+                productState: 1,
+                productLocation: 2,
+            },
+        })
+        return productInstance
+    }
+
     async searchProduct({
         name,
         productId,

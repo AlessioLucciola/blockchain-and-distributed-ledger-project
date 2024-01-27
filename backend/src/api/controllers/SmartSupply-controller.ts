@@ -753,7 +753,36 @@ const SmartSupplyController = {
 		} catch (err) {
 			next(err)
 		}
-	}
+	},
+	addProductInstanceForDemo: async function (
+		req: Request<
+			{},
+			{},
+			{
+				name: string,
+				description: string,
+				manufacturerPrice: number,
+				distributorPrice: number,
+				retailerPrice: number,
+				manufacturerId: number,
+				distributorId: number,
+				retailerId: number,
+			},
+			{}
+		>,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const { name, description, manufacturerPrice, distributorPrice, retailerPrice, manufacturerId, distributorId, retailerId } = req.body
+			const data = await service.addProductInstanceForDemo({ name: name, description: description, manufacturerPrice: manufacturerPrice, distributorPrice: distributorPrice, retailerPrice: retailerPrice, manufacturerId: manufacturerId, distributorId: distributorId, retailerId: retailerId})
+			res.json({
+				data: data,
+			})
+		} catch (err) {
+			next(err)
+		}
+	},
 }
 
 export default SmartSupplyController

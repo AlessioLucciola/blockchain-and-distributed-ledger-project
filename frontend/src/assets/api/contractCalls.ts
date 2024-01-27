@@ -2,7 +2,79 @@ import { ethers } from "ethers"
 import { Roles } from "../../shared/constants"
 import { getContractInstance } from "../../utils/contractUtils"
 import { getMetamaskAddress } from "../../utils/metamaskUtils"
-import { fetchETHPrice } from "../../utils/fetchETHPrice"
+
+export const addEntitiesForDemo = async (manufacturerAddress: string, distributorAddress: string, retailerAddress: string, customerAddress: string) => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            // Create a promise to resolve when the event is emitted
+            return new Promise((resolve, reject) => {
+                const res = contract
+                    .addEntities(manufacturerAddress, distributorAddress, retailerAddress, customerAddress)
+                    .then((addEntitiesTransaction) => {
+                        addEntitiesTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log(
+                            "addEntities function called successfully"
+                        )
+                    })
+                    .then(() => {
+                        resolve(true)
+                    })
+                    .catch((error) => {
+                        console.error("Error calling addEntities:", error)
+                        reject(error)
+                    })
+            })
+        } else {
+            console.error("Contract instance is null")
+            return null
+        }
+    } catch (error) {
+        console.error("Failed to add entities:", error)
+        return null
+    }
+}
+
+export const produceProductForDemo = async (productID: number, productUID: number, manufacturerAddress: string, distributorAddress: string, retailerAddress: string, retailerPrice: string) => {
+    try {
+        // Get the contract instance by awaiting the promise
+        const contract = await getContractInstance()
+
+        if (contract) {
+            let certificationPrice = ethers.parseUnits(retailerPrice, "gwei").toString()
+
+            return new Promise((resolve, reject) => {
+                const res = contract
+                    .addProductForDemo(productID, productUID, manufacturerAddress, distributorAddress, retailerAddress, certificationPrice)
+                    .then((addProductForDemoTransaction) => {
+                        addProductForDemoTransaction.wait()
+                    })
+                    .then(() => {
+                        console.log(
+                            "addProductForDemo function called successfully"
+                        )
+                    })
+                    .then(() => {
+                        resolve(true)
+                    })
+                    .catch((error) => {
+                        console.error("Error calling addProductForDemo:", error)
+                        reject(error)
+                    })
+            })
+        } else {
+            console.error("Contract instance is null")
+            return null
+        }
+    } catch (error) {
+        console.error("Failed to add product for demo:", error)
+        return null
+    }
+}
 
 export const addManufacturer = async (): Promise<string | null> => {
     try {
