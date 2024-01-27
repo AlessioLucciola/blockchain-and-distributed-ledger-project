@@ -43,14 +43,14 @@ export async function registerEntities() {
         }
 
         const retailerData: Entity = {
-            name: "Nike Retailer",
-            surname: "Nike Retailer",
+            name: "",
+            surname: "",
             email: "ret@ret.it",
             password: "test",
             address_1: "",
             address_2: "",
-            companyName: "Nike Retailer",
-            shopName: "Nike Retailer",
+            companyName: "Nike",
+            shopName: "Retailer",
             metamaskAddress: retailerAddress,
             role: Roles.RETAILER,
             verificationID: "",

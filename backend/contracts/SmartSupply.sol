@@ -54,7 +54,8 @@ contract SmartSupply is Entities, Utils {
 
         TransactionIDs memory transactionIDs;
         transactionIDs.distributorBankTransactionID = 1111;
-        transactionIDs.retailerBankTransactionID = 1111;
+        
+        newProduct.transactionIDs = transactionIDs;
 
         // Add a new product to the product list
         products[_productID] = newProduct;
