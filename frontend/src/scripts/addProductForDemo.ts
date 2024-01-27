@@ -59,7 +59,7 @@ export async function registerEntities() {
 
         const customerData: Entity = {
             name: "Mario",
-            surname: "Mario",
+            surname: "Rossi",
             email: "cus@cus.it",
             password: "test",
             address_1: "",
