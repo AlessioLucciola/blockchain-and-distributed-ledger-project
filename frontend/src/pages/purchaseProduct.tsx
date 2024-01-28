@@ -139,8 +139,8 @@ function PurchaseCard({ product, buyer, image }: PurchaseCardProps) {
             console.log(buyer.id)
             const res = await purchaseProductByEntity({ productInstanceId: parseInt(instance.id), productPrice: parseFloat(productPrice!), certificationPrice: parseFloat(certificationPrice ?? ''), buyerId: parseInt(buyer?.id!), oldOwnerId: parseInt(instance.currentOwner!) })
             if (res.status === 200) {
+                navigate("/orders")
                 alert(`Product ${instance.product?.name} purchased successfully from ${entityInfo!.companyName}!`)
-                navigate('/orders')
                 return
             } else {
                 alert(`Something went wrong while purchasing product ${instance.product?.name} from ${entityInfo!.companyName}!`)

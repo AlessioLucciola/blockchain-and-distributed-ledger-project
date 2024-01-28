@@ -459,13 +459,9 @@ export const purchaseProductByEntity = async ({ productInstanceId, productPrice,
 	try {
 		const currentRole = await getEntityRole()
 		const contract_res = await purchaseProduct(productInstanceId, productPrice, certificationPrice)
-		if (parseInt(contract_res.productId) === productInstanceId) {
-			const res = await api.patch(`/purchase-product?productInstanceId=${productInstanceId}&price=${productPrice}&buyerId=${buyerId}&oldOwnerId=${oldOwnerId}&currentRole=${currentRole}`)
-			return res	
-		} else {
-			const error = console.error("Error creating entity. Can't catch the contract event.")
-			throw error
-		}
+		const res = await api.patch(`/purchase-product?productInstanceId=${productInstanceId}&price=${productPrice}&buyerId=${buyerId}&oldOwnerId=${oldOwnerId}&currentRole=${currentRole}`)
+		return res	
+
 	} catch (error) {
 		console.error('Error purchasing product:', error)
 		throw error
@@ -550,13 +546,9 @@ export const receiveProductFromEntity = async ({ productInstanceId }: { productI
 	try {
 		const currentRole = await getEntityRole()
 		const contract_res = await receiveProduct(productInstanceId)
-		if (parseInt(contract_res.productId) === productInstanceId) {
-			const res = await api.patch(`/receive-product?productInstanceId=${productInstanceId}&currentRole=${currentRole}`)
-			return res	
-		} else {
-			const error = console.error("Error receiving product. Can't catch the contract event.")
-			throw error
-		}
+		const res = await api.patch(`/receive-product?productInstanceId=${productInstanceId}&currentRole=${currentRole}`)
+		return res	
+
 	} catch (error) {
 		console.error('Error receiving product:', error)
 		throw error
