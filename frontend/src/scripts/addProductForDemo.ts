@@ -13,8 +13,8 @@ export async function registerEntities() {
     const addEntities = await addEntitiesForDemo(manufacturerAddress, distributorAddress, retailerAddress, customerAddress)
     if (addEntities) {
         const manufacturerData: Entity = {
-            name: "Nike Manufacturer",
-            surname: "Nike Manufacturer",
+            name: "",
+            surname: "",
             email: "man@man.it",
             password: "test",
             address_1: "",
@@ -28,8 +28,8 @@ export async function registerEntities() {
         }
 
         const distributorData: Entity = {
-            name: "Nike Distributor",
-            surname: "Nike Distributor",
+            name: "",
+            surname: "",
             email: "dis@dis.it",
             password: "test",
             address_1: "",
@@ -49,8 +49,8 @@ export async function registerEntities() {
             password: "test",
             address_1: "",
             address_2: "",
-            companyName: "Nike",
-            shopName: "Retailer",
+            companyName: "Nike Retailer",
+            shopName: "Nike Retailer",
             metamaskAddress: retailerAddress,
             role: Roles.RETAILER,
             verificationID: "",
