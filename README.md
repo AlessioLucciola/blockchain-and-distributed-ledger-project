@@ -4,8 +4,7 @@ This project was done by:
 *   Alessio Lucciola (matr. 1823638)
 *   Domiziano Scarcelli (matr. 1872664)
 
-The project is composed by two subfolders "frontend" and "backend". The smart contract files are stored in "./backend/contracts/*".
-A demo of the project is available at this link: https://www.youtube.com/watch?v=Jb_NyqDaF1o&ab_channel=AlessioLucciola
+https://github.com/AlessioLucciola/blockchain-and-distributed-ledger-project/assets/80223097/bd0a890e-0e47-4e08-927e-2b9671772dd5
 
 ## Setup
 Install the dependencies with `npm install` (both in the frontend and backend folder)
